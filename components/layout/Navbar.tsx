@@ -12,7 +12,6 @@ const NAV_LINKS: NavItem[] = [
   { href: "/publications", label: "Publications" },
   { href: "/lectures", label: "Lectures" },
   { href: "/board", label: "Board" },
-  { href: "#contact", label: "Contact", external: true },
 ];
 
 export default function Navbar() {
