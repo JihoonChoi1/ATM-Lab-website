@@ -147,29 +147,18 @@ const PUB_TABS = ["All", "Journal", "Conference", "Patent"];
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const heroBgRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const heroContentRef = useRef<HTMLDivElement>(null);
-  const bubblesRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("All");
 
-  // Scroll-driven parallax + hero fade
+  // Hero content fade on scroll
   useEffect(() => {
     const onScroll = () => {
       const { scrollY } = window;
       const vh = window.innerHeight;
       if (scrollY < vh * 1.1) {
         const p = Math.min(scrollY / vh, 1);
-        const bg = heroBgRef.current;
         const content = heroContentRef.current;
-        if (bg) {
-          if (scrollY > 4) {
-            bg.style.animation = "none";
-            bg.style.transform = `translate3d(0, ${scrollY * 0.4}px, 0) scale(${1.12 + p * 0.15})`;
-          } else {
-            bg.style.animation = "";
-            bg.style.transform = "";
-          }
-        }
         if (content) {
           content.style.transform = `translate3d(0, ${scrollY * 0.18}px, 0) scale(${1 - p * 0.08})`;
           content.style.opacity = String(Math.max(0, 1 - p * 1.4));
@@ -199,24 +188,104 @@ export default function Home() {
   }, []);
 
 
-  // Spawn rising bubbles
+  // Thermal visualization: coolant particles heated near heat sources
   useEffect(() => {
-    const layer = bubblesRef.current;
-    if (!layer) return;
-    const COUNT = 22;
-    for (let i = 0; i < COUNT; i++) {
-      const b = document.createElement("span");
-      b.className = "bubble";
-      const size = 6 + Math.random() * 38;
-      const left = Math.random() * 100;
-      const dur = 9 + Math.random() * 11;
-      const delay = -Math.random() * dur;
-      b.style.width = b.style.height = size + "px";
-      b.style.left = left + "%";
-      b.style.animationDuration = dur + "s";
-      b.style.animationDelay = delay + "s";
-      layer.appendChild(b);
-    }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let elapsed = 0;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const isMobile = window.innerWidth < 768;
+    const COUNT = isMobile ? 30 : 60;
+    const HEAT_R = isMobile ? 130 : 190;
+
+    // Heat source positions (relative) with phase offsets for async pulsing
+    const sources = [
+      { rx: 0.15, ry: 0.22, phase: 0 },
+      { rx: 0.82, ry: 0.28, phase: 2.1 },
+      { rx: 0.50, ry: 0.74, phase: 4.2 },
+    ];
+
+    type Dot = { x: number; y: number; vx: number; vy: number; temp: number };
+    const dots: Dot[] = Array.from({ length: COUNT }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      temp: Math.random() * 0.3,
+    }));
+
+    // cold (blue) → hot (orange): interpolate r/g/b + alpha
+    const dotColor = (temp: number) => {
+      const r = Math.round(91  + 164 * temp);
+      const g = Math.round(141 -  31 * temp);
+      const b = Math.round(239 - 199 * temp);
+      const a = (0.55 + 0.4 * temp).toFixed(2);
+      return `rgba(${r},${g},${b},${a})`;
+    };
+
+    const frame = () => {
+      elapsed += 0.016;
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.fillStyle = "#0c0f16";
+      ctx.fillRect(0, 0, w, h);
+
+      // Pulsing heat source glows
+      for (const src of sources) {
+        const pulse = 0.5 + 0.5 * Math.sin(elapsed * 1.2 + src.phase);
+        const grd = ctx.createRadialGradient(src.rx * w, src.ry * h, 0, src.rx * w, src.ry * h, HEAT_R);
+        grd.addColorStop(0,    `rgba(255,90,30,${(0.18 + 0.10 * pulse).toFixed(2)})`);
+        grd.addColorStop(0.45, `rgba(200,50,10,${(0.06 + 0.04 * pulse).toFixed(2)})`);
+        grd.addColorStop(1,    "rgba(0,0,0,0)");
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // Coolant particles
+      for (const d of dots) {
+        d.x += d.vx;
+        d.y += d.vy;
+        if (d.x < 0) d.x = w;
+        if (d.x > w) d.x = 0;
+        if (d.y < 0) d.y = h;
+        if (d.y > h) d.y = 0;
+
+        // Temperature = proximity to nearest heat source
+        let heat = 0;
+        for (const src of sources) {
+          const dx = d.x - src.rx * w;
+          const dy = d.y - src.ry * h;
+          heat = Math.max(heat, Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / HEAT_R));
+        }
+        d.temp += (heat - d.temp) * 0.04;
+
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, 1.4 + d.temp * 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = dotColor(d.temp);
+        ctx.fill();
+      }
+
+      animId = requestAnimationFrame(frame);
+    };
+
+    frame();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
   const visiblePubs = PUBLICATIONS.reduce(
@@ -240,18 +309,14 @@ export default function Home() {
         className="relative flex min-h-[640px] w-full items-center justify-center overflow-hidden text-white"
         style={{ height: "100vh" }}
       >
-        <div
-          ref={heroBgRef}
-          className="hero-bg"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1535813547-99c456a41d4a?auto=format&fit=crop&w=2400&q=85')" }}
-        />
-        <div className="hero-sheen" />
-        {/* Overlay */}
+        {/* Thermal canvas: dark bg + pulsing heat zones + coolant particles */}
+        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+        {/* Brand blue accent + dark gradient for text readability */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at 25% 30%, rgba(26,86,219,.55) 0%, transparent 50%), radial-gradient(ellipse at 85% 80%, rgba(91,141,239,.3) 0%, transparent 55%), linear-gradient(180deg, rgba(4,7,16,.35) 0%, rgba(4,7,16,.55) 55%, rgba(4,7,16,.92) 100%)",
+              "radial-gradient(ellipse at 20% 30%, rgba(26,86,219,.28) 0%, transparent 45%), linear-gradient(180deg, rgba(4,7,16,.08) 0%, rgba(4,7,16,.30) 55%, rgba(4,7,16,.90) 100%)",
           }}
         />
         {/* Grid */}
@@ -259,12 +324,12 @@ export default function Home() {
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px)",
+              "linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px)",
             backgroundSize: "64px 64px",
             maskImage: "radial-gradient(ellipse at center, black 0%, transparent 75%)",
           }}
         />
-        <div ref={bubblesRef} className="absolute inset-0 z-[1] overflow-hidden pointer-events-none" />
+        <div className="hero-sheen" />
 
         <div
           ref={heroContentRef}
