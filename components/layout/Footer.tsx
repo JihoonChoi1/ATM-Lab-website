@@ -5,7 +5,7 @@ const EMAILS = [
 
 export default function Footer() {
   return (
-    <footer className="relative bg-dark text-white/60">
+    <footer className="relative bg-[#001F66] text-white/60">
       <svg
         className="block h-[90px] w-full"
         viewBox="0 0 1440 90"

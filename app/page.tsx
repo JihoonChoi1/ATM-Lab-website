@@ -177,7 +177,8 @@ export default function Home() {
         entries.forEach((e) => {
           if (e.isIntersecting) {
             e.target.classList.add("in");
-            io.unobserve(e.target);
+          } else {
+            e.target.classList.remove("in");
           }
         });
       },
@@ -188,7 +189,7 @@ export default function Home() {
   }, []);
 
 
-  // Thermal visualization: coolant particles heated near heat sources
+  // Network graph animation — Ajou Blue nodes connected by proximity
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -196,7 +197,6 @@ export default function Home() {
     if (!ctx) return;
 
     let animId: number;
-    let elapsed = 0;
 
     const resize = () => {
       canvas.width = canvas.offsetWidth;
@@ -206,74 +206,52 @@ export default function Home() {
     window.addEventListener("resize", resize);
 
     const isMobile = window.innerWidth < 768;
-    const COUNT = isMobile ? 30 : 60;
-    const HEAT_R = isMobile ? 130 : 190;
+    const COUNT = isMobile ? 40 : 80;
+    const LINK_DIST = isMobile ? 120 : 160;
 
-    // Heat source positions (relative) with phase offsets for async pulsing
-    const sources = [
-      { rx: 0.15, ry: 0.22, phase: 0 },
-      { rx: 0.82, ry: 0.28, phase: 2.1 },
-      { rx: 0.50, ry: 0.74, phase: 4.2 },
-    ];
-
-    type Dot = { x: number; y: number; vx: number; vy: number; temp: number };
-    const dots: Dot[] = Array.from({ length: COUNT }, () => ({
+    type Node = { x: number; y: number; vx: number; vy: number; r: number };
+    const nodes: Node[] = Array.from({ length: COUNT }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
-      temp: Math.random() * 0.3,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+      r: 1.5 + Math.random() * 2,
     }));
 
-    // cold (blue) → hot (orange): interpolate r/g/b + alpha
-    const dotColor = (temp: number) => {
-      const r = Math.round(91  + 164 * temp);
-      const g = Math.round(141 -  31 * temp);
-      const b = Math.round(239 - 199 * temp);
-      const a = (0.55 + 0.4 * temp).toFixed(2);
-      return `rgba(${r},${g},${b},${a})`;
-    };
-
     const frame = () => {
-      elapsed += 0.016;
       const w = canvas.width;
       const h = canvas.height;
 
-      ctx.fillStyle = "#0c0f16";
+      ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, w, h);
 
-      // Pulsing heat source glows
-      for (const src of sources) {
-        const pulse = 0.5 + 0.5 * Math.sin(elapsed * 1.2 + src.phase);
-        const grd = ctx.createRadialGradient(src.rx * w, src.ry * h, 0, src.rx * w, src.ry * h, HEAT_R);
-        grd.addColorStop(0,    `rgba(255,90,30,${(0.18 + 0.10 * pulse).toFixed(2)})`);
-        grd.addColorStop(0.45, `rgba(200,50,10,${(0.06 + 0.04 * pulse).toFixed(2)})`);
-        grd.addColorStop(1,    "rgba(0,0,0,0)");
-        ctx.fillStyle = grd;
-        ctx.fillRect(0, 0, w, h);
+      for (const n of nodes) {
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0 || n.x > w) n.vx *= -1;
+        if (n.y < 0 || n.y > h) n.vy *= -1;
       }
 
-      // Coolant particles
-      for (const d of dots) {
-        d.x += d.vx;
-        d.y += d.vy;
-        if (d.x < 0) d.x = w;
-        if (d.x > w) d.x = 0;
-        if (d.y < 0) d.y = h;
-        if (d.y > h) d.y = 0;
-
-        // Temperature = proximity to nearest heat source
-        let heat = 0;
-        for (const src of sources) {
-          const dx = d.x - src.rx * w;
-          const dy = d.y - src.ry * h;
-          heat = Math.max(heat, Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / HEAT_R));
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < LINK_DIST) {
+            ctx.strokeStyle = `rgba(0,102,255,${((1 - dist / LINK_DIST) * 0.3).toFixed(2)})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
+          }
         }
-        d.temp += (heat - d.temp) * 0.04;
+      }
 
+      for (const n of nodes) {
         ctx.beginPath();
-        ctx.arc(d.x, d.y, 1.4 + d.temp * 1.2, 0, Math.PI * 2);
-        ctx.fillStyle = dotColor(d.temp);
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,102,255,0.5)";
         ctx.fill();
       }
 
@@ -306,45 +284,25 @@ export default function Home() {
     <main>
       {/* ── Hero ── */}
       <header
-        className="relative flex min-h-[640px] w-full items-center justify-center overflow-hidden text-white"
+        className="relative flex min-h-[640px] w-full items-center justify-center overflow-hidden"
         style={{ height: "100vh" }}
       >
-        {/* Thermal canvas: dark bg + pulsing heat zones + coolant particles */}
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-        {/* Brand blue accent + dark gradient for text readability */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse at 20% 30%, rgba(26,86,219,.28) 0%, transparent 45%), linear-gradient(180deg, rgba(4,7,16,.08) 0%, rgba(4,7,16,.30) 55%, rgba(4,7,16,.90) 100%)",
-          }}
-        />
-        {/* Grid */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px)",
-            backgroundSize: "64px 64px",
-            maskImage: "radial-gradient(ellipse at center, black 0%, transparent 75%)",
-          }}
-        />
-        <div className="hero-sheen" />
 
         <div
           ref={heroContentRef}
           className="relative z-[3] max-w-[980px] px-6 text-center"
           style={{ willChange: "transform, opacity" }}
         >
-          <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/25 bg-white/[0.06] px-3.5 py-2 text-[12.5px] font-medium backdrop-blur-[10px]">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent-light" style={{ boxShadow: "0 0 12px #5b8def" }} />
+          <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-accent/20 bg-accent-soft px-3.5 py-2 text-[12.5px] font-medium text-accent">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             <span className="font-mono">ATM&nbsp;LAB&nbsp;·&nbsp;EST.&nbsp;2014</span>
           </div>
-          <h1 className="mb-6 font-bold leading-[1.02] tracking-[-0.035em]" style={{ fontSize: "clamp(44px,7vw,96px)" }}>
+          <h1 className="mb-6 font-bold leading-[1.02] tracking-[-0.035em] text-ink" style={{ fontSize: "clamp(44px,7vw,96px)" }}>
             Advanced<br />
             <span
               style={{
-                background: "linear-gradient(120deg,#fff 0%, #a8c2ff 50%, #fff 100%)",
+                background: "linear-gradient(120deg,#0066FF 0%, #3385FF 50%, #0066FF 100%)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 color: "transparent",
@@ -354,17 +312,17 @@ export default function Home() {
             </span>{" "}
             Lab
           </h1>
-          <p className="mx-auto max-w-[640px] leading-[1.5] text-white/78" style={{ fontSize: "clamp(16px,1.6vw,20px)" }}>
+          <p className="mx-auto max-w-[640px] leading-[1.5] text-ink-2" style={{ fontSize: "clamp(16px,1.6vw,20px)" }}>
             Advancing thermal solutions for next-generation technologies — from microelectronics cooling to sustainable energy systems.
           </p>
-          <div className="mt-12 flex flex-wrap justify-center gap-8 text-[13px] text-white/65">
+          <div className="mt-12 flex flex-wrap justify-center gap-8 text-[13px] text-ink-3">
             {[
               { value: "62+", label: "Peer-reviewed papers" },
               { value: "14", label: "Active researchers" },
               { value: "9", label: "Industry partners" },
             ].map(({ value, label }) => (
               <span key={label}>
-                <strong className="mb-0.5 block text-[22px] font-semibold tracking-[-0.01em] text-white">{value}</strong>
+                <strong className="mb-0.5 block text-[22px] font-semibold tracking-[-0.01em] text-ink">{value}</strong>
                 {label}
               </span>
             ))}
@@ -373,7 +331,7 @@ export default function Home() {
 
         <a
           href="#research"
-          className="absolute bottom-9 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-2.5 text-[11px] tracking-[0.18em] text-white/70"
+          className="absolute bottom-9 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-2.5 text-[11px] tracking-[0.18em] text-ink-3"
         >
           <span>SCROLL</span>
           <span className="scroll-line" />
@@ -383,9 +341,9 @@ export default function Home() {
       {/* ── Welcome + Contact ── */}
       <section id="welcome" className="bg-white">
         <div className="mx-auto max-w-container">
-          <div className="wo-cell reveal grid grid-cols-[1.1fr_1fr] items-start gap-16 px-8 py-[120px] max-[900px]:grid-cols-1 max-[900px]:gap-12 max-[640px]:px-5 max-[640px]:py-20">
+          <div className="wo-cell grid grid-cols-[1.1fr_1fr] items-start gap-16 px-8 py-[120px] max-[900px]:grid-cols-1 max-[900px]:gap-12 max-[640px]:px-5 max-[640px]:py-20">
             {/* Left: Welcome text */}
-            <div>
+            <div className="reveal">
               <div className="mb-3.5 flex items-center gap-2.5 text-xs font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[18px] before:bg-accent before:content-['']">
                 Welcome
               </div>
@@ -401,53 +359,38 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Right: Contact card */}
-            <div
-              className="relative overflow-hidden rounded-[28px] p-10 text-white max-[640px]:p-7"
-              style={{ background: "linear-gradient(135deg,#0d1428 0%, #1a2a4d 60%, #1A56DB 130%)" }}
-            >
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 80% 20%, rgba(91,141,239,.4), transparent 40%), radial-gradient(circle at 10% 100%, rgba(255,255,255,.08), transparent 40%)",
-                }}
-              />
-              <div className="relative">
-                <div className="mb-3 flex items-center gap-2.5 text-xs font-medium uppercase tracking-[0.18em] text-accent-lightest before:block before:h-px before:w-[18px] before:bg-accent-lightest before:content-['']">
-                  Contact
-                </div>
-                <h3 className="mb-4 text-[22px] font-bold leading-[1.15] tracking-[-0.02em]">
-                  Interested in joining or collaborating?
-                </h3>
-                <p className="mb-6 text-[14.5px] leading-[1.7] text-white/70">
-                  Advanced Thermal Management Laboratory (ATM Lab) is recruiting <strong className="font-semibold text-white">postdoctoral researchers</strong> and{" "}
-                  <strong className="font-semibold text-white">graduate students</strong> with passionate and innovative minds. If you are interested in the laboratory or want to join it, please contact Prof. Jungho Lee.
-                </p>
-                <div className="mb-6 flex items-start gap-3">
-                  <div className="flex h-8 w-8 flex-none items-center justify-center rounded-[8px] border border-white/15 bg-white/[0.1] text-white">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} className="h-[17px] w-[17px]"><path d="M4 6l8 6 8-6" /><rect x="3" y="5" width="18" height="14" rx="2" /></svg>
-                  </div>
-                  <div>
-                    <div className="mb-0.5 text-[11px] uppercase tracking-[0.12em] text-white/55">Email</div>
-                    <a href="mailto:jungholee@ajou.ac.kr" className="text-[14.5px] font-medium leading-[1.45] text-white hover:text-accent-lightest">jungholee@ajou.ac.kr</a>
-                  </div>
-                </div>
-                <a
-                  href="https://grad.ajou.ac.kr/gs/admission/admission01.do"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group/cta flex items-center justify-between gap-6 rounded-[12px] border border-white/20 bg-white/[0.1] px-5 py-4 backdrop-blur-[8px] transition-[background,border-color] duration-300 hover:border-white hover:bg-white hover:text-accent-dark"
-                >
-                  <span className="flex flex-col gap-0.5 text-left">
-                    <span className="text-[10.5px] font-medium uppercase tracking-[0.16em] opacity-70">Graduate admissions</span>
-                    <span className="text-[14px] font-semibold tracking-[-0.005em]">View admission process &amp; deadlines</span>
-                  </span>
-                  <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white text-accent transition-transform duration-300 group-hover/cta:translate-x-1">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M5 12h14" /><path d="M13 5l7 7-7 7" /></svg>
-                  </span>
-                </a>
+            {/* Right: Contact */}
+            <div className="reveal">
+              <div className="mb-3.5 flex items-center gap-2.5 text-xs font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[18px] before:bg-accent before:content-['']">
+                Contact
               </div>
+              <h2 className="mb-7 font-bold leading-[0.95] tracking-[-0.04em]" style={{ fontSize: "clamp(48px,6vw,88px)" }}>
+                Join us.
+              </h2>
+              <div className="wo-rule" />
+              <p className="text-[17px] leading-[1.75] text-ink-2">
+                ATM Lab is recruiting <strong className="font-semibold text-ink">postdoctoral researchers</strong> and <strong className="font-semibold text-ink">graduate students</strong> with passionate and innovative minds.
+              </p>
+              <p className="mt-[18px] text-[17px] leading-[1.75] text-ink-2">
+                If you are interested in joining the lab or collaborating, please contact Prof. Jungho Lee at{" "}
+                <a href="mailto:jungholee@ajou.ac.kr" className="font-medium text-accent hover:underline">jungholee@ajou.ac.kr</a>.
+              </p>
+              <a
+                href="https://grad.ajou.ac.kr/gs/admission/admission01.do"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group/cta mt-8 inline-flex flex-col gap-1"
+              >
+                <span className="text-[10.5px] font-medium uppercase tracking-[0.16em] text-ink-3">
+                  Graduate admissions
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-accent group-hover/cta:underline">
+                  View admission process &amp; deadlines
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 transition-transform duration-200 group-hover/cta:translate-x-1">
+                    <path d="M5 12h14"/><path d="M13 5l7 7-7 7"/>
+                  </svg>
+                </span>
+              </a>
             </div>
           </div>
         </div>
@@ -461,12 +404,12 @@ export default function Home() {
             title="Engineering heat at every scale."
             className="reveal"
           />
-          <div className="research-grid reveal-stagger grid grid-cols-2 gap-5 max-[820px]:grid-cols-1">
+          <div className="research-grid reveal grid grid-cols-2 gap-5 max-[820px]:grid-cols-1">
             {RESEARCH_ITEMS.map((item) => (
               <a
                 key={item.num}
                 href={item.href}
-                className="group overflow-hidden rounded-[20px] border border-line bg-surface transition-[transform,box-shadow] duration-[350ms] hover:-translate-y-1.5 hover:shadow-[0_24px_50px_-20px_rgba(26,86,219,.2)]"
+                className="group overflow-hidden rounded-[20px] border border-line bg-surface transition-[transform,box-shadow] duration-[350ms] hover:-translate-y-1.5 hover:shadow-[0_24px_50px_-20px_rgba(0,102,255,.2)]"
               >
                 <div className="relative overflow-hidden" style={{ aspectRatio: "16/10" }}>
                   <span className="absolute right-4 top-4 z-10 font-mono text-[11px] font-medium tracking-[0.1em] text-white/80">
@@ -547,13 +490,13 @@ export default function Home() {
       <section
         id="publications"
         className="relative py-[120px] text-white"
-        style={{ background: "#0d0f12" }}
+        style={{ background: "#001F66" }}
       >
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(800px circle at 80% 0%, rgba(26,86,219,.18), transparent 50%), radial-gradient(600px circle at 0% 100%, rgba(91,141,239,.1), transparent 50%)",
+              "radial-gradient(800px circle at 80% 0%, rgba(0,102,255,.25), transparent 50%), radial-gradient(600px circle at 0% 100%, rgba(51,133,255,.12), transparent 50%)",
           }}
         />
         <Container className="relative">
@@ -602,7 +545,7 @@ export default function Home() {
                           </div>
                           <div className="text-[13.5px] leading-[1.5] text-white/55">{item.authors}</div>
                         </div>
-                        <span className="self-start rounded px-2 py-1 text-[10.5px] font-medium tracking-[0.05em] text-accent-lighter max-[680px]:justify-self-start" style={{ background: "rgba(122,161,255,.15)" }}>
+                        <span className="self-start rounded px-2 py-1 text-[10.5px] font-medium tracking-[0.05em] text-accent-lighter max-[680px]:justify-self-start" style={{ background: "rgba(154,202,235,.2)" }}>
                           {item.type}
                         </span>
                       </div>
@@ -635,11 +578,11 @@ export default function Home() {
             {/* Prof card */}
             <div
               className="reveal group relative aspect-[4/5] overflow-hidden rounded-[24px] text-white"
-              style={{ background: "#1a1f2e", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
+              style={{ background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=80"
+                src="/professor.png"
                 alt="Professor portrait"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
               />
@@ -647,7 +590,7 @@ export default function Home() {
                 className="absolute inset-0"
                 style={{
                   background:
-                    "linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(10,15,30,.85) 75%, rgba(10,15,30,.95) 100%), linear-gradient(135deg, rgba(26,86,219,.35) 0%, transparent 60%)",
+                    "linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,15,40,.85) 75%, rgba(0,15,40,.95) 100%), linear-gradient(135deg, rgba(0,102,255,.35) 0%, transparent 60%)",
                 }}
               />
               <div className="absolute bottom-0 left-0 right-0 p-8">
@@ -682,7 +625,7 @@ export default function Home() {
                     {group.members.map((m) => (
                       <span
                         key={m.name}
-                        className="inline-flex cursor-default items-center gap-2 rounded-[10px] border border-transparent bg-[#f5f6f8] px-3.5 py-2.5 text-[14px] font-medium text-ink transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:bg-white hover:shadow-[0_6px_18px_-8px_rgba(26,86,219,.4)]"
+                        className="inline-flex cursor-default items-center gap-2 rounded-[10px] border border-transparent bg-[#f5f6f8] px-3.5 py-2.5 text-[14px] font-medium text-ink transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:bg-white hover:shadow-[0_6px_18px_-8px_rgba(0,102,255,.4)]"
                       >
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-light text-[10.5px] font-semibold tracking-[0.02em] text-white">
                           {m.initials}
@@ -727,7 +670,7 @@ export default function Home() {
                   {courses.map((lec) => (
                     <div
                       key={lec.title}
-                      className="group flex flex-col gap-3 rounded-[18px] border border-line bg-white px-7 pb-6 pt-6 transition-[transform,box-shadow,border-color] duration-[350ms] hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(26,86,219,.25)]"
+                      className="group flex flex-col gap-3 rounded-[18px] border border-line bg-white px-7 pb-6 pt-6 transition-[transform,box-shadow,border-color] duration-[350ms] hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]"
                     >
                       <div className="text-[19px] font-semibold leading-[1.3] tracking-[-0.01em]">{lec.title}</div>
                       <div className="flex-1 text-[13.5px] leading-[1.6] text-ink-3">{lec.desc}</div>

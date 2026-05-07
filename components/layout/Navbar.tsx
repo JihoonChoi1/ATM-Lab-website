@@ -50,34 +50,18 @@ export default function Navbar() {
         }`}
       >
         <div className="mx-auto flex h-[72px] max-w-container items-center justify-between px-8 max-[640px]:px-5">
-          <Link
-            href="/"
-            className={`flex items-center gap-2.5 font-bold transition-colors duration-300 ${
-              scrolled ? "text-ink" : "text-white"
-            }`}
-          >
-            <span className="brand-mark" />
-            <span className="text-[17px] tracking-[-0.01em]">
-              ATM Lab
-              <small
-                className={`ml-1.5 text-xs font-medium ${
-                  scrolled ? "text-ink-3" : "text-white/65"
-                }`}
-              >
-                Ajou Univ.
-              </small>
-            </span>
+          <Link href="/" className="flex items-center gap-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/univ_logo.png" alt="Ajou University" className="h-12 w-auto" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/ATM_LAB_logo.png" alt="ATM Lab" className="h-9 w-auto" />
           </Link>
 
           <div className="hidden items-center gap-1 min-[880px]:flex">
             {NAV_LINKS.map((item) =>
               renderLink(
                 item,
-                `rounded-lg px-4 py-2.5 text-[14.5px] font-medium transition-colors duration-200 ${
-                  scrolled
-                    ? "text-ink-2 hover:bg-accent-soft hover:text-accent"
-                    : "text-white/85 hover:bg-white/[0.12] hover:text-white"
-                }`
+                "rounded-lg px-4 py-2.5 text-[14.5px] font-medium transition-colors duration-200 text-ink-2 hover:bg-accent-soft hover:text-accent"
               )
             )}
           </div>
@@ -87,9 +71,7 @@ export default function Navbar() {
             aria-label="menu"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-lg min-[880px]:hidden ${
-              scrolled ? "text-ink" : "text-white"
-            }`}
+            className="inline-flex h-[42px] w-[42px] items-center justify-center rounded-lg min-[880px]:hidden text-ink"
           >
             <svg
               viewBox="0 0 24 24"
@@ -104,17 +86,22 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {open && (
-        <div className="fixed inset-x-0 bottom-0 top-[72px] z-[49] flex flex-col gap-1.5 border-t border-line bg-white p-6 min-[880px]:hidden">
-          {NAV_LINKS.map((item) =>
-            renderLink(
-              item,
-              "rounded-[10px] px-3 py-3.5 text-[17px] font-medium text-ink-2 hover:bg-accent-soft hover:text-accent",
-              () => setOpen(false)
-            )
-          )}
-        </div>
-      )}
+      <div
+        aria-hidden={!open}
+        className={`fixed inset-x-0 bottom-0 top-[72px] z-[49] flex flex-col gap-1.5 border-t border-line bg-white p-6 transition-[opacity,transform] duration-[280ms] ease-out min-[880px]:hidden ${
+          open
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-2 opacity-0"
+        }`}
+      >
+        {NAV_LINKS.map((item) =>
+          renderLink(
+            item,
+            "rounded-[10px] px-3 py-3.5 text-[17px] font-medium text-ink-2 hover:bg-accent-soft hover:text-accent",
+            () => setOpen(false)
+          )
+        )}
+      </div>
     </>
   );
 }

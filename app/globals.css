@@ -19,8 +19,8 @@
     width: 30px;
     height: 30px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #1a56db 0%, #5b8def 100%);
-    box-shadow: 0 4px 14px rgba(26, 86, 219, 0.35);
+    background: linear-gradient(135deg, #0066FF 0%, #3385FF 100%);
+    box-shadow: 0 4px 14px rgba(0, 102, 255, 0.35);
   }
   .brand-mark::after {
     content: "";
@@ -52,7 +52,7 @@
   .scroll-line {
     width: 1px;
     height: 48px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), transparent);
+    background: linear-gradient(180deg, rgba(0, 114, 206, 0.5), transparent);
     animation: scrollLine 2s ease-in-out infinite;
   }
   /* ── Reveal on scroll ── */
@@ -85,7 +85,7 @@
   .wo-rule {
     width: 0;
     height: 3px;
-    background: #1a56db;
+    background: #0066FF;
     margin-bottom: 40px;
     transition: width 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s;
   }
