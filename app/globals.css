@@ -92,6 +92,43 @@
   .wo-cell.in .wo-rule {
     width: 88px;
   }
+
+  /* Research page: 0.1s reveal delay for paired elements */
+  .reveal.delay-1 {
+    transition-delay: 0.1s;
+  }
+
+  /* Research page: striped placeholder for figures */
+  .fig-placeholder {
+    background:
+      repeating-linear-gradient(
+        135deg,
+        rgba(0, 102, 255, 0.05) 0px,
+        rgba(0, 102, 255, 0.05) 14px,
+        rgba(0, 102, 255, 0.1) 14px,
+        rgba(0, 102, 255, 0.1) 28px
+      ),
+      rgba(0, 102, 255, 0.04);
+  }
+
+  /* Research page: hide scrollbar on pill TOC */
+  .pill-row {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .pill-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Research page: alternate subsection rows — image right on even rows */
+  @media (min-width: 821px) {
+    .sub-row:nth-child(even) .sub-figure {
+      order: 2;
+    }
+    .sub-row:nth-child(even) .sub-text {
+      order: 1;
+    }
+  }
 }
 
 @keyframes sheen {
