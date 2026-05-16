@@ -361,7 +361,7 @@ export default function MembersPage() {
               </h2>
             </div>
             <p className="max-w-[380px] text-base leading-[1.6] text-ink-3">
-              Postdoctoral researchers and full-time research staff who lead experiments, mentor students, and keep the lab's testbeds running.
+              Postdoctoral researchers and full-time research staff who lead experiments, mentor students, and keep the lab&apos;s testbeds running.
             </p>
           </div>
 
