@@ -42,3 +42,5 @@ next-env.d.ts
 # project planning / local-only docs
 Steps.md
 html_files
+
+/app/generated/prisma
