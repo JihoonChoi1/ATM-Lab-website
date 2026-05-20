@@ -42,7 +42,9 @@ enum UserRole {
 model Member {
   id              String     @id @default(cuid())
   name            String
-  email           String?    @unique
+  // Not unique: legacy data has the same person registered as both Researcher
+  // (current) and Alumni (graduate degree record) with one shared address.
+  email           String?
   role            MemberRole
   position        String     // e.g. "Postdoctoral Researcher", "Ph.D. Course", "Alumni"
   interests       String[]   // research interest tags
