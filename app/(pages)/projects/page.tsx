@@ -1,7 +1,9 @@
-"use client";
-
-import { useEffect } from "react";
 import Container from "@/components/ui/Container";
+import RevealOnScroll from "@/components/ui/RevealOnScroll";
+import { prisma } from "@/lib/db";
+
+// Render per request so admin edits show up immediately (no rebuild needed).
+export const dynamic = "force-dynamic";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -13,73 +15,6 @@ type Project = {
 };
 
 type Status = "active" | "completed";
-
-// ─── Data (will move to DB in Phase 5) ───────────────────────────────────────
-
-const IN_PROGRESS: Project[] = [
-  {
-    title: "배터리 냉각용 등온 냉각판 특성 연구",
-    institution: "Hyundai Mobis Co.",
-    period: "2025.06.01~2026.12.31",
-    scale: "₩250,000,000",
-  },
-  {
-    title:
-      "Direct-to-Chip Thermal Management and Server-Rack Operation Technology for High-density Data Center",
-    institution: "Korea Energy Technology Evaluation and Planning (KETEP)",
-    period: "2024.07.01.~2027.06.30.",
-    scale: "₩4,116,849,000",
-  },
-  {
-    title: "소형 레이저발진기 냉각시스템 설계 기술",
-    institution: "LIG Nex1 Co.",
-    period: "2023.11.01~2025.10.31",
-    scale: "₩150,000,000",
-  },
-  {
-    title:
-      "상변화 열확산판이 내장된 레이저 발진기 냉각판과 냉각유로 내부 표면 개질 연구",
-    institution: "Hyundai Rotem Co.",
-    period: "2023.08.01~2025.07.31",
-    scale: "₩300,000,000",
-  },
-  {
-    title:
-      "Core Technology and Module Development in Boiling-type Heat Pipe Heat Exchanger",
-    institution: "Korea Energy Technology Evaluation and Planning (KETEP)",
-    period: "2021.05.01.~2025.12.31.",
-    scale: "₩13,568,087,000",
-  },
-];
-
-const PREVIOUS: Project[] = [
-  {
-    title:
-      "Liquid Cooling-type Thermal Management for Battery Energy Storage Systems (BESS)",
-    institution: "Korea Midland Power Co. (KOMIPO)",
-    period: "2022.12.23 ~ 2025.3.20",
-    scale: "₩1,000,000,000",
-  },
-  {
-    title:
-      "Phase-Change Heat Transfer Enhancement for Gas-to-Water Heat Pipe Heat Exchanger",
-    institution: "National Research Foundation of Korea (NRF)",
-    period: "2020.03.01. ~ 2025.02.28.",
-    scale: "₩2,000,000,000",
-  },
-  {
-    title: "Design and Manufacturing Technologies for a Thin Thermal Ground Plane",
-    institution: "Institute of Civil Military Technology Cooperation (ICMTC)",
-    period: "2021.12.01. ~ 2023.11.30.",
-    scale: "₩1,901,000,000",
-  },
-  {
-    title: "상변화 냉각판을 적용한 레이저 발생장치 고효율 냉각 연구",
-    institution: "Hyundai Rotem Co.",
-    period: "2021.07.15.~2022.06.16.",
-    scale: "₩49,999,200",
-  },
-];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -166,19 +101,21 @@ function SectionHeader({
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
-export default function ProjectsPage() {
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => {
-          if (e.isIntersecting) e.target.classList.add("in");
-          else e.target.classList.remove("in");
-        }),
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-    );
-    document.querySelectorAll(".reveal, .wo-cell").forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
+export default async function ProjectsPage() {
+  const rows = await prisma.project.findMany({
+    where: { published: true },
+    orderBy: { order: "asc" },
+  });
+
+  const toView = (p: (typeof rows)[number]): Project => ({
+    title: p.title,
+    institution: p.institution,
+    period: p.period,
+    scale: p.scale ?? "—",
+  });
+
+  const IN_PROGRESS = rows.filter((p) => p.status === "ACTIVE").map(toView);
+  const PREVIOUS = rows.filter((p) => p.status === "COMPLETED").map(toView);
 
   return (
     <main>
@@ -262,6 +199,8 @@ export default function ProjectsPage() {
           </div>
         </Container>
       </section>
+
+      <RevealOnScroll />
     </main>
   );
 }

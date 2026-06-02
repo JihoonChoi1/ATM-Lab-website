@@ -46,9 +46,9 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "Pool boiling refers to a heat transfer phenomenon that occurs when a horizontal surface immersed in a quiescent fluid is heated, where heat is transferred through natural convection driven by buoyancy-induced density differences as well as through the nucleation, growth, and detachment of vapor bubbles. It denotes a boiling process in which fluid motion is generated solely by natural convection, in the absence of any externally imposed forced flow. Boiling is generally classified into four distinct regimes: natural convection boiling, nucleate boiling, transition boiling, and film boiling. Among these, the Onset of Nucleate Boiling (ONB), Heat Transfer Coefficient (HTC), and Critical Heat Flux (CHF) are regarded as the key governing parameters.",
         keywords: ["ONB", "HTC", "CHF", "Boiling Regimes"],
         figures: [
-          { w: 300, h: 480, caption: "Fig. 1.1a — High-speed bubble dynamics, isolated bubble regime (placeholder GIF)." },
-          { w: 300, h: 480, caption: "Fig. 1.1b — High-speed bubble dynamics, fully developed nucleate boiling (placeholder GIF)." },
-          { w: 700, h: 525, caption: "Fig. 1.1c — Pool boiling regime diagram and characteristic boiling curve (placeholder)." },
+          { w: 300, h: 480, caption: "Fig. 1.1a — High-speed visualization of pool boiling in the isolated-bubble regime." },
+          { w: 300, h: 480, caption: "Fig. 1.1b — High-speed visualization of fully developed nucleate boiling." },
+          { w: 700, h: 525, caption: "Fig. 1.1c — Characteristic pool boiling curve: heat flux versus wall superheat for a microstructured surface against plain copper, marking the HTC enhancement and CHF." },
         ],
       },
       {
@@ -57,7 +57,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "The present pool boiling experimental apparatus is designed to enable the observation of boiling phenomena under well-controlled and rigorously defined conditions. The pool boiling chamber is designed and fabricated to minimize heat losses to the surroundings while maintaining stable pool boiling conditions. A comprehensive performance analysis of the pool boiling behavior is conducted using high-precision instrumentation, including a high-speed camera, an accurate temperature control system, and dedicated power supply equipment.",
         keywords: ["Test Chamber", "High-speed Imaging"],
         figures: [
-          { w: 1175, h: 471, caption: "Fig. 1.2 — Photograph / CAD section of the pool boiling chamber (placeholder)." },
+          { w: 1175, h: 471, caption: "Fig. 1.2 — Pool boiling test facility: chamber cross-section, high-speed visualization system, and data-acquisition and power-supply equipment." },
         ],
       },
       {
@@ -66,7 +66,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "The present flow boiling experimental facility is characterized by the following features. Refrigerant circulation is driven by a gear pump, while impurities are removed via an in-line filter, and the mass flow rate is accurately measured using a Coriolis mass flow meter. The inlet temperature is precisely controlled by a subcooler, and after passing through the test section, the working fluid is re-condensed in a plate-type heat exchanger, thereby completing the circulation loop. The system is configured as a fully sealed closed-loop circuit, in which the saturation pressure is regulated through a cooling coil installed inside the reservoir tank. Even when the test section is isolated, a bypass loop ensures the continuous maintenance of a closed-loop operation. Prior to refrigerant charging, it is essential to evacuate the loop under vacuum to completely remove any non-condensable gases from the system, as their presence can significantly affect flow boiling performance and measurement accuracy.",
         keywords: ["Closed-loop", "Coriolis Flow Meter", "Refrigerant"],
         figures: [
-          { w: 1175, h: 356, caption: "Fig. 1.3 — P&ID of the closed-loop refrigerant flow-boiling test rig (placeholder)." },
+          { w: 1175, h: 356, caption: "Fig. 1.3 — Closed-loop refrigerant flow-boiling facility: process schematic and the assembled rig (gear pump, Coriolis flow meter, sub-cooler, test section)." },
         ],
       },
       {
@@ -75,7 +75,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "In the present study, sandblasting was employed to tailor the surface roughness, wherein surface textures were generated through high-pressure abrasive particle impingement. Stainless steel (SUS) wire-cut abrasive media with particle sizes of 0.2, 0.4, and 0.6 mm were used to establish distinct roughness conditions. As the particle size increased, both the depth and lateral scale of surface asperities became more pronounced, resulting in an overall increase in surface roughness. The flow boiling experiments revealed that surfaces treated with larger abrasive particles exhibited superior heat transfer performance. This enhancement is attributed to an increased density of active nucleation sites and a rise in surface energy, which promote the formation of smaller and more uniformly distributed vapor bubbles, ultimately leading to a significant enhancement of flow boiling heat transfer.",
         keywords: ["Sandblasting", "Surface Roughness", "Nucleation Sites"],
         figures: [
-          { w: 1175, h: 350, caption: "Fig. 1.4 — SEM images of sandblasted surfaces at 0.2 / 0.4 / 0.6 mm media (placeholder)." },
+          { w: 1175, h: 350, caption: "Fig. 1.4 — Sandblasted surfaces produced with 0.2, 0.4, and 0.6 mm SUS wire-cut media, showing roughness increasing with particle size." },
         ],
       },
       {
@@ -84,7 +84,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "The microporous surfaces employed in this study are capable of enhancing nucleate boiling heat transfer by suppressing vapor film formation and inducing capillary-driven liquid transport, thereby significantly improving pool boiling heat transfer performance. Micro-thick metallic foam (MMF), characterized by its high porosity and interconnected ligament network, effectively promotes both nucleate boiling activity and continuous liquid replenishment to the heated surface. The dual-layer microporous structure, formed by stacking MMF onto a baseline substrate, facilitates efficient vapor evacuation while simultaneously strengthening capillary flow, leading to improved boiling stability and heat transfer. The mixed-size sintered copper powder surface, fabricated by combining copper powders of varying diameters, generates a dual-scale pore architecture, which enables the simultaneous enhancement of the heat transfer coefficient (HTC) and the critical heat flux (CHF).",
         keywords: ["MMF", "Sintered Cu", "Dual-scale Pores"],
         figures: [
-          { w: 658, h: 184, caption: "Fig. 1.5 — MMF cross-section and mixed-size sintered copper powder surface (placeholder)." },
+          { w: 658, h: 184, caption: "Fig. 1.5 — Engineered microporous surfaces: micro-thick metallic foam, dual-layer microporous structure, and mixed-size sintered copper powder." },
         ],
       },
       {
@@ -93,7 +93,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "Cross-sectional scanning electron microscopy (SEM) imaging enables a detailed visual analysis of the pore size distribution, layer thickness, and interfacial bonding quality of the microporous structures. To quantitatively characterize the surface properties, time-resolved contact angle measurements are performed, allowing for the evaluation of the wettability and surface energy of the working fluid on the engineered surfaces. The wicking performance is assessed based on the droplet spreading dynamics, through which the surface capillary transport behavior and liquid replenishment capability can be quantitatively evaluated.",
         keywords: ["SEM", "Contact Angle", "Wicking"],
         figures: [
-          { w: 658, h: 225, caption: "Fig. 1.6 — SEM cross-section with contact-angle / wicking measurement (placeholder)." },
+          { w: 658, h: 225, caption: "Fig. 1.6 — SEM cross-sections of the microporous layers with time-resolved contact-angle (wicking) measurements." },
         ],
       },
       {
@@ -102,7 +102,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "Because aluminum readily reacts with water, which is otherwise an effective working fluid, acetone, possessing a high latent heat of vaporization, is predominantly employed as the working fluid for phase-change heat transfer applications involving aluminum surfaces. In this study, a microporous structure was fabricated via aluminum particle brazing, and the resulting surface was utilized to enhance boiling heat transfer performance significantly. Compared with previous studies employing either aluminum surfaces or acetone as the working fluid, the present results demonstrate substantially lower wall superheat and a markedly higher critical heat flux (CHF), thereby confirming the superior thermal performance of the aluminum–acetone combination. Furthermore, based on the experimental data, an empirical correlation was developed to predict the pool boiling CHF as a function of the coating parameters of the microporous surface.",
         keywords: ["Aluminum", "Acetone", "CHF Correlation"],
         figures: [
-          { w: 658, h: 474, caption: "Fig. 1.7 — Boiling curve comparison: wall superheat vs. heat flux (placeholder)." },
+          { w: 658, h: 474, caption: "Fig. 1.7 — Aluminum–acetone particle-brazed microporous surface: SEM morphology and pool boiling curves benchmarked against prior surface–fluid combinations." },
         ],
       },
     ],
@@ -120,7 +120,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "Single-phase immersion cooling is generally employed as a thermal management technique in which IT equipment is directly submerged in electrically insulating dielectric fluid to dissipate heat. In this study, by positioning the evaporator section of a heat pipe heat exchanger within a single-phase immersion bath, the thermal energy extracted from the immersion-cooled system is passively transferred to the condenser section of the heat pipe. As a result, unlike conventional single-phase immersion cooling systems, the proposed configuration eliminates the need for external chillers and circulation pumps, thereby significantly reducing the operational energy consumption associated with single-phase immersion cooling. In this manner, the requirement for coolant circulation is removed, and chiller-free operation becomes feasible, allowing the system to establish itself as a highly efficient thermal management solution. Our laboratory is continuously conducting research to compare the thermal performance of conventional single-phase immersion cooling systems with that of single-phase immersion cooling integrated with heat pipe heat exchangers, with the ultimate goal of reducing the Power Usage Effectiveness (PUE) of data centers.",
         keywords: ["Single-phase", "Chiller-free", "PUE"],
         figures: [
-          { w: 658, h: 208, caption: "Fig. 2.1 — Single-phase immersion bath integrated with heat-pipe heat exchanger (placeholder)." },
+          { w: 658, h: 208, caption: "Fig. 2.1 — Single-phase immersion cooling loop with a heat-pipe heat exchanger: chiller/pump schematic and the immersion bath integrating the HPHX." },
         ],
       },
       {
@@ -129,7 +129,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "For research on two-phase immersion cooling, a non-conductive experimental chamber has been constructed to evaluate boiling heat transfer performance in dielectric fluids. Studies are being conducted on enhancing the convective heat transfer coefficient and the critical heat flux by applying microporous surfaces. In addition, the mutual thermal interactions among individual heat sources in two-phase immersion cooling systems are analyzed to develop more practical and applicable cooling strategies for real-world data center environments.",
         keywords: ["Two-phase", "Dielectric Fluid", "Multi-heater"],
         figures: [
-          { w: 658, h: 268, caption: "Fig. 2.2 — Non-conductive boiling chamber with multi-heater array (placeholder)." },
+          { w: 658, h: 268, caption: "Fig. 2.2 — Two-phase immersion chamber: dielectric-fluid boiling curves for copper-foam surfaces of varying thickness, with the corresponding surface micrographs." },
         ],
       },
       {
@@ -138,7 +138,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "As the performance of AI and high-performance computing (HPC) hardware continues to increase, energy consumption in data centers is rising rapidly, accompanied by a significant increase in heat generation from server processing units. To address these challenges simultaneously, direct-to-chip (DTC) cooling approaches are being investigated, as they offer high cooling performance capable of substantially mitigating both energy consumption and thermal issues. The in-house developed two-phase flow testbed is equipped with precise flow-rate control and advanced instrumentation, enabling accurate evaluation of cooling performance under conditions closely representative of real operating environments. The Hybrid Boiling Cold Plate (HBCP) under development employs a two-phase cooling strategy that integrates pool boiling and flow boiling, making it well suited for cooling high-heat-flux chipsets while consuming exceptionally low pumping power. Ongoing research focuses on optimizing the design parameters of the HBCP to delay dryout onset and further enhance the thermal performance of the cold plate.",
         keywords: ["Direct-to-Chip", "HBCP", "AI/HPC"],
         figures: [
-          { w: 658, h: 222, caption: "Fig. 2.3 — HBCP cold-plate cross-section with two-phase test loop (placeholder)." },
+          { w: 658, h: 222, caption: "Fig. 2.3 — Direct-to-chip cold plates (hybrid boiling and jet impingement) on a two-phase flow testbed, with thermal resistance versus power for several designs." },
         ],
       },
     ],
@@ -156,7 +156,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "With the ongoing miniaturization of electronic devices and energy systems, along with the trend toward higher heat fluxes, demand for compact two-phase closed thermosyphons (TPCTs) has been steadily increasing. Due to the small diameters of compact TPCTs, confinement effects that hinder internal two-phase flow may occur, potentially disrupting stable TPCT operation. In general, the onset of confinement in TPCTs can lead to a severe degradation in thermal performance. Our research has primarily focused on analyzing flow instability phenomena and heat transfer characteristics of TPCTs across a wide range of geometries (inner diameters of 5–25 mm) and working fluids (water, acetone, ethanol, and HFE-7100). As a key outcome, this study is the first to demonstrate that stable operation can be achieved when both the confinement number (Co) and the Froude number (Fr) are less than 0.3.",
         keywords: ["TPCT", "Confinement", "Co–Fr Map"],
         figures: [
-          { w: 514, h: 225, caption: "Fig. 3.1 — TPCT geometry sweep and Co–Fr stability map (placeholder)." },
+          { w: 514, h: 225, caption: "Fig. 3.1 — Confinement in compact TPCTs: high-speed visualization of confined bubble/slug flow and a Co–Fr stability map across working fluids and diameters." },
         ],
       },
       {
@@ -165,7 +165,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "Geyser boiling is a well-known instability in two-phase closed thermosyphons (TPCTs), characterized by the rapid growth of vapor bubbles that displace the liquid column and generate impulsive impacts at the upper section. Such behavior can shorten the service life of TPCTs and induce fatigue failure, underscoring the need for a more accurate understanding of its onset conditions and underlying mechanisms. Accordingly, this study analyzes Geyser boiling dynamics through flow visualization. It quantitatively measures the impact force of the displaced liquid during Geyser boiling events by installing a load cell at the end of the condenser section of the TPCT. The results indicate that Geyser boiling occurs more readily under high filling ratio conditions (FR > 75%), and that the cumulative loading resulting from repetitive impacts can have a significant influence on equipment fatigue and operational stability. Furthermore, this work provides practical design guidelines for avoiding Geyser boiling and ensuring structural durability during the TPCT design stage.",
         keywords: ["Geyser Boiling", "Load Cell", "Filling Ratio"],
         figures: [
-          { w: 514, h: 212, caption: "Fig. 3.2 — High-speed visualization of geyser event with load-cell impact trace (placeholder)." },
+          { w: 514, h: 212, caption: "Fig. 3.2 — Geyser boiling in a TPCT: high-speed visualization with synchronized load-cell force and pressure traces of the impulsive impacts." },
         ],
       },
       {
@@ -174,7 +174,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "A heat-pipe heat exchanger (HPHX) is a thermal exchange device that efficiently transfers heat by employing an array of heat pipes. Operating on the principle of phase change of the working fluid, heat-pipe heat exchangers exhibit exceptionally high thermal performance, enabling superior energy efficiency. Moreover, owing to the intrinsic isothermal characteristics within a heat pipe, the temperature gradient between the evaporator and condenser sections remains relatively small, which imparts excellent thermal robustness and durability when deployed as a heat exchanger. Building upon these advantages, our research focuses on developing fabrication-friendly strategies to maximize the performance of gas-to-liquid and gas-to-air heat-pipe heat exchangers for the recovery of industrial waste heat. In particular, our efforts are primarily directed toward modifying the internal metallic surfaces of the evaporator section to reduce thermal resistance and further enhance thermal performance.",
         keywords: ["HPHX", "Gas-to-Liquid", "Waste Heat"],
         figures: [
-          { w: 514, h: 273, caption: "Fig. 3.3 — HPHX bundle schematic with evaporator surface treatment detail (placeholder)." },
+          { w: 514, h: 273, caption: "Fig. 3.3 — Heat-pipe heat exchangers (copper and SUS347 bundles) with induction-based fabrication and evaporator surface-modification micrographs." },
         ],
       },
       {
@@ -183,7 +183,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "The wrap-around loop heat pipe heat exchanger can be utilized as an energy-saving device in HVAC systems. When a wrap-around loop heat pipe heat exchanger is installed in a configuration that wraps around a chiller, the wrap-around loop heat pipe heat exchanger transfers heat from the upstream side to the downstream side after the chiller. Consequently, it eliminates the need for electric reheaters to compensate for the temperature drop downstream of the chiller in conventional HVAC systems, making it a highly energy-efficient heat exchange solution. In our laboratory, studies are being conducted to analyze the system-level suitability and operational characteristics of the heat exchanger as a function of the working fluid employed (water, ethanol, acetone, and R-1233zd(E)). The results indicate that among the working fluids tested, water exhibits the best overall performance, while R-1233zd(E) also demonstrates relatively favorable performance.",
         keywords: ["HVAC", "Wrap-around", "R-1233zd(E)"],
         figures: [
-          { w: 514, h: 413, caption: "Fig. 3.4 — HVAC schematic with wrap-around loop around chiller coil (placeholder)." },
+          { w: 514, h: 413, caption: "Fig. 3.4 — Wrap-around heat-pipe heat exchanger for HVAC energy recovery: operating principle, test rig, and thermal resistance for four working fluids." },
         ],
       },
       {
@@ -192,8 +192,8 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "A geothermal thermosyphon is a passive phase-change heat transfer device that utilizes geothermal energy to enable snow melting and prevent re-freezing without external power input. Research and development are currently underway to ensure effective operation not only during winter conditions but throughout all seasons. In this laboratory, the snow-melting performance of the geothermal thermosyphon is being experimentally validated under conditions that simulate real-world snow removal and anti-icing environments.",
         keywords: ["Geothermal", "Snow Melting", "Anti-icing"],
         figures: [
-          { w: 514, h: 248, caption: "Fig. 3.5a — Buried geothermal thermosyphon schematic (placeholder)." },
-          { w: 500, h: 281, caption: "Fig. 3.5b — Snow-melting field test setup (placeholder)." },
+          { w: 514, h: 248, caption: "Fig. 3.5a — Geothermal thermosyphon for snow melting: operating concept (subsurface heat carried to the surface) and the laboratory test apparatus." },
+          { w: 500, h: 281, caption: "Fig. 3.5b — Snow-melting demonstration of the geothermal thermosyphon under simulated snowfall." },
         ],
       },
     ],
@@ -211,7 +211,7 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "A vapor chamber is a planar phase-change heat transfer device designed for efficient cooling by rapidly spreading heat through latent heat transfer. Fabricated from various metallic materials, including aluminum, it facilitates rapid thermal dissipation via internal evaporation and condensation cycles. Operating as a passive heat transfer mechanism that requires no external power, it serves as a viable thermal management solution for high-power electronic devices. Our laboratory is currently focusing on the development of lightweight vapor chambers, primarily utilizing aluminum as the substrate material.",
         keywords: ["Vapor Chamber", "Aluminum", "Passive"],
         figures: [
-          { w: 514, h: 155, caption: "Fig. 4.1 — Aluminum vapor chamber cross-section with working principle diagram (placeholder)." },
+          { w: 514, h: 155, caption: "Fig. 4.1 — Lightweight aluminum vapor chamber: prototype plate and junction-temperature response marking boiling incipience and dryout." },
         ],
       },
       {
@@ -220,9 +220,9 @@ const RESEARCH_TOPICS: TopicSeed[] = [
         body: "Unlike conventional vapor chambers known as flat-plate heat pipes, the Boiling-driven Heat Spreader (BDHS) is a phase-change thermal device that dissipates concentrated heat primarily through boiling heat transfer rather than simple internal evaporation and condensation. Joint R&D for this technology has been conducted since 2014 in collaboration with Prof. Seung Mun You's research group at the University of Texas at Dallas. A key characteristic of the BDHS is its orientation-independent thermal performance, allowing effective cooling for concentrated heat sources with high heat fluxes up to 300 W/cm². The BDHS operates effectively under high heat flux conditions by circulating internal fluids through the \"bubble pumping\" effect induced by boiling heat transfer. With the recent expansion of high-density data centers, liquid cooling technologies are increasingly being adopted, and this laboratory is developing technologies to apply the BDHS developed in-house to cold plates for liquid cooling systems. In parallel, BDHSs designed for large-area and high-heat-flux heat sources are being continuously developed for applications in server chips requiring high-performance cooling.",
         keywords: ["BDHS", "Bubble Pumping", "300 W/cm²", "UT Dallas"],
         figures: [
-          { w: 514, h: 223, caption: "Fig. 4.2a — BDHS internal flow loop schematic (placeholder)." },
-          { w: 320, h: 320, caption: "Fig. 4.2b — Orientation-independent test photo (placeholder)." },
-          { w: 514, h: 160, caption: "Fig. 4.2c — BDHS cold-plate integration for liquid cooling (placeholder)." },
+          { w: 514, h: 223, caption: "Fig. 4.2a — Boiling-Driven Heat Spreader construction (top and bottom plates with boiling-enhancement structure) and its thermal resistance versus heat flux against a vapor chamber." },
+          { w: 320, h: 320, caption: "Fig. 4.2b — Orientation-independent operation of the BDHS demonstrated across mounting angles." },
+          { w: 514, h: 160, caption: "Fig. 4.2c — BDHS integrated into a liquid-cooling cold plate: exploded assembly and thermal performance across heat flux and filling ratios." },
         ],
       },
     ],

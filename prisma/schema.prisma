@@ -55,7 +55,7 @@ model Member {
   // Professor-only structured data stored as JSON (only one professor row)
   education       Json?      // [{ period: string, title: string, inst: string }]
   workHistory     Json?      // [{ period: string, title: string, inst: string }]
-  researchFields  String[]   // professor's field keyword tags
+  researchFields  Json?      // [{ group: string, items: [{ label: string, subs: string[] }] }]
   lectureSubjects Json?      // [{ title: string, code: string }]
   published       Boolean    @default(true)
   order           Int        @default(0)
@@ -92,6 +92,7 @@ model Publication {
   applicationNo String?
   country       String?
   registeredAt  String?
+  imgPath       String?
   published     Boolean         @default(true)
   order         Int             @default(0)
   createdAt     DateTime        @default(now())
