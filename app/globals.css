@@ -5,6 +5,9 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Offset anchor jumps for the sticky navbar (72px) + page sub-TOC.
+       Applies on initial cross-page hash loads before per-page JS runs. */
+    scroll-padding-top: 130px;
   }
   body {
     line-height: 1.55;

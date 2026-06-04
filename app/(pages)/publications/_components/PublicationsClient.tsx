@@ -67,7 +67,7 @@ const CATEGORY_LABELS: Record<CategoryKey, string> = {
 // ─── Row components ──────────────────────────────────────────────────────────
 
 const rowBase =
-  "group reveal flex items-start gap-6 py-6 px-2 transition-[padding] duration-300 hover:pl-5 max-[640px]:flex-col max-[640px]:gap-3";
+  "group flex items-start gap-6 py-6 px-2 transition-[padding] duration-300 hover:pl-5 max-[640px]:flex-col max-[640px]:gap-3";
 
 const titleHover = "transition-colors duration-200 group-hover:text-accent";
 
@@ -149,7 +149,7 @@ function ConferenceRow({ it }: { it: Conference }) {
 
 function PatentCard({ it }: { it: Patent }) {
   return (
-    <li className="group reveal rounded-[14px] border border-line bg-surface p-6 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
+    <li className="group rounded-[14px] border border-line bg-surface p-6 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
       <div className="flex items-start gap-5 max-[640px]:flex-col max-[640px]:gap-2">
         <NumLabel n={it.num} />
         <div className="flex-1 min-w-0">
@@ -392,6 +392,11 @@ export default function PublicationsClient({
               <div className="text-ink-3 text-[15px] italic py-12">No entries.</div>
             ) : (
               groups.map((g) => (
+                // The smooth fade-up lives here, on the whole year block. Rows
+                // below intentionally do NOT carry `.reveal` — their hover
+                // `transition-[padding]` would override the reveal transition
+                // (making them pop), and a second layer would double-fade the
+                // top rows. One reveal layer = smooth + uniform.
                 <section key={g.year} className="reveal">
                   <div className="grid grid-cols-[140px_1fr] gap-x-10 max-[820px]:grid-cols-1 max-[820px]:gap-y-3">
                     <div className="wo-cell">
@@ -439,7 +444,10 @@ export default function PublicationsClient({
         </Container>
       </section>
 
-      <RevealOnScroll watch={`${activeCategory}|${activeYear}`} threshold={0.08} />
+      {/* threshold 0 (not a %): year blocks vary wildly in height (2025 has 22
+          entries, others ~5), and a % threshold makes tall blocks reveal much
+          later. 0 fires when the top edge peeks in — uniform regardless of height. */}
+      <RevealOnScroll watch={`${activeCategory}|${activeYear}`} threshold={0} />
     </main>
   );
 }

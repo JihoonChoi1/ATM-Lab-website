@@ -43,7 +43,9 @@ export default function BoardClient({
         entries.forEach((e) => {
           if (e.isIntersecting) e.target.classList.add("in");
         }),
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+      // Fire as soon as an element is about to peek in from the bottom (pre-trigger
+      // 10% of the viewport) rather than 40px after it has entered.
+      { threshold: 0, rootMargin: "0px 0px 10% 0px" }
     );
     document.querySelectorAll(".reveal, .wo-cell").forEach((el) => io.observe(el));
     return () => io.disconnect();
@@ -294,7 +296,7 @@ export default function BoardClient({
               <li
                 key={`${g.num}-${g.date}`}
                 className="group reveal"
-                style={{ transitionDelay: `${Math.min(i * 60, 600)}ms` }}
+                style={{ transitionDelay: `${Math.min(i * 50, 200)}ms` }}
               >
                 <a href="#" className="block" aria-label={g.title}>
                   <div className="relative overflow-hidden rounded-[14px] border border-line bg-surface p-2.5 transition-[transform,box-shadow,border-color] duration-300 group-hover:-translate-y-1.5 group-hover:border-accent/30 group-hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">

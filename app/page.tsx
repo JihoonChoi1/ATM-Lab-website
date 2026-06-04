@@ -1,756 +1,212 @@
-"use client";
+import { prisma } from "@/lib/db";
+import HomeClient, {
+  type HomeData,
+  type PubItem,
+  type TabKey,
+} from "./_components/HomeClient";
 
-import { useEffect, useRef, useState } from "react";
-import Container from "@/components/ui/Container";
-import SectionHead from "@/components/ui/SectionHead";
+// Render per request so admin edits show up immediately (no rebuild needed).
+export const dynamic = "force-dynamic";
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+const pad2 = (n: number) => String(n).padStart(2, "0");
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+const GALLERY_SPANS = ["col-span-2", "row-span-2", "", "", "col-span-2"];
 
-const RESEARCH_ITEMS = [
-  {
-    num: "01",
-    eyebrow: "Research Topic 01",
-    title: "Two-phase Cooling",
-    href: "/research",
-    img: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    num: "02",
-    eyebrow: "Research Topic 02",
-    title: "Battery Thermal Management",
-    href: "/research",
-    img: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    num: "03",
-    eyebrow: "Research Topic 03",
-    title: "Phase-Change Materials",
-    href: "/research",
-    img: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    num: "04",
-    eyebrow: "Research Topic 04",
-    title: "Heat Pumps & Energy Systems",
-    href: "/research",
-    img: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=900&q=80",
-  },
-];
+// Legacy News.content is a stored HTML blob — flatten it to a plain-text snippet
+// for the two-line preview (full article lives on /board).
+function htmlToText(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-const PROJECTS = [
-  { period: "2026 — 2029", duration: "3 yr", title: "AI-driven thermal control of immersion-cooled lithium-ion battery packs", funder: "National Research Foundation of Korea (NRF) · Mid-career Researcher Program", active: true },
-  { period: "2025 — 2028", duration: "3 yr", title: "Hybrid jet–spray cooling architecture for kilowatt-class AI accelerators", funder: "Samsung Electronics · Industry-Academia Research Program", active: true },
-  { period: "2024 — 2027", duration: "3 yr", title: "Composite phase-change materials for grid-scale thermal energy storage", funder: "Korea Institute of Energy Technology Evaluation and Planning (KETEP)", active: true },
-  { period: "2023 — 2026", duration: "3 yr", title: "Critical heat flux enhancement on hierarchical micro-/nano-engineered surfaces", funder: "National Research Foundation of Korea (NRF) · Basic Research Program", active: true },
-  { period: "2022 — 2025", duration: "3 yr", title: "Compact heat pump system with low-GWP refrigerant blends", funder: "LG Electronics · Joint R&D Project", active: false },
-  { period: "2021 — 2024", duration: "3 yr", title: "Two-phase loop thermosyphon for vertically stacked power semiconductors", funder: "Hyundai Motor Group · Open Innovation Project", active: false },
-];
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] ?? "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
 
-const PUBLICATIONS = [
-  {
-    year: "2026", items: [
-      { num: "01", title: "Hybrid jet–spray cooling for kilowatt-scale GPU thermal loads.", meta: "International Journal of Heat and Mass Transfer", detail: "226, 2026.", authors: <>J. Park, <b>S. Kim</b>, H. Lee, et al.</>, type: "JOURNAL" },
-      { num: "02", title: "Composite paraffin–graphene PCM with anisotropic conductivity for fast-charging modules.", meta: "Applied Thermal Engineering", detail: "238, 2026.", authors: <>M. Choi, <b>S. Kim</b>, J. Yoon.</>, type: "JOURNAL" },
-    ]
-  },
-  {
-    year: "2025", items: [
-      { num: "03", title: "Critical heat flux enhancement on biphilic micro-pillared surfaces under subcooled flow boiling.", meta: "International Journal of Heat and Mass Transfer", detail: "219, 2025.", authors: <>D. Hwang, <b>S. Kim</b>, K. Han.</>, type: "JOURNAL" },
-      { num: "04", title: "Predictive thermal control of immersion-cooled lithium-ion modules using physics-informed networks.", meta: "Energy Conversion and Management", detail: "312, 2025.", authors: <>Y. Seo, J. Park, <b>S. Kim</b>.</>, type: "JOURNAL" },
-      { num: "05", title: "Dielectric immersion cooling system for high-density AI server racks.", meta: "KR Patent 10-2025-0094821", detail: "2025.", authors: <><b>S. Kim</b>, J. Park, M. Choi.</>, type: "PATENT" },
-      { num: "06", title: "Two-phase loop thermosyphon design for vertically stacked power semiconductors.", meta: "Proc. ASME InterPACK 2025", detail: "San Diego, USA.", authors: <>H. Lee, <b>S. Kim</b>.</>, type: "CONFERENCE" },
-    ]
-  },
-  {
-    year: "2024", items: [
-      { num: "07", title: "Visualization of dropwise condensation on hybrid wettability surfaces under high heat flux.", meta: "International Journal of Heat and Mass Transfer", detail: "215, 2024.", authors: <>K. Han, <b>S. Kim</b>, D. Hwang.</>, type: "JOURNAL" },
-      { num: "08", title: "Compact heat pump with low-GWP refrigerant blend for cold-climate residential heating.", meta: "Applied Energy", detail: "358, 2024.", authors: <>J. Yoon, M. Choi, <b>S. Kim</b>.</>, type: "JOURNAL" },
-      { num: "09", title: "Experimental study of jet impingement on micro-finned copper substrates.", meta: "Proc. IHTC-17", detail: "Cape Town, South Africa.", authors: <>J. Park, H. Lee, <b>S. Kim</b>.</>, type: "CONFERENCE" },
-    ]
-  },
-  {
-    year: "2023", items: [
-      { num: "10", title: "Pool boiling heat transfer on hierarchical nano-/micro-structured copper.", meta: "International Communications in Heat and Mass Transfer", detail: "144, 2023.", authors: <>D. Hwang, K. Han, <b>S. Kim</b>.</>, type: "JOURNAL" },
-      { num: "11", title: "Thermal performance of 21700 cylindrical cells under hybrid cold-plate / PCM cooling.", meta: "Journal of Power Sources", detail: "580, 2023.", authors: <>Y. Seo, <b>S. Kim</b>.</>, type: "JOURNAL" },
-    ]
-  },
-];
+// Legacy periods are full dates ("2021.05.01.~2025.12.31.") which overflow the
+// compact preview column — collapse to the start–end year range ("2021 — 2025").
+function periodToYears(period: string): string {
+  const years = period.match(/\d{4}/g);
+  if (!years || years.length === 0) return period;
+  const [start] = years;
+  const end = years[years.length - 1];
+  return start === end ? start : `${start} — ${end}`;
+}
 
-const MEMBER_GROUPS = [
-  {
-    label: "Researchers",
-    count: "02",
-    members: [
-      { initials: "JP", name: "Jiyoung Park", year: "'22" },
-      { initials: "HL", name: "Hyunsoo Lee", year: "'24" },
-    ],
-  },
-  {
-    label: "Ph.D. Students",
-    count: "05",
-    members: [
-      { initials: "DH", name: "Dongwoo Hwang", year: "'21" },
-      { initials: "KH", name: "Kyungmin Han", year: "'22" },
-      { initials: "YS", name: "Yejin Seo", year: "'23" },
-      { initials: "MC", name: "Minjae Choi", year: "'24" },
-      { initials: "JY", name: "Junho Yoon", year: "'25" },
-    ],
-  },
-  {
-    label: "M.S. Students",
-    count: "05",
-    members: [
-      { initials: "SR", name: "Soohyun Ryu", year: "'24" },
-      { initials: "EJ", name: "Eunji Jang", year: "'24" },
-      { initials: "TW", name: "Taewoo Bae", year: "'25" },
-      { initials: "HK", name: "Haram Kang", year: "'25" },
-      { initials: "JN", name: "Jinwoo Nam", year: "'25" },
-    ],
-  },
-  {
-    label: "Undergrad / Intern",
-    count: "02",
-    members: [
-      { initials: "SM", name: "Sumin Oh", year: "'26" },
-      { initials: "TK", name: "Taehoon Kim", year: "'26" },
-    ],
-  },
-];
-
-const LECTURES = [
-  { code: "ME 304", title: "Heat Transfer", desc: "Fundamentals of conduction, convection, and radiation. Steady and transient analysis with engineering applications in electronics cooling and HVAC.", semester: "Spring", credits: "3 credits", level: "Undergrad", grad: false },
-  { code: "ME 201", title: "Thermodynamics I", desc: "First and second laws of thermodynamics, properties of pure substances, and analysis of closed and open systems. Cycle analysis introduction.", semester: "Fall", credits: "3 credits", level: "Undergrad", grad: false },
-  { code: "ME 503", title: "Two-phase Flow & Boiling", desc: "Phase-change heat transfer phenomena: nucleate boiling, critical heat flux, condensation, and engineered surface enhancement strategies.", semester: "Spring", credits: "3 credits", level: "Graduate", grad: true },
-  { code: "ME 521", title: "Advanced Heat Transfer", desc: "Numerical and analytical methods for complex heat transfer problems, including microscale transport and porous media.", semester: "Fall", credits: "3 credits", level: "Graduate", grad: true },
-  { code: "ME 612", title: "Thermal Management of Electronics", desc: "System-level thermal design for high-power electronics: heat sinks, cold plates, immersion cooling, and battery thermal management.", semester: "Spring", credits: "3 credits", level: "Graduate", grad: true },
-  { code: "ME 101", title: "Introduction to Mechanical Engineering", desc: "Survey course introducing core mechanical engineering disciplines, design thinking, and modern research frontiers.", semester: "Fall", credits: "2 credits", level: "Undergrad", grad: false },
-];
-
-const NEWS = [
-  { day: "04", month: "APR 2026", tag: "AWARD", title: "Dongwoo Hwang receives Best Paper Award at KSME Spring Conference 2026 for outstanding research contributions in thermal engineering", body: "The award recognizes his pioneering work on hierarchically structured surfaces that significantly enhance critical heat flux under subcooled flow boiling conditions, with implications for next-generation electronics cooling." },
-  { day: "18", month: "MAR 2026", tag: "GRANT", title: "ATM Lab awarded new 3-year NRF mid-career grant on AI-driven battery thermal management for electric vehicle applications", body: "The project will develop physics-informed neural network control strategies for immersion-cooled EV battery packs, targeting safer fast-charging cycles and extended battery lifetime under extreme thermal loads." },
-  { day: "22", month: "FEB 2026", tag: "PUBLICATION", title: <>New paper accepted in <em>Int. J. Heat and Mass Transfer</em></>, body: "Hybrid jet–spray cooling architecture for kilowatt-scale GPU thermal loads." },
-  { day: "09", month: "JAN 2026", tag: "PEOPLE", title: "Sumin Oh joins ATM Lab as M.S. student", body: "Welcome Sumin, who will be working on PCM composites for grid-scale storage." },
-  { day: "11", month: "DEC 2025", tag: "EVENT", title: "Lab attends ASME IMECE 2025 in Columbus, OH", body: "Three oral presentations and two posters from current students and postdocs." },
-];
-
-const GALLERY = [
-  { src: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1400&q=80", cap: "Two-phase cooling testbed · 2025", span: "col-span-2" },
-  { src: "https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&w=900&q=80", cap: "Surface fabrication", span: "row-span-2" },
-  { src: "https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?auto=format&fit=crop&w=900&q=80", cap: "Infrared imaging", span: "" },
-  { src: "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=900&q=80", cap: "Lab seminar", span: "" },
-  { src: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=1400&q=80", cap: "Group photo · Spring 2025 retreat", span: "col-span-2" },
-];
-
-const PUB_TABS = ["All", "Journal", "Conference", "Patent"];
-
-// ─── Component ───────────────────────────────────────────────────────────────
-
-export default function Home() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const heroContentRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState("All");
-
-  // Hero content fade on scroll
-  useEffect(() => {
-    const onScroll = () => {
-      const { scrollY } = window;
-      const vh = window.innerHeight;
-      if (scrollY < vh * 1.1) {
-        const p = Math.min(scrollY / vh, 1);
-        const content = heroContentRef.current;
-        if (content) {
-          content.style.transform = `translate3d(0, ${scrollY * 0.18}px, 0) scale(${1 - p * 0.08})`;
-          content.style.opacity = String(Math.max(0, 1 - p * 1.4));
-        }
-      }
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // IntersectionObserver for reveal
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("in");
-          } else {
-            e.target.classList.remove("in");
-          }
-        });
+export default async function Home() {
+  const [
+    topics,
+    projectRows,
+    members,
+    newsRows,
+    galleryRows,
+    lectureRows,
+    publicationCount,
+    latestAll,
+    latestJournal,
+    latestConference,
+    latestPatent,
+  ] = await Promise.all([
+    prisma.researchTopic.findMany({
+      where: { published: true },
+      orderBy: { order: "asc" },
+      include: {
+        subsections: {
+          where: { published: true },
+          orderBy: { order: "asc" },
+          include: { figures: { orderBy: { order: "asc" } } },
+        },
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-    );
-    document.querySelectorAll(".reveal, .reveal-stagger, .wo-cell").forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
+    }),
+    prisma.project.findMany({ where: { published: true }, orderBy: { order: "asc" } }),
+    prisma.member.findMany({ where: { published: true }, orderBy: { order: "asc" } }),
+    prisma.news.findMany({ where: { published: true }, orderBy: { date: "desc" }, take: 5 }),
+    prisma.galleryItem.findMany({
+      where: { published: true, imgPath: { not: null } },
+      orderBy: { order: "desc" },
+      take: 5,
+    }),
+    prisma.lecture.findMany({ where: { published: true }, orderBy: { order: "asc" } }),
+    prisma.publication.count({ where: { published: true } }),
+    // Latest 10 per tab (year desc, then legacy order desc) so every filter is populated.
+    prisma.publication.findMany({ where: { published: true }, orderBy: [{ year: "desc" }, { order: "desc" }], take: 10 }),
+    prisma.publication.findMany({ where: { published: true, type: "JOURNAL" }, orderBy: [{ year: "desc" }, { order: "desc" }], take: 10 }),
+    prisma.publication.findMany({ where: { published: true, type: "CONFERENCE" }, orderBy: [{ year: "desc" }, { order: "desc" }], take: 10 }),
+    prisma.publication.findMany({ where: { published: true, type: "PATENT" }, orderBy: [{ year: "desc" }, { order: "desc" }], take: 10 }),
+  ]);
 
+  // ── Research cards: first non-null figure across the topic's subsections ──
+  const firstFigure = (t: (typeof topics)[number]): string | null => {
+    for (const s of t.subsections) {
+      for (const f of s.figures) if (f.imgPath) return f.imgPath;
+    }
+    return null;
+  };
+  const research = topics.map((t, i) => ({
+    num: pad2(i + 1),
+    eyebrow: `Research Topic ${pad2(i + 1)}`,
+    title: t.title,
+    // Deep-link to the matching topic section (id = `topic-${num}` in ResearchClient).
+    href: `/research#topic-${parseInt(t.num, 10)}`,
+    img: firstFigure(t),
+  }));
+  const professorKeywords = topics.slice(0, 3).map((t) => t.title);
 
-  // Network graph animation — Ajou Blue nodes connected by proximity
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animId: number;
-
-    const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const isMobile = window.innerWidth < 768;
-    const COUNT = isMobile ? 40 : 80;
-    const LINK_DIST = isMobile ? 120 : 160;
-
-    type Node = { x: number; y: number; vx: number; vy: number; r: number };
-    const nodes: Node[] = Array.from({ length: COUNT }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.6,
-      vy: (Math.random() - 0.5) * 0.6,
-      r: 1.5 + Math.random() * 2,
+  // ── Projects: active first, then legacy order; preview the first four ──
+  const statusRank = (s: string) => (s === "ACTIVE" ? 0 : 1);
+  const projects = [...projectRows]
+    .sort((a, b) => statusRank(a.status) - statusRank(b.status) || a.order - b.order)
+    .slice(0, 4)
+    .map((p) => ({
+      period: periodToYears(p.period),
+      title: p.title,
+      funder: p.institution,
+      active: p.status === "ACTIVE",
     }));
 
-    const frame = () => {
-      const w = canvas.width;
-      const h = canvas.height;
+  // ── Publications: map each tab's latest rows (newest carries display "01") ──
+  type Row = Awaited<ReturnType<typeof prisma.publication.findMany>>[number];
+  const metaOf = (p: Row): string =>
+    p.type === "JOURNAL"
+      ? p.journal ?? ""
+      : p.type === "CONFERENCE"
+        ? p.conference ?? ""
+        : p.applicationNo ?? "—";
+  const toPub = (rows: Row[]): PubItem[] =>
+    rows.map((p, i) => ({
+      num: pad2(i + 1),
+      year: p.year,
+      title: p.title,
+      meta: metaOf(p),
+      detail: p.year,
+      authors: p.authors ?? "",
+      type: p.type,
+    }));
+  const publications: Record<TabKey, PubItem[]> = {
+    All: toPub(latestAll),
+    Journal: toPub(latestJournal),
+    Conference: toPub(latestConference),
+    Patent: toPub(latestPatent),
+  };
 
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, w, h);
+  // ── Members: professor card + position-based groups ──
+  const professor = members.find((m) => m.role === "PROFESSOR");
+  const professorImg = professor?.imgPath ?? "/professor.png";
 
-      for (const n of nodes) {
-        n.x += n.vx;
-        n.y += n.vy;
-        if (n.x < 0 || n.x > w) n.vx *= -1;
-        if (n.y < 0 || n.y > h) n.vy *= -1;
-      }
+  const groupDefs: { label: string; match: (m: (typeof members)[number]) => boolean }[] = [
+    { label: "Researchers", match: (m) => m.role === "RESEARCHER" },
+    { label: "Ph.D. Students", match: (m) => m.position === "Ph.D. Course" },
+    { label: "M.S. Students", match: (m) => m.position === "Master Course" },
+    { label: "Undergrad / Intern", match: (m) => m.position === "Undergraduate Intern" },
+  ];
+  const memberGroups = groupDefs
+    .map((g) => {
+      const ms = members.filter(g.match);
+      return {
+        label: g.label,
+        count: pad2(ms.length),
+        members: ms.map((m) => ({ initials: initialsOf(m.name), name: m.name, year: m.year })),
+      };
+    })
+    .filter((g) => g.members.length > 0);
 
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x;
-          const dy = nodes[i].y - nodes[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < LINK_DIST) {
-            ctx.strokeStyle = `rgba(0,102,255,${((1 - dist / LINK_DIST) * 0.3).toFixed(2)})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(nodes[i].x, nodes[i].y);
-            ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.stroke();
-          }
-        }
-      }
+  // ── Lectures: category label + first paragraph as the blurb ──
+  const lectures = lectureRows.map((l) => ({
+    num: l.num,
+    category: (l.category === "UNDERGRADUATE" ? "Undergraduate" : "Graduate") as
+      | "Undergraduate"
+      | "Graduate",
+    title: l.title,
+    desc: l.paragraphs[0] ?? "",
+  }));
 
-      for (const n of nodes) {
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(0,102,255,0.5)";
-        ctx.fill();
-      }
+  // ── News: split date + flattened body ──
+  const news = newsRows.map((n) => ({
+    day: pad2(n.date.getUTCDate()),
+    month: `${MONTHS[n.date.getUTCMonth()]} ${n.date.getUTCFullYear()}`,
+    title: n.title,
+    body: n.content ? htmlToText(n.content) : "",
+  }));
 
-      animId = requestAnimationFrame(frame);
-    };
+  // ── Gallery: image-backed items in the original span layout ──
+  const gallery = galleryRows.map((g, i) => ({
+    src: g.imgPath!,
+    cap: `${g.title} · ${g.date.getUTCFullYear()}`,
+    span: GALLERY_SPANS[i] ?? "",
+  }));
 
-    frame();
+  // ── Hero stats: exact DB counts (no padding / "+") ──
+  const memberCount = members.filter((m) => m.role !== "ALUMNI").length;
+  const heroStats = [
+    { value: String(publicationCount), label: "Publications" },
+    { value: String(memberCount), label: "Lab members" },
+    { value: String(projectRows.length), label: "Funded projects" },
+  ];
 
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
+  const data: HomeData = {
+    heroStats,
+    research,
+    projects,
+    publications,
+    professorImg,
+    professorKeywords,
+    publicationCount,
+    memberGroups,
+    lectures,
+    news,
+    gallery,
+  };
 
-  const visiblePubs = PUBLICATIONS.reduce(
-    (acc: typeof PUBLICATIONS, group) => {
-      const taken = acc.reduce((s, g) => s + g.items.length, 0);
-      if (taken >= 10) return acc;
-      const filtered = group.items.filter(
-        (item) => activeTab === "All" || item.type === activeTab.toUpperCase()
-      );
-      if (filtered.length === 0) return acc;
-      acc.push({ ...group, items: filtered.slice(0, 10 - taken) });
-      return acc;
-    },
-    []
-  );
-
-  return (
-    <main>
-      {/* ── Hero ── */}
-      <header
-        className="relative flex min-h-[640px] w-full items-center justify-center overflow-hidden"
-        style={{ height: "100vh" }}
-      >
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-
-        <div
-          ref={heroContentRef}
-          className="relative z-[3] max-w-[980px] px-6 text-center"
-          style={{ willChange: "transform, opacity" }}
-        >
-          <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-accent/20 bg-accent-soft px-3.5 py-2 text-[12.5px] font-medium text-accent">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            <span className="font-mono">ATM&nbsp;LAB&nbsp;·&nbsp;EST.&nbsp;2014</span>
-          </div>
-          <h1 className="mb-6 font-bold leading-[1.02] tracking-[-0.035em] text-ink" style={{ fontSize: "clamp(44px,7vw,96px)" }}>
-            Advanced<br />
-            <span
-              style={{
-                background: "linear-gradient(120deg,#0066FF 0%, #3385FF 50%, #0066FF 100%)",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-              }}
-            >
-              Thermal Management
-            </span>{" "}
-            Lab
-          </h1>
-          <p className="mx-auto max-w-[640px] leading-[1.5] text-ink-2" style={{ fontSize: "clamp(16px,1.6vw,20px)" }}>
-            Advancing thermal solutions for next-generation technologies — from microelectronics cooling to sustainable energy systems.
-          </p>
-          <div className="mt-12 flex flex-wrap justify-center gap-8 text-[13px] text-ink-3">
-            {[
-              { value: "62+", label: "Peer-reviewed papers" },
-              { value: "14", label: "Active researchers" },
-              { value: "9", label: "Industry partners" },
-            ].map(({ value, label }) => (
-              <span key={label}>
-                <strong className="mb-0.5 block text-[22px] font-semibold tracking-[-0.01em] text-ink">{value}</strong>
-                {label}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <a
-          href="#research"
-          className="absolute bottom-9 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-2.5 text-[11px] tracking-[0.18em] text-ink-3"
-        >
-          <span>SCROLL</span>
-          <span className="scroll-line" />
-        </a>
-      </header>
-
-      {/* ── Welcome + Contact ── */}
-      <section id="welcome" className="bg-white">
-        <div className="mx-auto max-w-container">
-          <div className="wo-cell grid grid-cols-[1.1fr_1fr] items-start gap-16 px-8 py-[120px] max-[900px]:grid-cols-1 max-[900px]:gap-12 max-[640px]:px-5 max-[640px]:py-20">
-            {/* Left: Welcome text */}
-            <div className="reveal">
-              <div className="mb-3.5 flex items-center gap-2.5 text-xs font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[18px] before:bg-accent before:content-['']">
-                Welcome
-              </div>
-              <h2 className="mb-7 font-bold leading-[0.95] tracking-[-0.04em]" style={{ fontSize: "clamp(48px,6vw,88px)" }}>
-                Welcome.
-              </h2>
-              <div className="wo-rule" />
-              <p className="text-[17px] leading-[1.75] text-ink-2">
-                Welcome to the <strong className="font-semibold text-ink">Advanced Thermal Management Laboratory (ATM&nbsp;Lab)</strong> under the guidance of Prof. Seungwon Kim in the Department of Mechanical Engineering at Ajou University.
-              </p>
-              <p className="mt-[18px] text-[17px] leading-[1.75] text-ink-2">
-                We study heat transfer at the boundary of fundamental physics and real-world systems &mdash; from boiling on engineered surfaces to thermal control of next-generation electronics and energy storage. Our work pairs precision experiments with predictive modeling to push the limits of how heat moves through engineered systems.
-              </p>
-            </div>
-
-            {/* Right: Contact */}
-            <div className="reveal">
-              <div className="mb-3.5 flex items-center gap-2.5 text-xs font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[18px] before:bg-accent before:content-['']">
-                Contact
-              </div>
-              <h2 className="mb-7 font-bold leading-[0.95] tracking-[-0.04em]" style={{ fontSize: "clamp(48px,6vw,88px)" }}>
-                Join us.
-              </h2>
-              <div className="wo-rule" />
-              <p className="text-[17px] leading-[1.75] text-ink-2">
-                ATM Lab is recruiting <strong className="font-semibold text-ink">postdoctoral researchers</strong> and <strong className="font-semibold text-ink">graduate students</strong> with passionate and innovative minds.
-              </p>
-              <p className="mt-[18px] text-[17px] leading-[1.75] text-ink-2">
-                If you are interested in joining the lab or collaborating, please contact Prof. Jungho Lee at{" "}
-                <a href="mailto:jungholee@ajou.ac.kr" className="font-medium text-accent hover:underline">jungholee@ajou.ac.kr</a>.
-              </p>
-              <a
-                href="https://grad.ajou.ac.kr/gs/admission/admission01.do"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group/cta mt-8 inline-flex flex-col gap-1"
-              >
-                <span className="text-[10.5px] font-medium uppercase tracking-[0.16em] text-ink-3">
-                  Graduate admissions
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-accent group-hover/cta:underline">
-                  View admission process &amp; deadlines
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 transition-transform duration-200 group-hover/cta:translate-x-1">
-                    <path d="M5 12h14"/><path d="M13 5l7 7-7 7"/>
-                  </svg>
-                </span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Research ── */}
-      <section id="research" className="relative bg-bg py-[120px]">
-        <Container>
-          <SectionHead
-            eyebrow="Research Areas"
-            title="Engineering heat at every scale."
-            className="reveal"
-          />
-          <div className="research-grid reveal grid grid-cols-2 gap-5 max-[820px]:grid-cols-1">
-            {RESEARCH_ITEMS.map((item) => (
-              <a
-                key={item.num}
-                href={item.href}
-                className="group overflow-hidden rounded-[20px] border border-line bg-surface transition-[transform,box-shadow] duration-[350ms] hover:-translate-y-1.5 hover:shadow-[0_24px_50px_-20px_rgba(0,102,255,.2)]"
-              >
-                <div className="relative overflow-hidden" style={{ aspectRatio: "16/10" }}>
-                  <span className="absolute right-4 top-4 z-10 font-mono text-[11px] font-medium tracking-[0.1em] text-white/80">
-                    {item.num}
-                  </span>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark/30 to-transparent" />
-                </div>
-                <div className="px-7 py-6">
-                  <div className="mb-2 text-[11.5px] font-medium uppercase tracking-[0.14em] text-accent">
-                    {item.eyebrow}
-                  </div>
-                  <h3 className="mb-4 text-[22px] font-semibold leading-[1.25] tracking-[-0.015em]">
-                    {item.title}
-                  </h3>
-                  <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent">
-                    view more
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1">
-                      <path d="M5 12h14" /><path d="M13 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* ── Projects ── */}
-      <section id="projects" className="relative border-t border-line bg-white py-[120px]">
-        <Container>
-          <SectionHead
-            eyebrow="Funded Projects"
-            title={<>Active &amp; recent research projects.</>}
-            sub="A selection of competitively-funded projects from national agencies and industry partners. Full list available on request."
-            className="reveal"
-          />
-          <div className="reveal flex flex-col">
-            {PROJECTS.slice(0, 4).map((p) => (
-              <div
-                key={p.title}
-                className="group grid cursor-default grid-cols-[90px_1fr_auto] items-center gap-8 border-t border-line py-[26px] last:border-b transition-[padding] duration-[350ms] hover:pl-3.5 max-[780px]:grid-cols-1 max-[780px]:gap-2"
-              >
-                <div className="font-mono text-[12.5px] leading-[1.4] tracking-[0.02em] text-ink-3">
-                  <b className="mb-0.5 block text-sm font-semibold text-ink">{p.period}</b>
-                  {p.duration}
-                </div>
-                <div>
-                  <div className="mb-1 text-[17px] font-semibold leading-[1.4] tracking-[-0.01em]">{p.title}</div>
-                  <div className="text-[13.5px] text-ink-3">{p.funder}</div>
-                </div>
-                <span
-                  className={`whitespace-nowrap rounded-md px-2.5 py-[5px] text-[11.5px] font-medium tracking-[0.04em] max-[780px]:justify-self-start ${p.active ? "bg-success-soft text-success" : "bg-[#f4f5f7] text-ink-2"
-                    }`}
-                >
-                  {p.active ? "Active" : "Completed"}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 text-right">
-            <a href="/projects" className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent hover:underline">
-              View all projects
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                <path d="M5 12h14"/><path d="M13 5l7 7-7 7"/>
-              </svg>
-            </a>
-          </div>
-        </Container>
-      </section>
-
-      {/* ── Publications ── */}
-      <section
-        id="publications"
-        className="relative py-[120px] text-white"
-        style={{ background: "#001F66" }}
-      >
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(800px circle at 80% 0%, rgba(0,102,255,.25), transparent 50%), radial-gradient(600px circle at 0% 100%, rgba(51,133,255,.12), transparent 50%)",
-          }}
-        />
-        <Container className="relative">
-          <SectionHead
-            eyebrow="Selected Publications"
-            title="Journals · Conferences · Selected Patents"
-            sub="Peer-reviewed articles, conference proceedings, and selected patents from the lab's work on thermal management and energy systems."
-            variant="dark"
-            stacked
-            className="reveal"
-          />
-
-          <div className="reveal mb-8 flex flex-wrap gap-1.5">
-            {PUB_TABS.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`cursor-pointer rounded-full border px-4 py-2 text-[13px] font-medium transition-all duration-200 ${activeTab === tab
-                  ? "border-white bg-white text-dark"
-                  : "border-white/[0.08] bg-white/[0.06] text-white/65 hover:bg-white/[0.1] hover:text-white"
-                  }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          <div className="reveal flex flex-col">
-            {visiblePubs.map((group) => (
-              <div
-                key={group.year}
-                className="flex items-start gap-12 border-t border-white/[0.08] py-7 last:border-b last:border-white/[0.08] max-[680px]:flex-col max-[680px]:gap-4"
-              >
-                <div className="w-20 flex-none pt-1 font-mono text-[13px] font-medium tracking-[0.05em] text-accent-lighter">
-                  {group.year}
-                </div>
-                <div className="flex flex-1 flex-col gap-6">
-                  {group.items.map((item) => (
-                      <div key={item.num} className="group/item grid grid-cols-[24px_1fr_auto] items-start gap-5 transition-transform duration-300 hover:translate-x-1 max-[680px]:grid-cols-1">
-                        <span className="pt-1 font-mono text-[12px] text-white/40 max-[680px]:hidden">{item.num}</span>
-                        <div>
-                          <div className="mb-1.5 text-[17px] font-medium leading-[1.4] tracking-[-0.005em] text-white">{item.title}</div>
-                          <div className="mb-1.5 text-[13.5px] font-medium text-accent-lighter">
-                            <em className="not-italic text-white/85">{item.meta}</em>
-                            {", "}{item.detail}
-                          </div>
-                          <div className="text-[13.5px] leading-[1.5] text-white/55">{item.authors}</div>
-                        </div>
-                        <span className="self-start rounded px-2 py-1 text-[10.5px] font-medium tracking-[0.05em] text-accent-lighter max-[680px]:justify-self-start" style={{ background: "rgba(154,202,235,.2)" }}>
-                          {item.type}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 text-right">
-            <a href="/publications" className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent-lighter hover:text-white">
-              See all publications
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                <path d="M5 12h14"/><path d="M13 5l7 7-7 7"/>
-              </svg>
-            </a>
-          </div>
-        </Container>
-      </section>
-
-      {/* ── Members ── */}
-      <section id="members" className="bg-white py-[120px]">
-        <Container>
-          <SectionHead
-            eyebrow="People"
-            title={<>A small team. A shared&nbsp;curiosity.</>}
-            sub="Led by Prof. Jungho Lee, ATM Lab brings together researchers and students from mechanical engineering backgrounds. Alumni and full profiles on the Members page."
-            className="reveal"
-          />
-          <div className="grid grid-cols-[1fr_1.4fr] items-start gap-12 max-[980px]:grid-cols-1">
-            {/* Prof card */}
-            <div
-              className="reveal group relative aspect-[4/5] overflow-hidden rounded-[24px] text-white"
-              style={{ background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/professor.png"
-                alt="Professor portrait"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
-              />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,15,40,.85) 75%, rgba(0,15,40,.95) 100%), linear-gradient(135deg, rgba(0,102,255,.35) 0%, transparent 60%)",
-                }}
-              />
-              <div className="absolute bottom-0 left-0 right-0 p-8">
-                <span className="mb-3.5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.15] px-3 py-[5px] text-[11.5px] font-medium tracking-[0.04em] backdrop-blur-[10px]">
-                  PRINCIPAL INVESTIGATOR
-                </span>
-                <h3 className="mb-1 text-[30px] font-bold leading-[1.1] tracking-[-0.02em]">Prof. Jungho Lee</h3>
-                <div className="mb-1 text-[13px] text-white/55">Ph.D. POSTECH · 1999</div>
-                <div className="mb-4 text-[14px] text-white/75">Department of Mechanical Engineering · Ajou University</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Thermal Management", "Phase-Change", "Heat Pipe"].map((kw) => (
-                    <span key={kw} className="rounded-md bg-white/[0.12] px-2.5 py-1 text-[11px] font-medium text-white/80">
-                      {kw}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Members side */}
-            <div className="flex flex-col gap-9">
-              <p className="reveal text-[15.5px] leading-[1.7] text-ink-2">
-                <strong className="font-semibold text-ink">Prof. Kim</strong> received his Ph.D. in Mechanical Engineering from KAIST in 2012 and conducted postdoctoral research at MIT before joining Ajou University in 2015. His research focuses on phase-change heat transfer, two-phase cooling systems, and thermal energy storage. He has authored 60+ peer-reviewed papers and serves on the editorial board of two international journals.
-              </p>
-              {MEMBER_GROUPS.map((group) => (
-                <div key={group.label} className="reveal">
-                  <h4 className="mb-[18px] flex items-center gap-3.5 text-[12px] font-medium uppercase tracking-[0.15em] text-ink-3 after:h-px after:flex-1 after:bg-line after:content-['']">
-                    <span>{group.label}</span>
-                    <span className="font-mono text-accent">{group.count}</span>
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {group.members.map((m) => (
-                      <span
-                        key={m.name}
-                        className="inline-flex cursor-default items-center gap-2 rounded-[10px] border border-transparent bg-[#f5f6f8] px-3.5 py-2.5 text-[14px] font-medium text-ink transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:bg-white hover:shadow-[0_6px_18px_-8px_rgba(0,102,255,.4)]"
-                      >
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-light text-[10.5px] font-semibold tracking-[0.02em] text-white">
-                          {m.initials}
-                        </span>
-                        {m.name}
-                        <span className="font-mono text-[11px] text-ink-3">{m.year}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              <div className="reveal text-right">
-                <a href="/members" className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent hover:underline">
-                  View all members
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                    <path d="M5 12h14"/><path d="M13 5l7 7-7 7"/>
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* ── Lectures ── */}
-      <section id="lectures" className="bg-bg py-[120px]">
-        <Container>
-          <SectionHead
-            eyebrow="Teaching"
-            title="Courses taught at Ajou."
-            sub="Prof. Kim teaches undergraduate and graduate courses on heat transfer, thermodynamics, and energy systems. Course materials available on AjouBb."
-            className="reveal"
-          />
-          <div className="flex flex-col gap-10">
-            {[
-              { label: "Undergraduate", courses: LECTURES.filter((l) => !l.grad) },
-              { label: "Graduate", courses: LECTURES.filter((l) => l.grad) },
-            ].map(({ label, courses }) => (
-              <div key={label} className="reveal">
-                <h3 className="mb-5 text-[13px] font-medium uppercase tracking-[0.15em] text-ink-3">{label}</h3>
-                <div className="grid grid-cols-3 gap-[18px] max-[880px]:grid-cols-1">
-                  {courses.map((lec) => (
-                    <div
-                      key={lec.title}
-                      className="group flex flex-col gap-3 rounded-[18px] border border-line bg-white px-7 pb-6 pt-6 transition-[transform,box-shadow,border-color] duration-[350ms] hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]"
-                    >
-                      <div className="text-[19px] font-semibold leading-[1.3] tracking-[-0.01em]">{lec.title}</div>
-                      <div className="flex-1 text-[13.5px] leading-[1.6] text-ink-3">{lec.desc}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* ── Updates (Board) ── */}
-      <section id="updates" className="bg-bg py-[120px]">
-        <Container>
-          <SectionHead
-            eyebrow="Board"
-            title={<>News &amp; gallery.</>}
-            sub="Awards, conferences, and what daily life inside ATM Lab actually looks like."
-            className="reveal"
-          />
-          <div className="grid grid-cols-2 items-start gap-12 max-[920px]:grid-cols-1 max-[920px]:gap-16">
-            {/* News */}
-            <div className="reveal">
-              <div className="mb-6 flex items-baseline justify-between">
-                <h3 className="text-[28px] font-bold tracking-[-0.02em]">News</h3>
-                <a href="/board" className="text-[13px] font-medium text-accent">View all →</a>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                {NEWS.slice(0, 5).map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex cursor-pointer gap-5 border-b border-line py-[22px] px-1 last:border-0 transition-[padding] duration-300 hover:pl-3.5"
-                  >
-                    <div className="w-[88px] flex-none font-mono text-[12px] text-ink-3">
-                      <b className="mb-1 block font-sans text-[20px] font-semibold leading-none tracking-[-0.01em] text-ink">
-                        {item.day}
-                      </b>
-                      {item.month}
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="mb-1.5 line-clamp-2 text-[16px] font-semibold leading-[1.35] tracking-[-0.01em]">{item.title}</h4>
-                      <p className="line-clamp-2 text-[14px] leading-[1.5] text-ink-3">{item.body}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Gallery */}
-            <div className="reveal">
-              <div className="mb-6 flex items-baseline justify-between">
-                <h3 className="text-[28px] font-bold tracking-[-0.02em]">Gallery</h3>
-                <a href="#" className="text-[13px] font-medium text-accent">More →</a>
-              </div>
-              <div className="grid grid-cols-2 gap-2.5" style={{ gridAutoRows: "140px" }}>
-                {GALLERY.map((img, i) => (
-                  <a
-                    key={i}
-                    href="#"
-                    className={`group/gal relative block overflow-hidden rounded-[14px] bg-[#eee] ${img.span}`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={img.src}
-                      alt={img.cap}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/gal:scale-[1.08]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/45 opacity-0 transition-opacity duration-[350ms] group-hover/gal:opacity-100" />
-                    <span className="absolute bottom-3 left-3.5 z-[2] translate-y-1.5 text-[12px] font-medium tracking-[0.02em] text-white opacity-0 transition-all duration-[350ms] group-hover/gal:translate-y-0 group-hover/gal:opacity-100">
-                      {img.cap}
-                    </span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-    </main>
-  );
+  return <HomeClient {...data} />;
 }
