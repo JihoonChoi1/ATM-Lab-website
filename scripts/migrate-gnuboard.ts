@@ -140,6 +140,17 @@ function legacyPathFromFilename(bfFile: string | null): string | null {
   return `/legacy/${bfFile}`;
 }
 
+// Some 2024–25 gallery posts have no g5_board_file attachment — the photo was
+// embedded inline in the editor body instead. Returns the first inline image
+// rewritten to /legacy/<filename>, reusing rewriteImageUrls so it matches every
+// other migrated image. Returns null when there is no rewritable image.
+function firstInlineImage(html: string): string | null {
+  const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (!m) return null;
+  const rewritten = rewriteImageUrls(m[1]);
+  return rewritten.startsWith("/legacy/") ? rewritten : null;
+}
+
 // Removes HTML tags and decodes a small set of common entities. Used for
 // fields that should be plain text (interests, alumni current position).
 function htmlToText(html: string): string {
@@ -541,13 +552,17 @@ async function migrateGallery(sql: string, files: Map<string, FileRow[]>) {
   for (const r of rows) {
     const wrId = Number(r[0] ?? 0);
     const title = r[9] ?? "";
+    const contentHtml = r[10] ?? "";
     const datetime = r[24] ?? null;
 
     await prisma.galleryItem.create({
       data: {
         title,
         date: parseDate(datetime),
-        imgPath: primaryImage(files, "sub6_2", wrId),
+        // Attachment first; fall back to the inline editor image for posts that
+        // embedded the photo in the body instead of attaching it.
+        imgPath:
+          primaryImage(files, "sub6_2", wrId) ?? firstInlineImage(contentHtml),
         order: wrId,
       },
     });
