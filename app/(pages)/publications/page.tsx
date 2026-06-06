@@ -26,6 +26,7 @@ export default async function PublicationsPage() {
   const journals: Journal[] = sortAndNumber(
     rows.filter((r) => r.type === "JOURNAL"),
     (r, num) => ({
+      id: r.id,
       num,
       year: r.year,
       title: r.title,
@@ -39,6 +40,7 @@ export default async function PublicationsPage() {
   const conferences: Conference[] = sortAndNumber(
     rows.filter((r) => r.type === "CONFERENCE"),
     (r, num) => ({
+      id: r.id,
       num,
       year: r.year,
       title: r.title,
@@ -50,6 +52,7 @@ export default async function PublicationsPage() {
   const patents: Patent[] = sortAndNumber(
     rows.filter((r) => r.type === "PATENT"),
     (r, num) => ({
+      id: r.id,
       num,
       year: r.year,
       title: r.title,

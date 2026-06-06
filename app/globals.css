@@ -4,7 +4,9 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
+    /* Anchor / hash jumps land instantly (no scroll animation). Intentional
+       smooth scrolls are opted into per-call in JS via behavior: "smooth"
+       (e.g. the hero SCROLL cue, the publications tab bar). */
     /* Offset anchor jumps for the sticky navbar (72px) + page sub-TOC.
        Applies on initial cross-page hash loads before per-page JS runs. */
     scroll-padding-top: 130px;

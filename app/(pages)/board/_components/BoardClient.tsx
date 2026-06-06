@@ -1,17 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Container from "@/components/ui/Container";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type NewsItem = {
+  id: string;
   num: string;
   date: string;
   title: string;
 };
 
 export type GalleryItem = {
+  id: string;
   num: string;
   date: string;
   title: string;
@@ -229,7 +232,7 @@ export default function BoardClient({
             {news.map((n, i) => (
               <li
                 key={n.num}
-                className="reveal group grid grid-cols-[88px_120px_1fr_auto] gap-x-8 items-baseline py-7 px-2 border-b border-line last:border-b-0 transition-colors duration-300 hover:bg-accent-soft/60 max-[820px]:grid-cols-[64px_1fr] max-[820px]:gap-y-2 max-[820px]:py-6"
+                className="reveal group grid grid-cols-[88px_120px_1fr_auto] gap-x-8 items-baseline py-7 px-2 border-b border-line last:border-b-0 max-[820px]:grid-cols-[64px_1fr] max-[820px]:gap-y-2 max-[820px]:py-6"
                 style={{ transitionDelay: `${Math.min(i * 80, 600)}ms` }}
               >
                 {/* mono index */}
@@ -244,14 +247,14 @@ export default function BoardClient({
                   {n.date}
                 </span>
                 {/* title */}
-                <a
-                  href="#"
+                <Link
+                  href={`/board/news/${n.id}`}
                   lang="ko"
                   className="text-ink font-semibold tracking-[-0.01em] leading-[1.45] group-hover:text-accent transition-colors"
                   style={{ fontSize: "clamp(17px,1.6vw,20px)" }}
                 >
                   {n.title}
-                </a>
+                </Link>
                 {/* arrow */}
                 <span
                   className="font-mono text-[14px] text-ink-3 group-hover:text-accent transition-[transform,color] group-hover:translate-x-1 max-[820px]:hidden"
@@ -298,7 +301,7 @@ export default function BoardClient({
                 className="group reveal"
                 style={{ transitionDelay: `${Math.min(i * 50, 200)}ms` }}
               >
-                <a href="#" className="block" aria-label={g.title}>
+                <Link href={`/board/gallery/${g.id}`} className="block" aria-label={g.title}>
                   <div className="relative overflow-hidden rounded-[14px] border border-line bg-surface p-2.5 transition-[transform,box-shadow,border-color] duration-300 group-hover:-translate-y-1.5 group-hover:border-accent/30 group-hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
                     {g.imgPath ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -341,7 +344,7 @@ export default function BoardClient({
                       {g.date}
                     </p>
                   </div>
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

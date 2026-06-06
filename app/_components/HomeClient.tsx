@@ -260,6 +260,13 @@ export default function HomeClient({
 
         <a
           href="#research"
+          onClick={(e) => {
+            // Keep this "scroll down" cue animated; everything else jumps instantly.
+            e.preventDefault();
+            document
+              .getElementById("research")
+              ?.scrollIntoView({ behavior: "smooth" });
+          }}
           className="absolute bottom-9 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-2.5 text-[11px] tracking-[0.18em] text-ink-3"
         >
           <span>SCROLL</span>

@@ -1,12 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import Container from "@/components/ui/Container";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
+
+// sessionStorage key holding the list's tab/year/scroll so we can return the
+// user to where they were after they open a detail page and come back.
+const STORAGE_KEY = "publications:view";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type Journal = {
+  id: string;
   num: number;
   year: string;
   title: string;
@@ -17,6 +23,7 @@ export type Journal = {
 };
 
 export type Conference = {
+  id: string;
   num: number;
   year: string;
   title: string;
@@ -25,6 +32,7 @@ export type Conference = {
 };
 
 export type Patent = {
+  id: string;
   num: number;
   year: string;
   title: string;
@@ -82,9 +90,37 @@ function NumLabel({ n }: { n: number }) {
   );
 }
 
+// Stretched link: the ::before overlay covers the whole (relatively positioned)
+// row, so clicking anywhere navigates to the detail page — without nesting the
+// row's other anchors (e.g. the journal DOI button, which sits above via z-10).
+function TitleLink({
+  id,
+  onNavigate,
+  children,
+}: {
+  id: string;
+  onNavigate?: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={`/publications/${id}`}
+      onClick={onNavigate}
+      className="before:absolute before:inset-0 before:content-['']"
+    >
+      {children}
+    </Link>
+  );
+}
+
 function ExternalLinkButton({ href }: { href: string }) {
   return (
-    <a href={href} target="_blank" rel="noopener" className={linkBtnClass}>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener"
+      className={`${linkBtnClass} relative z-10`}
+    >
       <svg
         viewBox="0 0 24 24"
         fill="none"
@@ -104,9 +140,9 @@ function ExternalLinkButton({ href }: { href: string }) {
   );
 }
 
-function JournalRow({ it }: { it: Journal }) {
+function JournalRow({ it, onNavigate }: { it: Journal; onNavigate: () => void }) {
   return (
-    <li className={rowBase}>
+    <li className={`${rowBase} relative`}>
       <NumLabel n={it.num} />
       <div className="shrink-0 mt-0.5 max-[640px]:hidden">
         {it.imgPath ? (
@@ -122,7 +158,7 @@ function JournalRow({ it }: { it: Journal }) {
       </div>
       <div className="flex-1 min-w-0">
         <h3 className={`text-[clamp(16px,1.5vw,19px)] font-semibold tracking-[-0.01em] text-ink leading-[1.45] ${titleHover}`}>
-          &ldquo;{it.title}&rdquo;
+          <TitleLink id={it.id} onNavigate={onNavigate}>&ldquo;{it.title}&rdquo;</TitleLink>
         </h3>
         <p className="mt-2 text-[14.5px] text-ink-2 italic leading-[1.55]">{it.journal}</p>
         <p className="mt-1 text-[13.5px] text-ink-3 leading-[1.6]">{it.authors}</p>
@@ -132,13 +168,19 @@ function JournalRow({ it }: { it: Journal }) {
   );
 }
 
-function ConferenceRow({ it }: { it: Conference }) {
+function ConferenceRow({
+  it,
+  onNavigate,
+}: {
+  it: Conference;
+  onNavigate: () => void;
+}) {
   return (
-    <li className={rowBase}>
+    <li className={`${rowBase} relative`}>
       <NumLabel n={it.num} />
       <div className="flex-1 min-w-0">
         <h3 className={`text-[clamp(16px,1.5vw,19px)] font-semibold tracking-[-0.01em] text-ink leading-[1.45] ${titleHover}`}>
-          &ldquo;{it.title}&rdquo;
+          <TitleLink id={it.id} onNavigate={onNavigate}>&ldquo;{it.title}&rdquo;</TitleLink>
         </h3>
         <p className="mt-2 text-[13.5px] text-ink-3 leading-[1.6]">{it.authors}</p>
         <p className="mt-1 text-[14.5px] text-ink-2 italic leading-[1.55]">{it.conference}</p>
@@ -147,14 +189,14 @@ function ConferenceRow({ it }: { it: Conference }) {
   );
 }
 
-function PatentCard({ it }: { it: Patent }) {
+function PatentCard({ it, onNavigate }: { it: Patent; onNavigate: () => void }) {
   return (
-    <li className="group rounded-[14px] border border-line bg-surface p-6 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
+    <li className="group relative rounded-[14px] border border-line bg-surface p-6 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
       <div className="flex items-start gap-5 max-[640px]:flex-col max-[640px]:gap-2">
         <NumLabel n={it.num} />
         <div className="flex-1 min-w-0">
           <h3 className={`text-[clamp(16px,1.5vw,19px)] font-semibold tracking-[-0.01em] text-ink leading-[1.45] ${titleHover}`}>
-            {it.title}
+            <TitleLink id={it.id} onNavigate={onNavigate}>{it.title}</TitleLink>
           </h3>
           <p className="mt-2 text-[13.5px] text-ink-3 leading-[1.6]">{it.inventors}</p>
           <dl className="mt-4 grid grid-cols-[110px_1fr] gap-x-4 gap-y-2 max-[640px]:grid-cols-1 max-[640px]:gap-y-1">
@@ -181,6 +223,56 @@ export default function PublicationsClient({
 }: PublicationsData) {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>("journals");
   const [activeYear, setActiveYear] = useState<string>("All");
+  const [pendingScroll, setPendingScroll] = useState<number | null>(null);
+
+  // Snapshot the current tab/year/scroll right before opening a detail page, so
+  // returning here (back button or browser back) lands on the same spot.
+  const saveReturnState = useCallback(() => {
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        category: activeCategory,
+        year: activeYear,
+        scrollY: window.scrollY,
+      })
+    );
+  }, [activeCategory, activeYear]);
+
+  // On mount (incl. when navigating back from a detail page) restore the saved
+  // tab/year and queue the saved scroll offset. One-shot: cleared after reading,
+  // so a fresh visit from the nav still opens at the top.
+  useEffect(() => {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    sessionStorage.removeItem(STORAGE_KEY);
+    try {
+      const saved = JSON.parse(raw) as {
+        category?: CategoryKey;
+        year?: string;
+        scrollY?: number;
+      };
+      if (saved.category) setActiveCategory(saved.category);
+      if (saved.year) setActiveYear(saved.year);
+      if (typeof saved.scrollY === "number") setPendingScroll(saved.scrollY);
+    } catch {
+      /* ignore malformed state */
+    }
+  }, []);
+
+  // Apply the queued offset once the restored tab/year has rendered (so the page
+  // is tall enough). Force an instant jump past the global smooth scroll-behavior.
+  useEffect(() => {
+    if (pendingScroll === null) return;
+    const y = pendingScroll;
+    setPendingScroll(null);
+    requestAnimationFrame(() => {
+      const html = document.documentElement;
+      const prev = html.style.scrollBehavior;
+      html.style.scrollBehavior = "auto";
+      window.scrollTo(0, y);
+      html.style.scrollBehavior = prev;
+    });
+  }, [pendingScroll, activeCategory, activeYear]);
 
   const categories = useMemo(
     () => ({
@@ -425,15 +517,27 @@ export default function PublicationsClient({
                     <ol className={isPatent ? "grid gap-4" : "divide-y divide-line"}>
                       {activeCategory === "journals" &&
                         g.items.map((it) => (
-                          <JournalRow key={it.num} it={it as Journal} />
+                          <JournalRow
+                            key={it.num}
+                            it={it as Journal}
+                            onNavigate={saveReturnState}
+                          />
                         ))}
                       {activeCategory === "conferences" &&
                         g.items.map((it) => (
-                          <ConferenceRow key={it.num} it={it as Conference} />
+                          <ConferenceRow
+                            key={it.num}
+                            it={it as Conference}
+                            onNavigate={saveReturnState}
+                          />
                         ))}
                       {activeCategory === "patents" &&
                         g.items.map((it) => (
-                          <PatentCard key={it.num} it={it as Patent} />
+                          <PatentCard
+                            key={it.num}
+                            it={it as Patent}
+                            onNavigate={saveReturnState}
+                          />
                         ))}
                     </ol>
                   </div>

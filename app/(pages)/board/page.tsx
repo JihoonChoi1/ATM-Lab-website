@@ -19,12 +19,14 @@ export default async function BoardPage() {
   ]);
 
   const news: NewsItem[] = newsRows.map((n, i) => ({
+    id: n.id,
     num: pad2(newsRows.length - i),
     date: fmtDate(n.date),
     title: n.title,
   }));
 
   const gallery: GalleryItem[] = galleryRows.map((g, i) => ({
+    id: g.id,
     num: pad2(galleryRows.length - i),
     date: fmtDate(g.date),
     title: g.title,
