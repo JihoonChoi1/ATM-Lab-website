@@ -21,11 +21,16 @@ import * as https from "https";
 import * as path from "path";
 import { prisma } from "../lib/db";
 
-const SQL_PATH = process.env.GNUBOARD_SQL_PATH;
-if (!SQL_PATH) {
-  console.error("GNUBOARD_SQL_PATH is not set. Add it to .env.local.");
-  process.exit(1);
+function requireEnv(name: string): string {
+  const v = process.env[name];
+  if (!v) {
+    console.error(`${name} is not set. Add it to .env.local.`);
+    process.exit(1);
+  }
+  return v;
 }
+
+const SQL_PATH = requireEnv("GNUBOARD_SQL_PATH");
 const LEGACY_DIR = path.resolve(process.cwd(), "public/legacy");
 // The old atml.dsso.kr tree is also served here; URLs in the dump use dsso.kr.
 const LIVE_BASE = "http://atmlab.ajou.ac.kr";
