@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import Container from "@/components/ui/Container";
 import SectionHead from "@/components/ui/SectionHead";
 
@@ -9,6 +10,7 @@ import SectionHead from "@/components/ui/SectionHead";
 export type TabKey = "All" | "Journal" | "Conference" | "Patent";
 
 export type PubItem = {
+  id: string;
   num: string;
   year: string;
   title: string;
@@ -27,24 +29,26 @@ export type ResearchCard = {
 };
 
 export type ProjectItem = {
+  id: string;
   period: string;
   title: string;
   funder: string;
   active: boolean;
 };
 
-export type MemberChip = { initials: string; name: string; year: string | null };
+export type MemberChip = { id: string; initials: string; name: string; year: string | null };
 export type MemberGroup = { label: string; count: string; members: MemberChip[] };
 
 export type LectureItem = {
+  id: string;
   num: string;
   category: "Undergraduate" | "Graduate";
   title: string;
   desc: string;
 };
 
-export type NewsItem = { day: string; month: string; title: string; body: string };
-export type GalleryImg = { src: string; cap: string; span: string };
+export type NewsItem = { id: string; day: string; month: string; title: string; body: string };
+export type GalleryImg = { id: string; src: string; cap: string; span: string };
 export type HeroStat = { value: string; label: string };
 
 export type HomeData = {
@@ -394,9 +398,10 @@ export default function HomeClient({
           />
           <div className="reveal flex flex-col">
             {projects.map((p) => (
-              <div
-                key={p.title}
-                className="group grid cursor-default grid-cols-[90px_1fr_auto] items-center gap-8 border-t border-line py-[26px] last:border-b transition-[padding] duration-[350ms] hover:pl-3.5 max-[780px]:grid-cols-1 max-[780px]:gap-2"
+              <Link
+                key={p.id}
+                href={`/projects#project-${p.id}`}
+                className="group grid grid-cols-[90px_1fr_auto] items-center gap-8 border-t border-line py-[26px] last:border-b transition-[padding] duration-[350ms] hover:pl-3.5 max-[780px]:grid-cols-1 max-[780px]:gap-2"
               >
                 <div className="font-mono text-[12.5px] leading-[1.4] tracking-[0.02em] text-ink-3">
                   <b className="block text-sm font-semibold text-ink">{p.period}</b>
@@ -411,7 +416,7 @@ export default function HomeClient({
                 >
                   {p.active ? "Active" : "Completed"}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
           <div className="mt-10 text-right">
@@ -474,7 +479,7 @@ export default function HomeClient({
                 </div>
                 <div className="flex flex-1 flex-col gap-6">
                   {group.items.map((item) => (
-                      <div key={item.num} className="group/item grid grid-cols-[24px_1fr_auto] items-start gap-5 transition-transform duration-300 hover:translate-x-1 max-[680px]:grid-cols-1">
+                      <Link key={item.id} href={`/publications/${item.id}`} className="group/item grid grid-cols-[24px_1fr_auto] items-start gap-5 transition-transform duration-300 hover:translate-x-1 max-[680px]:grid-cols-1">
                         <span className="pt-1 font-mono text-[12px] text-white/40 max-[680px]:hidden">{item.num}</span>
                         <div>
                           <div className="mb-1.5 text-[17px] font-medium leading-[1.4] tracking-[-0.005em] text-white">{item.title}</div>
@@ -487,7 +492,7 @@ export default function HomeClient({
                         <span className="self-start rounded px-2 py-1 text-[10.5px] font-medium tracking-[0.05em] text-accent-lighter max-[680px]:justify-self-start" style={{ background: "rgba(154,202,235,.2)" }}>
                           {item.type}
                         </span>
-                      </div>
+                      </Link>
                     ))}
                 </div>
               </div>
@@ -515,7 +520,8 @@ export default function HomeClient({
           />
           <div className="grid grid-cols-[1fr_1.4fr] items-start gap-12 max-[980px]:grid-cols-1">
             {/* Prof card */}
-            <div
+            <Link
+              href="/members#professor"
               className="reveal group relative aspect-[4/5] overflow-hidden rounded-[24px] text-white"
               style={{ background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
             >
@@ -547,7 +553,7 @@ export default function HomeClient({
                   ))}
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Members side */}
             <div className="flex flex-col gap-9">
@@ -562,16 +568,17 @@ export default function HomeClient({
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {group.members.map((m) => (
-                      <span
-                        key={m.name}
-                        className="inline-flex cursor-default items-center gap-2 rounded-[10px] border border-transparent bg-[#f5f6f8] px-3.5 py-2.5 text-[14px] font-medium text-ink transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:bg-white hover:shadow-[0_6px_18px_-8px_rgba(0,102,255,.4)]"
+                      <Link
+                        key={m.id}
+                        href={`/members#member-${m.id}`}
+                        className="inline-flex items-center gap-2 rounded-[10px] border border-transparent bg-[#f5f6f8] px-3.5 py-2.5 text-[14px] font-medium text-ink transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:bg-white hover:shadow-[0_6px_18px_-8px_rgba(0,102,255,.4)]"
                       >
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-light text-[10.5px] font-semibold tracking-[0.02em] text-white">
                           {m.initials}
                         </span>
                         {m.name}
                         {m.year && <span className="font-mono text-[11px] text-ink-3">{m.year}</span>}
-                      </span>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -607,13 +614,14 @@ export default function HomeClient({
                 <h3 className="mb-5 text-[13px] font-medium uppercase tracking-[0.15em] text-ink-3">{label}</h3>
                 <div className="grid grid-cols-3 gap-[18px] max-[880px]:grid-cols-1">
                   {courses.map((lec) => (
-                    <div
-                      key={lec.title}
+                    <Link
+                      key={lec.id}
+                      href={`/lectures#lecture-${lec.id}`}
                       className="group flex flex-col gap-3 rounded-[18px] border border-line bg-white px-7 pb-6 pt-6 transition-[transform,box-shadow,border-color] duration-[350ms] hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]"
                     >
                       <div className="text-[19px] font-semibold leading-[1.3] tracking-[-0.01em]">{lec.title}</div>
                       {lec.desc && <div className="flex-1 text-[13.5px] leading-[1.6] text-ink-3">{lec.desc}</div>}
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -639,10 +647,11 @@ export default function HomeClient({
                 <a href="/board" className="text-[13px] font-medium text-accent">View all →</a>
               </div>
               <div className="flex flex-col gap-0.5">
-                {news.map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex cursor-pointer gap-5 border-b border-line py-[22px] px-1 last:border-0 transition-[padding] duration-300 hover:pl-3.5"
+                {news.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/board/news/${item.id}`}
+                    className="flex gap-5 border-b border-line py-[22px] px-1 last:border-0 transition-[padding] duration-300 hover:pl-3.5"
                   >
                     <div className="w-[88px] flex-none font-mono text-[12px] text-ink-3">
                       <b className="mb-1 block font-sans text-[20px] font-semibold leading-none tracking-[-0.01em] text-ink">
@@ -654,7 +663,7 @@ export default function HomeClient({
                       <h4 className="mb-1.5 line-clamp-2 text-[16px] font-semibold leading-[1.35] tracking-[-0.01em]">{item.title}</h4>
                       <p className="line-clamp-2 text-[14px] leading-[1.5] text-ink-3">{item.body}</p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -663,13 +672,13 @@ export default function HomeClient({
             <div className="reveal">
               <div className="mb-6 flex items-baseline justify-between">
                 <h3 className="text-[28px] font-bold tracking-[-0.02em]">Gallery</h3>
-                <a href="#" className="text-[13px] font-medium text-accent">More →</a>
+                <a href="/board#section-gallery" className="text-[13px] font-medium text-accent">More →</a>
               </div>
               <div className="grid grid-cols-2 gap-2.5" style={{ gridAutoRows: "140px" }}>
-                {gallery.map((img, i) => (
-                  <a
-                    key={i}
-                    href="#"
+                {gallery.map((img) => (
+                  <Link
+                    key={img.id}
+                    href={`/board/gallery/${img.id}`}
                     className={`group/gal relative block overflow-hidden rounded-[14px] bg-[#eee] ${img.span}`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -682,7 +691,7 @@ export default function HomeClient({
                     <span className="absolute bottom-3 left-3.5 z-[2] translate-y-1.5 text-[12px] font-medium tracking-[0.02em] text-white opacity-0 transition-all duration-[350ms] group-hover/gal:translate-y-0 group-hover/gal:opacity-100">
                       {img.cap}
                     </span>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

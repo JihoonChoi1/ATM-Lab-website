@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type Project = {
+  id: string;
   title: string;
   institution: string;
   period: string;
@@ -45,7 +46,7 @@ function ProjectCard({
   status: Status;
 }) {
   return (
-    <article className="group reveal flex flex-col rounded-[18px] border border-line bg-surface p-7 max-[640px]:p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
+    <article id={`project-${project.id}`} className="group reveal flex flex-col rounded-[18px] border border-line bg-surface p-7 max-[640px]:p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
       <StatusPill status={status} />
       <h3 className="mt-4 text-[clamp(18px,1.6vw,22px)] font-semibold tracking-[-0.015em] text-ink leading-[1.4]">
         {project.title}
@@ -108,6 +109,7 @@ export default async function ProjectsPage() {
   });
 
   const toView = (p: (typeof rows)[number]): Project => ({
+    id: p.id,
     title: p.title,
     institution: p.institution,
     period: p.period,

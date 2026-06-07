@@ -109,6 +109,7 @@ export default async function Home() {
     .sort((a, b) => statusRank(a.status) - statusRank(b.status) || a.order - b.order)
     .slice(0, 4)
     .map((p) => ({
+      id: p.id,
       period: periodToYears(p.period),
       title: p.title,
       funder: p.institution,
@@ -125,6 +126,7 @@ export default async function Home() {
         : p.applicationNo ?? "—";
   const toPub = (rows: Row[]): PubItem[] =>
     rows.map((p, i) => ({
+      id: p.id,
       num: pad2(i + 1),
       year: p.year,
       title: p.title,
@@ -156,13 +158,14 @@ export default async function Home() {
       return {
         label: g.label,
         count: pad2(ms.length),
-        members: ms.map((m) => ({ initials: initialsOf(m.name), name: m.name, year: m.year })),
+        members: ms.map((m) => ({ id: m.id, initials: initialsOf(m.name), name: m.name, year: m.year })),
       };
     })
     .filter((g) => g.members.length > 0);
 
   // ── Lectures: category label + first paragraph as the blurb ──
   const lectures = lectureRows.map((l) => ({
+    id: l.id,
     num: l.num,
     category: (l.category === "UNDERGRADUATE" ? "Undergraduate" : "Graduate") as
       | "Undergraduate"
@@ -173,6 +176,7 @@ export default async function Home() {
 
   // ── News: split date + flattened body ──
   const news = newsRows.map((n) => ({
+    id: n.id,
     day: pad2(n.date.getUTCDate()),
     month: `${MONTHS[n.date.getUTCMonth()]} ${n.date.getUTCFullYear()}`,
     title: n.title,
@@ -181,6 +185,7 @@ export default async function Home() {
 
   // ── Gallery: image-backed items in the original span layout ──
   const gallery = galleryRows.map((g, i) => ({
+    id: g.id,
     src: g.imgPath!,
     cap: `${g.title} · ${g.date.getUTCFullYear()}`,
     span: GALLERY_SPANS[i] ?? "",

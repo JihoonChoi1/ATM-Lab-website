@@ -30,6 +30,7 @@ export default async function MembersPage() {
   };
 
   const toPerson = (m: (typeof members)[number]): Person => ({
+    id: m.id,
     name: m.name,
     position: m.position,
     year: m.year,

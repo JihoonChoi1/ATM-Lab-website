@@ -21,6 +21,7 @@ export type Professor = {
 };
 
 export type Person = {
+  id: string;
   name: string;
   position: string;
   year: string | null;
@@ -65,7 +66,7 @@ function alumniCategory(a: Alumnus): "Master Degree" | "Doctor Degree" {
 
 function MemberCard({ m }: { m: Person }) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-[18px] border border-line bg-white transition-[transform,box-shadow,border-color] duration-[350ms] hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
+    <article id={`member-${m.id}`} className="group flex flex-col overflow-hidden rounded-[18px] border border-line bg-white transition-[transform,box-shadow,border-color] duration-[350ms] hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
       <div className="relative overflow-hidden" style={{ aspectRatio: "3/4" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={m.img ?? undefined} alt={`Portrait of ${m.name}`} className="h-full w-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.04]" loading="lazy" />

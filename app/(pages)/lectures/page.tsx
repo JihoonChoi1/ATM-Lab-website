@@ -11,6 +11,7 @@ export default async function LecturesPage() {
   });
 
   const lectures: Lecture[] = rows.map((l) => ({
+    id: l.id,
     num: l.num,
     category: l.category === "UNDERGRADUATE" ? "Undergraduate" : "Graduate",
     title: l.title,

@@ -9,6 +9,7 @@ import RevealOnScroll from "@/components/ui/RevealOnScroll";
 type CategoryKey = "All" | "Undergraduate" | "Graduate";
 
 export type Lecture = {
+  id: string;
   num: string;
   category: Exclude<CategoryKey, "All">;
   title: string;
@@ -183,6 +184,7 @@ export default function LecturesClient({ lectures }: { lectures: Lecture[] }) {
             {filtered.map((lec, i) => (
               <li
                 key={lec.num}
+                id={`lecture-${lec.id}`}
                 className="group reveal rounded-[18px] border border-line bg-surface p-8 max-[640px]:p-6 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]"
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
