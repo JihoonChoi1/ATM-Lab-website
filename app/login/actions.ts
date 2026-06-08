@@ -4,6 +4,7 @@ import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { authenticate } from "@/lib/auth/authenticate";
+import { getClientIp, isRateLimited, recordFailedAttempt } from "@/lib/auth/rate-limit";
 import { safeCallbackUrl } from "./callback-url";
 
 // Phase 6-3: two-step login. authenticate() decides the step/error for the UI;
@@ -25,9 +26,24 @@ export async function loginAction(
   const code = String(formData.get("code") ?? "").trim();
   const callbackUrl = safeCallbackUrl(formData.get("callbackUrl"), "/admin/security");
 
+  // Phase 6-4: block before bcrypt so the form surfaces a "try later" message.
+  // The same check runs in authorize() to cover the raw-endpoint path.
+  const ip = getClientIp();
+  if (await isRateLimited(ip)) {
+    return {
+      step: "password",
+      email,
+      error: "로그인 시도가 너무 많습니다. 15분 후에 다시 시도하세요.",
+    };
+  }
+
   const result = await authenticate(email, password, code || undefined);
 
   if (!result.ok) {
+    // Record real failures (success-clear is handled in authorize on the happy path).
+    if (result.reason === "credentials" || result.reason === "totp_invalid") {
+      await recordFailedAttempt(ip);
+    }
     if (result.reason === "totp_required") return { step: "totp", email };
     if (result.reason === "totp_invalid")
       return { step: "totp", email, error: "코드가 올바르지 않습니다. 다시 시도하세요." };
