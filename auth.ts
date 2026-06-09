@@ -17,7 +17,18 @@ import {
 // AUTH_SECRET is read from the environment automatically.
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  session: { strategy: "jwt" },
+  // Session hardening. Cookie flags are Auth.js defaults (verified):
+  // the session-token cookie is always HttpOnly + SameSite=Lax, and Secure is
+  // applied conditionally when the resolved request URL is https — so dev over
+  // http://localhost still works. Never hardcode `secure`. On the school server
+  // (TLS terminated at Nginx, app reached over http) set AUTH_URL=https://<host>
+  // so Auth.js treats requests as https → Secure + `__Secure-` prefix; AUTH_URL
+  // also auto-enables trustHost behind the proxy.
+  session: {
+    strategy: "jwt",
+    // Sessions expire 24h after issue (jwt.maxAge follows session.maxAge).
+    maxAge: 60 * 60 * 24,
+  },
   pages: { signIn: "/login" },
   providers: [
     Credentials({
