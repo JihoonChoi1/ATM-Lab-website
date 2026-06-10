@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/db";
 import { verifyTotp } from "@/lib/auth/totp";
+import { getClientIp } from "@/lib/auth/rate-limit";
+import { logAudit } from "@/lib/audit";
 
 // Phase 6-3: self-service 2FA enrollment. The pending secret rides in the form
 // (it's the same value the QR already exposes), so we don't persist it until the
@@ -28,6 +30,15 @@ export async function enableTotp(
   await prisma.user.update({
     where: { id: session.user.id },
     data: { totpSecret: secret },
+  });
+
+  // Phase 6-8: audit the enrolment. Never log the secret — { ip } only.
+  await logAudit({
+    userId: session.user.id,
+    action: "ENABLE_2FA",
+    entity: "User",
+    entityId: session.user.id,
+    data: { ip: getClientIp() },
   });
 
   redirect("/admin/security?enabled=1");

@@ -7,6 +7,7 @@ import {
   recordFailedAttempt,
   clearFailedAttempts,
 } from "@/lib/auth/rate-limit";
+import { logAudit } from "@/lib/audit";
 
 // Phase 6-2: Credentials provider (email + password) on top of the 6-1 wiring.
 // Phase 6-3: optional `code` field carries the TOTP second factor. The actual
@@ -79,6 +80,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.id) session.user.id = token.id;
       if (token.role) session.user.role = token.role;
       return session;
+    },
+  },
+  // Phase 6-8: central, unbypassable audit hooks. For credentials the signIn
+  // `user` is the authorize() return ({ id, email, role }); JWT-session signOut
+  // carries the decoded `token` (our jwt callback put `id` on it). Best-effort —
+  // logAudit swallows its own errors so a logging failure never blocks auth.
+  events: {
+    async signIn({ user }) {
+      if (user.id) {
+        await logAudit({
+          userId: user.id,
+          action: "LOGIN",
+          entity: "Session",
+          data: { ip: getClientIp() },
+        });
+      }
+    },
+    async signOut(message) {
+      const userId = "token" in message ? message.token?.id : undefined;
+      if (userId) {
+        await logAudit({
+          userId,
+          action: "LOGOUT",
+          entity: "Session",
+          data: { ip: getClientIp() },
+        });
+      }
     },
   },
 });
