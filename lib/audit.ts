@@ -29,6 +29,31 @@ type AuditEntry = {
  * try/catch. The entry is written first, then old rows are pruned, so a sweep
  * hiccup can't cost us the current entry.
  */
+// Phase 7-2 content-CRUD data policy (entityId is a cuid — useless to a human
+// after a delete, so every entry also carries a readable `label`):
+//   CREATE → { ip, label }                     (the row itself is the "after")
+//   UPDATE → { ip, label, before, after }      (changed fields only → manual revert)
+//   DELETE → { ip, label, snapshot }           (full row — the only way back)
+export function diffChanges(
+  before: Record<string, unknown>,
+  after: Record<string, unknown>,
+): { before: Prisma.InputJsonObject; after: Prisma.InputJsonObject } {
+  const changedBefore: Record<string, unknown> = {};
+  const changedAfter: Record<string, unknown> = {};
+  // Keys of `after` = the form-managed fields, so untouched columns (e.g. the
+  // professor JSON blobs) never enter the diff.
+  for (const key of Object.keys(after)) {
+    if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) {
+      changedBefore[key] = before[key];
+      changedAfter[key] = after[key];
+    }
+  }
+  return {
+    before: changedBefore as Prisma.InputJsonObject,
+    after: changedAfter as Prisma.InputJsonObject,
+  };
+}
+
 export async function logAudit(entry: AuditEntry): Promise<void> {
   try {
     await prisma.auditLog.create({
