@@ -199,14 +199,17 @@ function splitInterests(raw: string): string[] {
 }
 
 // "1Ph D. Course" → "Ph.D. Course"
-// "2Master Course" → "Master Course"
+// "2Master Course" → "Master's Course"
 // "3Undergraduate Intern" → "Undergraduate Intern"
 // "Postdoctoral Researcher" → "Postdoctoral Researcher" (no prefix)
 function cleanCategory(raw: string | null): string {
   if (!raw) return "";
   const stripped = raw.replace(/^\d+/, "").trim();
-  // Old data wrote "Ph D." but the new design uses "Ph.D." everywhere.
-  return stripped.replace(/^Ph D\./, "Ph.D.");
+  // Old data wrote "Ph D." and "Master Course" — the new design uses "Ph.D."
+  // and the possessive "Master's Course" everywhere.
+  return stripped
+    .replace(/^Ph D\./, "Ph.D.")
+    .replace(/^Master Course$/, "Master's Course");
 }
 
 function parseDate(raw: string | null): Date {
@@ -380,6 +383,14 @@ async function migrateStudents(sql: string, files: Map<string, FileRow[]>) {
   }
 }
 
+// The legacy data spells the doctorate inconsistently ("Doctor of philosophy",
+// "Doctor degree") — normalize to the two canonical values the admin select
+// offers (app/admin/members/schema.ts DEGREE_OPTIONS).
+function normalizeDegree(raw: string | null): string | null {
+  if (!raw) return null;
+  return raw.toLowerCase().includes("master") ? "Master's degree" : "Doctoral degree";
+}
+
 async function migrateAlumni(sql: string, files: Map<string, FileRow[]>) {
   const rows = extractRows(sql, "g5_write_sub1_4");
   for (const r of rows) {
@@ -387,7 +398,7 @@ async function migrateAlumni(sql: string, files: Map<string, FileRow[]>) {
     const name = r[9] ?? "";
     const currentPositionHtml = r[10] ?? "";
     const year = r[30] ?? null; // wr_1
-    const degree = r[31] ?? null; // wr_2
+    const degree = normalizeDegree(r[31] ?? null); // wr_2
     const email = r[32] ?? null; // wr_3
 
     await prisma.member.create({

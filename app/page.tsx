@@ -149,7 +149,7 @@ export default async function Home() {
   const groupDefs: { label: string; match: (m: (typeof members)[number]) => boolean }[] = [
     { label: "Researchers", match: (m) => m.role === "RESEARCHER" },
     { label: "Ph.D. Students", match: (m) => m.position === "Ph.D. Course" },
-    { label: "M.S. Students", match: (m) => m.position === "Master Course" },
+    { label: "M.S. Students", match: (m) => m.position === "Master's Course" },
     { label: "Undergrad / Intern", match: (m) => m.position === "Undergraduate Intern" },
   ];
   const memberGroups = groupDefs

@@ -56,8 +56,8 @@ const MAIL_ICON = (
   </svg>
 );
 
-// Map the legacy degree strings ("Doctor of philosophy", "Doctor degree",
-// "Master's degree") onto the two display categories.
+// Bucket degree strings ("Master's degree" / "Doctoral degree") onto the two
+// display categories by the "master" keyword.
 function alumniCategory(a: Alumnus): "Master Degree" | "Doctor Degree" {
   return a.degree.toLowerCase().includes("master") ? "Master Degree" : "Doctor Degree";
 }
@@ -84,7 +84,7 @@ function MemberCard({ m }: { m: Person }) {
             <div className="mb-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3">Research Interests</div>
             <div className="mb-4 flex flex-wrap gap-1.5">
               {m.interests.map((it) => (
-                <span key={it} title={it} className="rounded-md bg-accent-soft px-2 py-[3px] text-[11.5px] font-medium text-accent truncate max-w-full">{it}</span>
+                <span key={it} className="rounded-md bg-accent-soft px-2 py-[3px] text-[11.5px] font-medium text-accent max-w-full break-words">{it}</span>
               ))}
             </div>
           </>
@@ -159,7 +159,7 @@ export default function MembersClient({
   counts,
 }: MembersData) {
   const [researcherTab, setResearcherTab] = useState<"All" | "Postdoctoral Researcher" | "Research Staff">("All");
-  const [studentTab, setStudentTab] = useState<"All" | "Ph.D. Course" | "Master Course" | "Undergraduate Intern">("All");
+  const [studentTab, setStudentTab] = useState<"All" | "Ph.D. Course" | "Master's Course" | "Undergraduate Intern">("All");
   const [alumniTab, setAlumniTab] = useState<"All" | "Doctor Degree" | "Master Degree">("All");
 
   // Researcher tabs
@@ -174,11 +174,11 @@ export default function MembersClient({
     : researchers.filter((m) => m.position === researcherTab);
 
   // Student tabs
-  const STUDENT_TABS = ["All", "Ph.D. Course", "Master Course", "Undergraduate Intern"] as const;
+  const STUDENT_TABS = ["All", "Ph.D. Course", "Master's Course", "Undergraduate Intern"] as const;
   const studentCounts = {
     "All": students.length,
     "Ph.D. Course": students.filter((m) => m.position === "Ph.D. Course").length,
-    "Master Course": students.filter((m) => m.position === "Master Course").length,
+    "Master's Course": students.filter((m) => m.position === "Master's Course").length,
     "Undergraduate Intern": students.filter((m) => m.position === "Undergraduate Intern").length,
   };
   const visibleStudents = studentTab === "All"
