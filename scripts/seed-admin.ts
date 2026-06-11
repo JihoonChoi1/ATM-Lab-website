@@ -9,8 +9,11 @@
 // (or put SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD in .env.local — the npm script
 //  loads it via --env-file). By default this REFUSES to touch an existing account
 //  so a stray re-run can't silently reset a live admin's password; set
-//  SEED_ADMIN_FORCE=1 to overwrite it (recovery only). 2FA is left off here; the
-//  account turns it on itself at /admin/security after first login.
+//  SEED_ADMIN_FORCE=1 to overwrite it (recovery only). A forced overwrite also
+//  clears totpSecret: with a single admin account there is no second admin to
+//  reset a lost 2FA device, so this script is the only recovery path — a
+//  password reset that still demands the lost phone's code would be useless.
+//  2FA is left off here; the account turns it on itself at /admin/security.
 
 import { prisma } from "../lib/db";
 import { hashPassword, validatePasswordStrength } from "../lib/auth/password";
@@ -48,14 +51,16 @@ async function main() {
   const user = existing
     ? await prisma.user.update({
         where: { email },
-        data: { passwordHash, role: "ADMIN" },
+        // Recovery semantics: reset the password AND clear 2FA enrolment (see
+        // header comment — lost-device recovery has no other path).
+        data: { passwordHash, role: "ADMIN", totpSecret: null },
       })
     : await prisma.user.create({
         data: { email, passwordHash, role: "ADMIN" },
       });
 
   console.log(
-    `✓ Admin account ${existing ? "password updated" : "created"}: ${user.email} (role ${user.role})`,
+    `✓ Admin account ${existing ? "password updated + 2FA cleared" : "created"}: ${user.email} (role ${user.role})`,
   );
   console.log("  Log in at /login, then enable 2FA at /admin/security.");
 }
