@@ -183,7 +183,7 @@ export default function LecturesClient({ lectures }: { lectures: Lecture[] }) {
           <ol className="space-y-8 max-[640px]:space-y-6">
             {filtered.map((lec, i) => (
               <li
-                key={lec.num}
+                key={lec.id}
                 id={`lecture-${lec.id}`}
                 className="group reveal rounded-[18px] border border-line bg-surface p-8 max-[640px]:p-6 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]"
                 style={{ transitionDelay: `${i * 100}ms` }}
