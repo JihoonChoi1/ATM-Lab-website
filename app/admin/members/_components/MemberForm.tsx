@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormState } from "react-dom";
+import {
+  FieldError,
+  SubmitButton,
+  cancelLinkClass,
+  hintClass,
+  inputClass,
+  labelClass,
+  messageClass,
+} from "@/app/admin/_components/form-ui";
 import { createMember, updateMember, type MemberFormState } from "../actions";
 import {
   DEGREE_OPTIONS,
@@ -30,29 +39,6 @@ export type MemberFormValues = {
 };
 
 const initialState: MemberFormState = {};
-
-const inputClass =
-  "w-full rounded-2xl border border-line bg-surface px-4 py-3 text-base text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20";
-const labelClass = "mb-1.5 block text-sm font-medium text-ink-2";
-const hintClass = "mt-1.5 text-xs text-ink-3";
-
-function FieldError({ errors }: { errors?: string[] }) {
-  if (!errors?.length) return null;
-  return <p className="mt-1.5 text-sm text-ajou-yellow">{errors[0]}</p>;
-}
-
-function SubmitButton({ isEdit }: { isEdit: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="rounded-2xl bg-accent px-6 py-3 text-base font-semibold text-white transition hover:bg-accent-dark disabled:opacity-60"
-    >
-      {pending ? "저장 중…" : isEdit ? "변경 사항 저장" : "멤버 추가"}
-    </button>
-  );
-}
 
 export default function MemberForm({ member }: { member?: MemberFormValues }) {
   const action = member ? updateMember.bind(null, member.id) : createMember;
@@ -252,18 +238,11 @@ export default function MemberForm({ member }: { member?: MemberFormValues }) {
         공개 (체크 해제 시 공개 페이지에서 숨김)
       </label>
 
-      {state.message && (
-        <p className="rounded-2xl bg-ajou-yellow/10 px-4 py-2.5 text-sm text-ajou-yellow">
-          {state.message}
-        </p>
-      )}
+      {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton isEdit={Boolean(member)} />
-        <Link
-          href="/admin/members"
-          className="rounded-2xl border border-line px-6 py-3 text-base font-medium text-ink-2 transition hover:border-ink-3 hover:text-ink"
-        >
+        <SubmitButton label={member ? "변경 사항 저장" : "멤버 추가"} />
+        <Link href="/admin/members" className={cancelLinkClass}>
           취소
         </Link>
       </div>

@@ -3,6 +3,22 @@
 import { Fragment, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  chipClass,
+  deleteBtnClass,
+  editLinkClass,
+  emptyCellClass,
+  groupCellClass,
+  groupRowClass,
+  iconBtnClass,
+  publishedBtnClass,
+  rowClass,
+  searchInputClass,
+  tableClass,
+  tableWrapClass,
+  thClass,
+  theadRowClass,
+} from "@/app/admin/_components/table-ui";
 import { deleteMember, moveMember, toggleMemberPublished } from "../actions";
 import { ROLE_LABELS, type MemberRole } from "../schema";
 
@@ -50,16 +66,6 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
 
   const visibleTotal = groups.reduce((n, g) => n + g.visible.length, 0);
 
-  const chipClass = (active: boolean) =>
-    `rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
-      active
-        ? "border-accent bg-accent text-white"
-        : "border-line bg-surface text-ink-2 hover:border-accent/30 hover:bg-accent-soft hover:text-accent"
-    }`;
-
-  const iconBtnClass =
-    "flex h-7 w-7 items-center justify-center rounded-lg border border-line text-ink-2 transition hover:border-accent/30 hover:text-accent disabled:pointer-events-none disabled:opacity-30";
-
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-2">
@@ -76,27 +82,27 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="이름·이메일 검색"
-          className="ml-auto w-52 rounded-2xl border border-line bg-surface px-3.5 py-2 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className={searchInputClass}
         />
       </div>
 
-      <div className="overflow-x-auto rounded-3xl border border-line bg-surface">
-        <table className="w-full min-w-[760px] text-sm">
+      <div className={tableWrapClass}>
+        <table className={tableClass}>
           <thead>
-            <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-3">
-              <th className="w-20 px-4 py-3 font-medium">순서</th>
-              <th className="px-4 py-3 font-medium">이름</th>
-              <th className="px-4 py-3 font-medium">직책</th>
-              <th className="px-4 py-3 font-medium">연도</th>
-              <th className="px-4 py-3 font-medium">이메일</th>
-              <th className="px-4 py-3 font-medium">공개</th>
-              <th className="px-4 py-3 font-medium">관리</th>
+            <tr className={theadRowClass}>
+              <th className={`w-20 ${thClass}`}>순서</th>
+              <th className={thClass}>이름</th>
+              <th className={thClass}>직책</th>
+              <th className={thClass}>연도</th>
+              <th className={thClass}>이메일</th>
+              <th className={thClass}>공개</th>
+              <th className={thClass}>관리</th>
             </tr>
           </thead>
           <tbody>
             {visibleTotal === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-ink-3">
+                <td colSpan={7} className={emptyCellClass}>
                   검색 결과가 없습니다.
                 </td>
               </tr>
@@ -104,11 +110,8 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
             {groups.map((g) => (
               <Fragment key={g.role}>
                 {g.visible.length > 0 && (
-                  <tr className="border-b border-line bg-bg">
-                    <td
-                      colSpan={7}
-                      className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-ink-3"
-                    >
+                  <tr className={groupRowClass}>
+                    <td colSpan={7} className={groupCellClass}>
                       {ROLE_LABELS[g.role]} · {g.all.length}명
                     </td>
                   </tr>
@@ -116,7 +119,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                 {g.visible.map((m) => {
                   const idx = g.all.indexOf(m);
                   return (
-                    <tr key={m.id} className="border-b border-line last:border-0">
+                    <tr key={m.id} className={rowClass}>
                       <td className="px-4 py-2.5">
                         <div className="flex gap-1">
                           <button
@@ -151,20 +154,13 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                         <button
                           onClick={() => run(() => toggleMemberPublished(m.id))}
                           disabled={isPending}
-                          className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition disabled:opacity-50 ${
-                            m.published
-                              ? "bg-success-soft text-success"
-                              : "bg-line text-ink-3"
-                          }`}
+                          className={publishedBtnClass(m.published)}
                         >
                           {m.published ? "공개" : "비공개"}
                         </button>
                       </td>
                       <td className="whitespace-nowrap px-4 py-2.5">
-                        <Link
-                          href={`/admin/members/${m.id}`}
-                          className="font-medium text-accent hover:underline"
-                        >
+                        <Link href={`/admin/members/${m.id}`} className={editLinkClass}>
                           수정
                         </Link>
                         <button
@@ -178,7 +174,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                             }
                           }}
                           disabled={isPending}
-                          className="ml-4 font-medium text-ajou-yellow hover:underline disabled:opacity-50"
+                          className={deleteBtnClass}
                         >
                           삭제
                         </button>
