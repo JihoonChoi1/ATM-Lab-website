@@ -14,7 +14,9 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col bg-bg md:flex-row">
-      <aside className="flex flex-col gap-4 border-b border-line bg-surface p-4 md:w-60 md:shrink-0 md:border-b-0 md:border-r md:p-6">
+      {/* Sticky viewport-height sidebar: without it the aside stretches to the
+          page height and mt-auto pushes 로그아웃 below the fold on long pages. */}
+      <aside className="flex flex-col gap-4 border-b border-line bg-surface p-4 md:sticky md:top-0 md:h-screen md:w-60 md:shrink-0 md:self-start md:overflow-y-auto md:border-b-0 md:border-r md:p-6">
         <p className="px-3.5 text-base font-bold tracking-[-0.02em] text-ink">
           ATM Lab <span className="font-medium text-ink-3">Admin</span>
         </p>
