@@ -8,7 +8,7 @@ type NavItem = { href: string; label: string; ready: boolean };
 // 7 content types (CRUD pages land in 7-2+) + the two pages that already exist.
 const CONTENT: NavItem[] = [
   { href: "/admin/members", label: "Members", ready: true },
-  { href: "/admin/projects", label: "Projects", ready: false },
+  { href: "/admin/projects", label: "Projects", ready: true },
   { href: "/admin/publications", label: "Publications", ready: false },
   { href: "/admin/lectures", label: "Lectures", ready: false },
   { href: "/admin/news", label: "News", ready: false },
