@@ -22,6 +22,7 @@ const DELEGATES: Record<(typeof REVERTIBLE_ENTITIES)[number], Delegate> = {
   Member: prisma.member as unknown as Delegate,
   Project: prisma.project as unknown as Delegate,
   Publication: prisma.publication as unknown as Delegate,
+  Lecture: prisma.lecture as unknown as Delegate,
 };
 
 function readRecord(data: unknown, key: string): Record<string, unknown> | null {
