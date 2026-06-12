@@ -11,7 +11,7 @@ const CONTENT: NavItem[] = [
   { href: "/admin/projects", label: "Projects", ready: true },
   { href: "/admin/publications", label: "Publications", ready: true },
   { href: "/admin/lectures", label: "Lectures", ready: true },
-  { href: "/admin/news", label: "News", ready: false },
+  { href: "/admin/news", label: "News", ready: true },
   { href: "/admin/gallery", label: "Gallery", ready: false },
   { href: "/admin/research", label: "Research", ready: false },
 ];
