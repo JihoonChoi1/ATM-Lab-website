@@ -9,7 +9,7 @@ type NavItem = { href: string; label: string; ready: boolean };
 const CONTENT: NavItem[] = [
   { href: "/admin/members", label: "Members", ready: true },
   { href: "/admin/projects", label: "Projects", ready: true },
-  { href: "/admin/publications", label: "Publications", ready: false },
+  { href: "/admin/publications", label: "Publications", ready: true },
   { href: "/admin/lectures", label: "Lectures", ready: false },
   { href: "/admin/news", label: "News", ready: false },
   { href: "/admin/gallery", label: "Gallery", ready: false },
