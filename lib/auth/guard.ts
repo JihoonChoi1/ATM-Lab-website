@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 // Phase 7-1: one-line page guard for admin routes. Each admin page calls auth()
 // anyway to load its data, so guarding here is free and always runs — unlike a
 // layout-only guard, which Next skips on client-side navigations between admin
-// pages. Login-only: no role gate (single admin account; roles are optional 7-10).
+// pages. Login-only: no role gate (single admin account; roles are optional).
 export async function requireAdmin(callbackUrl: string): Promise<Session> {
   const session = await auth();
   if (!session?.user?.id) {

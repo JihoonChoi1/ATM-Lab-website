@@ -116,8 +116,7 @@ function SnapshotTable({ snapshot }: { snapshot: Record<string, unknown> }) {
 }
 
 // Phase 6-8: same guard as the security page — any signed-in admin can view.
-// There's only the one admin account, so no role gate; role separation is the
-// optional Phase 7-10 (applied across admin pages together if it ever lands).
+// There's only the one admin account, so no role gate
 const PAGE_SIZE = 25;
 
 export default async function ActivityPage({
