@@ -12,10 +12,11 @@ export const dynamic = "force-dynamic";
 export default async function AdminNewsPage() {
   await requireAdmin("/admin/news");
 
-  // date desc — the same canonical order the public board uses. No chips,
-  // search, or pagination: 5 rows, and the order is computed, not curated.
+  // date desc — the same canonical order the public board uses (order/createdAt
+  // break same-date ties deterministically). No chips, search, or pagination:
+  // 5 rows, and the order is computed, not curated.
   const rows = await prisma.news.findMany({
-    orderBy: { date: "desc" },
+    orderBy: [{ date: "desc" }, { order: "desc" }, { createdAt: "desc" }],
     select: { id: true, date: true, title: true, published: true },
   });
 

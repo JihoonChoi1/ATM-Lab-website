@@ -12,10 +12,17 @@ const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
 
 export default async function BoardPage() {
   const [newsRows, galleryRows] = await Promise.all([
-    // Newest first; highest display number is the most recent item.
-    prisma.news.findMany({ where: { published: true }, orderBy: { date: "desc" } }),
-    // Legacy wr_id order (NOT strict date order) — preserved via `order` desc.
-    prisma.galleryItem.findMany({ where: { published: true }, orderBy: { order: "desc" } }),
+    // Newest first; highest display number is the most recent item. Ties
+    // (same calendar date) fall back to legacy wr_id (`order`), then
+    // createdAt — deterministic, not curation.
+    prisma.news.findMany({
+      where: { published: true },
+      orderBy: [{ date: "desc" }, { order: "desc" }, { createdAt: "desc" }],
+    }),
+    prisma.galleryItem.findMany({
+      where: { published: true },
+      orderBy: [{ date: "desc" }, { order: "desc" }, { createdAt: "desc" }],
+    }),
   ]);
 
   const news: NewsItem[] = newsRows.map((n, i) => ({

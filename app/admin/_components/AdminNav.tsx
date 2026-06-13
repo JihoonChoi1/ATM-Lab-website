@@ -12,7 +12,7 @@ const CONTENT: NavItem[] = [
   { href: "/admin/publications", label: "Publications", ready: true },
   { href: "/admin/lectures", label: "Lectures", ready: true },
   { href: "/admin/news", label: "News", ready: true },
-  { href: "/admin/gallery", label: "Gallery", ready: false },
+  { href: "/admin/gallery", label: "Gallery", ready: true },
   { href: "/admin/research", label: "Research", ready: false },
 ];
 

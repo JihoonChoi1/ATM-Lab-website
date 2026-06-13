@@ -71,10 +71,14 @@ export default async function Home() {
     }),
     prisma.project.findMany({ where: { published: true }, orderBy: { order: "asc" } }),
     prisma.member.findMany({ where: { published: true }, orderBy: { order: "asc" } }),
-    prisma.news.findMany({ where: { published: true }, orderBy: { date: "desc" }, take: 5 }),
+    prisma.news.findMany({
+      where: { published: true },
+      orderBy: [{ date: "desc" }, { order: "desc" }, { createdAt: "desc" }],
+      take: 5,
+    }),
     prisma.galleryItem.findMany({
       where: { published: true, imgPath: { not: null } },
-      orderBy: { order: "desc" },
+      orderBy: [{ date: "desc" }, { order: "desc" }, { createdAt: "desc" }],
       take: 5,
     }),
     prisma.lecture.findMany({ where: { published: true }, orderBy: { order: "asc" } }),
