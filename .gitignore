@@ -15,6 +15,9 @@
 /.next/
 /out/
 
+# runtime uploads (7-8) — admin-uploaded images, never committed
+/public/uploads
+
 # production
 /build
 

@@ -11,12 +11,13 @@ import {
   labelClass,
   messageClass,
 } from "@/app/admin/_components/form-ui";
+import ImageUploadField from "@/app/admin/_components/ImageUploadField";
 import { createGalleryItem, updateGalleryItem, type GalleryFormState } from "../actions";
 
 // Create + edit form (React 18: useFormState, same pattern as NewsForm).
-// All fields are uncontrolled — Gallery has no conditional fields. imgPath is
-// a plain text path until the 7-8 upload component lands; empty renders the
-// board placeholder card and keeps the row off the home grid (not-null filter).
+// Fields are uncontrolled except imgPath, which ImageUploadField owns (7-8).
+// Empty imgPath renders the board placeholder card and keeps the row off the
+// home grid (not-null filter).
 
 export type GalleryFormValues = {
   id: string;
@@ -28,7 +29,13 @@ export type GalleryFormValues = {
 
 const initialState: GalleryFormState = {};
 
-export default function GalleryForm({ item }: { item?: GalleryFormValues }) {
+export default function GalleryForm({
+  item,
+  uploadsEnabled,
+}: {
+  item?: GalleryFormValues;
+  uploadsEnabled: boolean;
+}) {
   const action = item ? updateGalleryItem.bind(null, item.id) : createGalleryItem;
   const [state, formAction] = useFormState(action, initialState);
 
@@ -65,25 +72,14 @@ export default function GalleryForm({ item }: { item?: GalleryFormValues }) {
         <FieldError errors={state.errors?.title} />
       </div>
 
-      <div>
-        <label htmlFor="imgPath" className={labelClass}>
-          이미지 경로
-        </label>
-        <input
-          id="imgPath"
-          name="imgPath"
-          type="text"
-          defaultValue={item?.imgPath ?? ""}
-          placeholder="/legacy/photo.jpg"
-          className={inputClass}
-        />
-        <p className={hintClass}>
-          /로 시작하는 사이트 내부 경로. 파일 업로드 기능은 추후 추가 예정입니다.
-          비워두면 /board에는 자리표시 카드로 표시되고, 홈 갤러리에는 노출되지
-          않습니다.
-        </p>
-        <FieldError errors={state.errors?.imgPath} />
-      </div>
+      <ImageUploadField
+        label="이미지 경로"
+        defaultValue={item?.imgPath}
+        placeholder="/legacy/photo.jpg"
+        hint="/로 시작하는 사이트 내부 경로. 비워두면 /board에는 자리표시 카드로 표시되고, 홈 갤러리에는 노출되지 않습니다."
+        errors={state.errors?.imgPath}
+        uploadsEnabled={uploadsEnabled}
+      />
 
       <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2">
         <input

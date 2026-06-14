@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
+import { uploadsEnabled } from "@/lib/uploads";
 import PublicationForm from "../_components/PublicationForm";
 
 export const metadata: Metadata = { title: "게재물 수정 · ATM Lab" };
@@ -44,7 +45,7 @@ export default async function EditPublicationPage({
         <h1 className="text-3xl font-bold tracking-[-0.02em]">게재물 수정</h1>
         <p className="mt-1 text-sm text-ink-3">{publication.title}</p>
       </div>
-      <PublicationForm publication={publication} />
+      <PublicationForm publication={publication} uploadsEnabled={uploadsEnabled()} />
     </div>
   );
 }

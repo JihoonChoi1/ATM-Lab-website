@@ -12,6 +12,7 @@ import {
   labelClass,
   messageClass,
 } from "@/app/admin/_components/form-ui";
+import ImageUploadField from "@/app/admin/_components/ImageUploadField";
 import { createPublication, updatePublication, type PublicationFormState } from "../actions";
 import { PUBLICATION_TYPES, TYPE_LABELS, type PublicationTypeValue } from "../schema";
 
@@ -41,8 +42,10 @@ const initialState: PublicationFormState = {};
 
 export default function PublicationForm({
   publication,
+  uploadsEnabled,
 }: {
   publication?: PublicationFormValues;
+  uploadsEnabled: boolean;
 }) {
   const action = publication
     ? updatePublication.bind(null, publication.id)
@@ -162,24 +165,14 @@ export default function PublicationForm({
             <FieldError errors={state.errors?.doi} />
           </div>
 
-          <div>
-            <label htmlFor="imgPath" className={labelClass}>
-              이미지 경로
-            </label>
-            <input
-              id="imgPath"
-              name="imgPath"
-              type="text"
-              defaultValue={publication?.imgPath ?? ""}
-              placeholder="/legacy/paper.jpg"
-              className={inputClass}
-            />
-            <p className={hintClass}>
-              /로 시작하는 사이트 내부 경로. 파일 업로드 기능은 추후 추가
-              예정입니다.
-            </p>
-            <FieldError errors={state.errors?.imgPath} />
-          </div>
+          <ImageUploadField
+            label="이미지 경로"
+            defaultValue={publication?.imgPath}
+            placeholder="/legacy/paper.jpg"
+            hint="/로 시작하는 사이트 내부 경로입니다."
+            errors={state.errors?.imgPath}
+            uploadsEnabled={uploadsEnabled}
+          />
         </>
       )}
 

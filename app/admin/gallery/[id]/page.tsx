@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
+import { uploadsEnabled } from "@/lib/uploads";
 import GalleryForm from "../_components/GalleryForm";
 
 export const metadata: Metadata = { title: "갤러리 항목 수정 · ATM Lab" };
@@ -31,6 +32,7 @@ export default async function EditGalleryItemPage({
       </div>
       <GalleryForm
         item={{ ...item, date: item.date.toISOString().slice(0, 10) }}
+        uploadsEnabled={uploadsEnabled()}
       />
     </div>
   );

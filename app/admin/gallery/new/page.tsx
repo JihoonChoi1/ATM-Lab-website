@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth/guard";
+import { uploadsEnabled } from "@/lib/uploads";
 import GalleryForm from "../_components/GalleryForm";
 
 export const metadata: Metadata = { title: "새 갤러리 항목 · ATM Lab" };
@@ -18,7 +19,7 @@ export default async function NewGalleryItemPage() {
           저장하면 공개 /board 페이지에 바로 반영됩니다.
         </p>
       </div>
-      <GalleryForm />
+      <GalleryForm uploadsEnabled={uploadsEnabled()} />
     </div>
   );
 }

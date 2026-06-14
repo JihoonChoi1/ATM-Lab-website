@@ -17,6 +17,11 @@ const nextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  experimental: {
+    // The 7-8 upload action posts the raw image (≤5MB) as multipart; the default
+    // Server Action body limit is 1MB. Headroom over 5MB for multipart overhead.
+    serverActions: { bodySizeLimit: "6mb" },
+  },
 };
 
 export default nextConfig;

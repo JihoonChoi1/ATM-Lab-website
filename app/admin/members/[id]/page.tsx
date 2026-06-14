@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
+import { uploadsEnabled } from "@/lib/uploads";
 import MemberForm from "../_components/MemberForm";
 
 export const metadata: Metadata = { title: "멤버 수정 · ATM Lab" };
@@ -41,7 +42,7 @@ export default async function EditMemberPage({
         <h1 className="text-3xl font-bold tracking-[-0.02em]">멤버 수정</h1>
         <p className="mt-1 text-sm text-ink-3">{member.name}</p>
       </div>
-      <MemberForm member={member} />
+      <MemberForm member={member} uploadsEnabled={uploadsEnabled()} />
     </div>
   );
 }

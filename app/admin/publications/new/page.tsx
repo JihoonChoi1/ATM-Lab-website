@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth/guard";
+import { uploadsEnabled } from "@/lib/uploads";
 import PublicationForm from "../_components/PublicationForm";
 
 export const metadata: Metadata = { title: "새 게재물 · ATM Lab" };
@@ -18,7 +19,7 @@ export default async function NewPublicationPage() {
           저장하면 공개 /publications 페이지에 바로 반영됩니다.
         </p>
       </div>
-      <PublicationForm />
+      <PublicationForm uploadsEnabled={uploadsEnabled()} />
     </div>
   );
 }

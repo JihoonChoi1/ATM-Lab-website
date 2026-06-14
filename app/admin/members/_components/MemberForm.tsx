@@ -12,6 +12,7 @@ import {
   labelClass,
   messageClass,
 } from "@/app/admin/_components/form-ui";
+import ImageUploadField from "@/app/admin/_components/ImageUploadField";
 import { createMember, updateMember, type MemberFormState } from "../actions";
 import {
   DEGREE_OPTIONS,
@@ -40,7 +41,13 @@ export type MemberFormValues = {
 
 const initialState: MemberFormState = {};
 
-export default function MemberForm({ member }: { member?: MemberFormValues }) {
+export default function MemberForm({
+  member,
+  uploadsEnabled,
+}: {
+  member?: MemberFormValues;
+  uploadsEnabled: boolean;
+}) {
   const action = member ? updateMember.bind(null, member.id) : createMember;
   const [state, formAction] = useFormState(action, initialState);
   const [role, setRole] = useState<MemberRole>(member?.role ?? "STUDENT");
@@ -210,23 +217,14 @@ export default function MemberForm({ member }: { member?: MemberFormValues }) {
         </div>
       )}
 
-      <div>
-        <label htmlFor="imgPath" className={labelClass}>
-          사진 경로
-        </label>
-        <input
-          id="imgPath"
-          name="imgPath"
-          type="text"
-          defaultValue={member?.imgPath ?? ""}
-          placeholder="/legacy/photo.jpg"
-          className={inputClass}
-        />
-        <p className={hintClass}>
-          /로 시작하는 사이트 내부 경로. 파일 업로드 기능은 추후 추가 예정입니다.
-        </p>
-        <FieldError errors={state.errors?.imgPath} />
-      </div>
+      <ImageUploadField
+        label="사진 경로"
+        defaultValue={member?.imgPath}
+        placeholder="/legacy/photo.jpg"
+        hint="/로 시작하는 사이트 내부 경로입니다."
+        errors={state.errors?.imgPath}
+        uploadsEnabled={uploadsEnabled}
+      />
 
       <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2">
         <input
