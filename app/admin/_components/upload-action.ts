@@ -6,6 +6,7 @@ import path from "node:path";
 import sharp from "sharp";
 import { requireAdmin } from "@/lib/auth/guard";
 import { uploadsEnabled } from "@/lib/uploads";
+import { writeThumbnail } from "@/lib/thumbnail";
 
 // Phase 7-8: shared image upload for the admin forms (Members/Publications/
 // Gallery imgPath; Research figures reuse it in 7-10). Immediate upload — the
@@ -75,5 +76,10 @@ export async function uploadImage(formData: FormData): Promise<UploadResult> {
   const filename = `${randomUUID()}.${ext}`;
   await writeFile(path.join(dir, filename), buffer);
 
-  return { ok: true, path: `/uploads/${filename}`, width, height };
+  // Bake the 600px WebP thumbnail now so list/card views never decode the
+  // original (7-9). buffer already validated as an image by sharp.metadata above.
+  const webPath = `/uploads/${filename}`;
+  await writeThumbnail(webPath, buffer);
+
+  return { ok: true, path: webPath, width, height };
 }

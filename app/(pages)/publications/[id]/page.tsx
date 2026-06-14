@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import { prisma } from "@/lib/db";
+import { imageSize } from "@/lib/thumbnail";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
@@ -85,6 +86,9 @@ export default async function PublicationDetailPage({
   const eyebrow = TYPE_LABEL[pub.type];
   const fields = buildFields(pub);
   const isJournal = pub.type === "JOURNAL";
+  // Detail view serves the original cover; read its dimensions for CLS-safe
+  // width/height (no stored dim columns).
+  const dims = pub.imgPath ? await imageSize(pub.imgPath) : null;
 
   return (
     <main>
@@ -131,7 +135,11 @@ export default async function PublicationDetailPage({
                   <img
                     src={pub.imgPath}
                     alt=""
-                    className="w-full rounded-[12px] border border-line object-cover"
+                    width={dims?.width}
+                    height={dims?.height}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-auto w-full rounded-[12px] border border-line object-cover"
                   />
                 ) : (
                   <div className="fig-placeholder aspect-[3/4] w-full rounded-[12px] border border-line" />

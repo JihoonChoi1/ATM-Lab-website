@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/ui/Container";
 import SectionHead from "@/components/ui/SectionHead";
+import Thumb from "@/components/ui/Thumb";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -356,8 +357,7 @@ export default function HomeClient({
                     {item.num}
                   </span>
                   {item.img ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Thumb
                       src={item.img}
                       alt={item.title}
                       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
@@ -525,8 +525,7 @@ export default function HomeClient({
               className="reveal group relative aspect-[4/5] overflow-hidden rounded-[24px] text-white"
               style={{ background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Thumb
                 src={professorImg}
                 alt="Professor portrait"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
@@ -681,8 +680,7 @@ export default function HomeClient({
                     href={`/board/gallery/${img.id}`}
                     className={`group/gal relative block overflow-hidden rounded-[14px] bg-[#eee] ${img.span}`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Thumb
                       src={img.src}
                       alt={img.cap}
                       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/gal:scale-[1.08]"

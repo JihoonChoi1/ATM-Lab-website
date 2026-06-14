@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/ui/Container";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
+import Thumb from "@/components/ui/Thumb";
 
 // sessionStorage key holding the list's tab/year/scroll so we can return the
 // user to where they were after they open a detail page and come back.
@@ -146,8 +147,7 @@ function JournalRow({ it, onNavigate }: { it: Journal; onNavigate: () => void })
       <NumLabel n={it.num} />
       <div className="shrink-0 mt-0.5 max-[640px]:hidden">
         {it.imgPath ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Thumb
             src={it.imgPath}
             alt=""
             className="h-[80px] w-[60px] rounded-md border border-line/80 object-cover"

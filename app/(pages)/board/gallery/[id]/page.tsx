@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import { prisma } from "@/lib/db";
+import { imageSize } from "@/lib/thumbnail";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
@@ -28,6 +29,10 @@ export default async function GalleryDetailPage({
 }) {
   const item = await prisma.galleryItem.findUnique({ where: { id: params.id } });
   if (!item || !item.published) notFound();
+
+  // Detail view serves the original (full quality). Read its dimensions so the
+  // <img> reserves space and never shifts layout on load (no stored dim columns).
+  const dims = item.imgPath ? await imageSize(item.imgPath) : null;
 
   return (
     <main>
@@ -68,7 +73,11 @@ export default async function GalleryDetailPage({
               <img
                 src={item.imgPath}
                 alt={item.title}
-                className="w-full rounded-[16px] border border-line bg-surface"
+                width={dims?.width}
+                height={dims?.height}
+                loading="lazy"
+                decoding="async"
+                className="h-auto w-full rounded-[16px] border border-line bg-surface"
               />
             ) : (
               <div className="fig-placeholder aspect-[4/3] w-full rounded-[16px] border border-line" />

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/ui/Container";
+import Thumb from "@/components/ui/Thumb";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -304,11 +305,9 @@ export default function BoardClient({
                 <Link href={`/board/gallery/${g.id}`} className="block" aria-label={g.title}>
                   <div className="relative overflow-hidden rounded-[14px] border border-line bg-surface p-2.5 transition-[transform,box-shadow,border-color] duration-300 group-hover:-translate-y-1.5 group-hover:border-accent/30 group-hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
                     {g.imgPath ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Thumb
                         src={g.imgPath}
                         alt={g.title}
-                        loading="lazy"
                         className="aspect-[4/3] w-full rounded-[10px] object-cover"
                       />
                     ) : (

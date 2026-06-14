@@ -15,7 +15,9 @@
     "db:fetch-publication-images": "tsx --env-file=.env.local scripts/fetch-publication-images.ts",
     "db:map-research-figures": "tsx --env-file=.env.local scripts/map-research-figures.ts",
     "db:localize-news-images": "tsx --env-file=.env.local scripts/localize-news-images.ts",
-    "db:clean-news-styles": "tsx --env-file=.env.local scripts/clean-news-styles.ts"
+    "db:clean-news-styles": "tsx --env-file=.env.local scripts/clean-news-styles.ts",
+    "build-thumbnails": "tsx scripts/build-thumbnails.ts",
+    "sweep-uploads": "tsx --env-file=.env.local scripts/sweep-uploads.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

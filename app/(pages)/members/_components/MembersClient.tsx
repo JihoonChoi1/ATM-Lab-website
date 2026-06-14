@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Container from "@/components/ui/Container";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
+import Thumb from "@/components/ui/Thumb";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -68,8 +69,7 @@ function MemberCard({ m }: { m: Person }) {
   return (
     <article id={`member-${m.id}`} className="group flex flex-col overflow-hidden rounded-[18px] border border-line bg-white transition-[transform,box-shadow,border-color] duration-[350ms] hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
       <div className="relative overflow-hidden" style={{ aspectRatio: "3/4" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={m.img ?? undefined} alt={`Portrait of ${m.name}`} className="h-full w-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.04]" loading="lazy" />
+        <Thumb src={m.img} alt={`Portrait of ${m.name}`} className="h-full w-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.04]" />
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.18) 100%)" }} />
       </div>
       <div className="flex flex-1 flex-col px-6 py-5">
@@ -248,10 +248,15 @@ export default function MembersClient({
               className="reveal group relative overflow-hidden rounded-[24px] text-white min-[981px]:sticky min-[981px]:top-[96px]"
               style={{ aspectRatio: "4/5", background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
             >
+              {/* PI hero portrait — the single largest image on the page, so it
+                  serves the original (not a 600px thumb) to stay crisp on retina;
+                  one image, not a scrolling grid, so decode cost is a non-issue. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={professor.img ?? "/professor.png"}
                 alt={`Portrait of ${professor.name}`}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
               />
               <div
@@ -441,8 +446,7 @@ export default function MembersClient({
                       className="grid grid-cols-[44px_1.4fr_0.8fr_1.2fr_auto] items-center gap-5 border-b border-line/70 py-4 last:border-0 transition-[padding] duration-300 hover:pl-3.5 max-[820px]:grid-cols-[44px_1fr] max-[820px]:gap-x-4 max-[820px]:gap-y-1"
                     >
                       <div className="row-span-2 flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-accent to-accent-light text-white max-[820px]:row-span-1">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={a.img ?? undefined} alt={`Portrait of ${a.name}`} className="h-full w-full object-cover" loading="lazy" />
+                        <Thumb src={a.img} alt={`Portrait of ${a.name}`} className="h-full w-full object-cover" />
                       </div>
                       <div className="min-w-0">
                         <div className="text-[16px] font-semibold tracking-[-0.005em] text-ink">{a.name}</div>

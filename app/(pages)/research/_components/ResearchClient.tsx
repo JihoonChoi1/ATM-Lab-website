@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import Container from "@/components/ui/Container";
+import Thumb from "@/components/ui/Thumb";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -87,12 +88,10 @@ function FigureView({ fig }: { fig: Figure }) {
           style={{ aspectRatio: `${fig.w}/${fig.h}` }}
         >
           {fig.imgPath ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Thumb
               src={fig.imgPath}
               alt={figBody(fig.caption)}
               className="h-full w-full object-cover"
-              loading="lazy"
             />
           ) : (
             <div className="fig-placeholder absolute inset-0 flex items-center justify-center">
