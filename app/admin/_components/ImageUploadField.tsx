@@ -18,6 +18,7 @@ export default function ImageUploadField({
   hint,
   errors,
   uploadsEnabled,
+  onUploaded,
 }: {
   label: string;
   defaultValue?: string | null;
@@ -25,6 +26,9 @@ export default function ImageUploadField({
   hint?: ReactNode;
   errors?: string[];
   uploadsEnabled: boolean;
+  // Research figures (7-10) capture the returned pixel dimensions; the other
+  // forms omit this and ignore width/height.
+  onUploaded?: (result: { path: string; width: number; height: number }) => void;
 }) {
   const [value, setValue] = useState(defaultValue ?? "");
   const [uploading, setUploading] = useState(false);
@@ -40,6 +44,7 @@ export default function ImageUploadField({
       const result = await uploadImage(formData);
       if (result.ok) {
         setValue(result.path);
+        onUploaded?.({ path: result.path, width: result.width, height: result.height });
       } else {
         setError(result.error);
       }
