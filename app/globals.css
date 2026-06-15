@@ -126,12 +126,16 @@
     display: none;
   }
 
-  /* Research page: alternate subsection rows — image right on even rows */
+  /* Research page: alternate subsection rows — image right on even rows.
+     nth-child counts the .sub-block wrappers (the true sibling sequence in the
+     topic column); each wraps an optional divider + one .sub-row, so targeting
+     the inner .sub-row instead would only ever see position 1 or 2 within its
+     own wrapper. */
   @media (min-width: 821px) {
-    .sub-row:nth-child(even) .sub-figure {
+    .sub-block:nth-child(even) .sub-figure {
       order: 2;
     }
-    .sub-row:nth-child(even) .sub-text {
+    .sub-block:nth-child(even) .sub-text {
       order: 1;
     }
   }

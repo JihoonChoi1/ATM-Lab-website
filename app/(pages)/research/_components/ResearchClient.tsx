@@ -222,7 +222,9 @@ function TopicSection({ topic }: { topic: Topic }) {
 
         <div className="flex flex-col">
           {topic.subs.map((sub, i) => (
-            <div key={sub.num}>
+            // .sub-block is the alternation counter: nth-child(even) here flips
+            // the figure to the right (see .sub-block CSS in globals.css).
+            <div key={sub.num} className="sub-block">
               {i > 0 && <div className="my-16 border-t border-line max-[820px]:my-12" />}
               <SubRow sub={sub} />
             </div>
