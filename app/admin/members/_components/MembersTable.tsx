@@ -175,7 +175,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                           onClick={() => {
                             if (
                               window.confirm(
-                                `'${m.name}' 멤버를 삭제할까요? 되돌릴 수 없습니다.`,
+                                `'${m.name}' 멤버를 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.`,
                               )
                             ) {
                               run(() => deleteMember(m.id));

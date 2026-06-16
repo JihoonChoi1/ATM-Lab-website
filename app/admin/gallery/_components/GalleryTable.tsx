@@ -86,7 +86,7 @@ export default function GalleryTable({ items }: { items: GalleryRow[] }) {
                 <button
                   onClick={() => {
                     if (
-                      window.confirm(`'${g.title}' 갤러리 항목을 삭제할까요? 되돌릴 수 없습니다.`)
+                      window.confirm(`'${g.title}' 갤러리 항목을 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.`)
                     ) {
                       run(() => deleteGalleryItem(g.id));
                     }

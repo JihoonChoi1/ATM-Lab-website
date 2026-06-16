@@ -162,7 +162,7 @@ export default function ProjectsTable({ projects }: { projects: ProjectRow[] }) 
                           onClick={() => {
                             if (
                               window.confirm(
-                                `'${p.title}' 프로젝트를 삭제할까요? 되돌릴 수 없습니다.`,
+                                `'${p.title}' 프로젝트를 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.`,
                               )
                             ) {
                               run(() => deleteProject(p.id));
