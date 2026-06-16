@@ -80,8 +80,11 @@ export default function MemberForm({
 
       {role === "PROFESSOR" && (
         <p className="rounded-2xl bg-accent-soft px-4 py-2.5 text-sm text-accent">
-          학력·경력·연구분야·강의 항목은 추후 별도 편집기에서 관리합니다. 이
-          폼은 해당 데이터를 변경하지 않습니다.
+          학력·경력·연구분야·강의 항목은{" "}
+          <Link href="/admin/members/professor" className="font-semibold underline">
+            교수 프로필 편집기
+          </Link>
+          에서 관리합니다. 이 폼은 해당 데이터를 변경하지 않습니다.
         </p>
       )}
 

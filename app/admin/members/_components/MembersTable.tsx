@@ -160,7 +160,15 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                         </button>
                       </td>
                       <td className="whitespace-nowrap px-4 py-2.5">
-                        <Link href={`/admin/members/${m.id}`} className={editLinkClass}>
+                        {m.role === "PROFESSOR" && (
+                          <Link href="/admin/members/professor" className={editLinkClass}>
+                            프로필 편집
+                          </Link>
+                        )}
+                        <Link
+                          href={`/admin/members/${m.id}`}
+                          className={`${m.role === "PROFESSOR" ? "ml-4 " : ""}${editLinkClass}`}
+                        >
                           수정
                         </Link>
                         <button

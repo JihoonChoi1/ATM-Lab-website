@@ -97,3 +97,73 @@ export function toMemberData(m: MemberInput) {
     published: m.published,
   };
 }
+
+// Phase 7-11: professor-only structured JSON, edited via the dedicated
+// /admin/members/professor editor (left out of the generic form in 7-2). The
+// z.output here must match the public renderer's types exactly
+// (app/(pages)/members/_components/MembersClient.tsx) — a mismatch breaks the
+// /members professor section.
+
+// education + workHistory share one shape. The public DefinitionList renders
+// `period` unconditionally and `inst` only when present, and the migrated work
+// history has rows with empty period/inst (membership lines) — so only `title`
+// is required.
+const profEntrySchema = z.object({
+  period: z.string().trim(),
+  title: z.string().trim().min(1, "직함/학위를 입력하세요."),
+  inst: z.string().trim(),
+});
+
+const profResearchItemSchema = z.object({
+  label: z.string().trim().min(1, "연구분야 항목명을 입력하세요."),
+  // Comma-separated sub-tags → string[] (same convention as `interests`).
+  subs: z
+    .string()
+    .transform((v) => v.split(",").map((s) => s.trim()).filter(Boolean)),
+});
+
+const profResearchGroupSchema = z.object({
+  group: z.string().trim().min(1, "연구분야 그룹명을 입력하세요."),
+  items: z.array(profResearchItemSchema),
+});
+
+const profLectureSchema = z.object({
+  title: z.string().trim().min(1, "강의명을 입력하세요."),
+  code: z.string().trim(), // optional — legacy rows store ""
+});
+
+export const professorProfileSchema = z
+  .object({
+    // Top-level [] is allowed everywhere (the public renderer is empty-safe).
+    education: z.array(profEntrySchema),
+    workHistory: z.array(profEntrySchema),
+    researchFields: z.array(profResearchGroupSchema),
+    lectureSubjects: z.array(profLectureSchema),
+  })
+  .superRefine((p, ctx) => {
+    // The public page uses group / item label / sub / lecture title as React
+    // keys, so duplicates among siblings collide and break that render — reject
+    // them. (education/workHistory use index keys, so they need no check.)
+    const groups = new Set<string>();
+    for (const g of p.researchFields) {
+      if (groups.has(g.group))
+        ctx.addIssue({ code: "custom", path: ["researchFields"], message: `연구분야 그룹명이 중복됩니다: "${g.group}"` });
+      groups.add(g.group);
+      const labels = new Set<string>();
+      for (const it of g.items) {
+        if (labels.has(it.label))
+          ctx.addIssue({ code: "custom", path: ["researchFields"], message: `연구분야 항목명이 중복됩니다: "${it.label}"` });
+        labels.add(it.label);
+        if (new Set(it.subs).size !== it.subs.length)
+          ctx.addIssue({ code: "custom", path: ["researchFields"], message: `"${it.label}" 항목의 세부 태그가 중복됩니다.` });
+      }
+    }
+    const titles = new Set<string>();
+    for (const l of p.lectureSubjects) {
+      if (titles.has(l.title))
+        ctx.addIssue({ code: "custom", path: ["lectureSubjects"], message: `강의명이 중복됩니다: "${l.title}"` });
+      titles.add(l.title);
+    }
+  });
+
+export type ProfessorProfileInput = z.output<typeof professorProfileSchema>;

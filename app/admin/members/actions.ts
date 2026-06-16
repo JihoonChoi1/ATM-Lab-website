@@ -3,10 +3,11 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@/app/generated/prisma/client";
 import { requireAdmin } from "@/lib/auth/guard";
 import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
-import { memberSchema, toMemberData } from "./schema";
+import { memberSchema, professorProfileSchema, toMemberData } from "./schema";
 
 // Phase 7-2: first content CRUD — the pattern 7-3+ replicates. Every action
 // re-guards with requireAdmin (Server Actions are their own entry points) and
@@ -83,6 +84,69 @@ export async function updateMember(
     entity: "Member",
     entityId: id,
     data: { ip: getClientIp(), label: data.name, ...diffChanges(existing, data) },
+  });
+
+  redirect("/admin/members");
+}
+
+// Each of the 4 professor JSON fields arrives as one hidden input holding a
+// JSON-serialized array (the client edits them as nested React state). A parse
+// failure can only come from a tampered request — fall through to undefined so
+// the array schema rejects it with a field error.
+function parseJsonField(v: FormDataEntryValue | null): unknown {
+  try {
+    return JSON.parse(typeof v === "string" ? v : "");
+  } catch {
+    return undefined;
+  }
+}
+
+// Phase 7-11: the "separate editor" the 7-2 MemberForm notice points to. Writes
+// ONLY the 4 professor-only JSON columns on the single PROFESSOR row — the
+// generic member form still never touches them (7-2 invariant preserved).
+export async function updateProfessorProfile(
+  _prev: MemberFormState,
+  formData: FormData,
+): Promise<MemberFormState> {
+  const session = await requireAdmin("/admin/members/professor");
+
+  const prof = await prisma.member.findFirst({ where: { role: "PROFESSOR" } });
+  if (!prof) return { message: "교수 정보를 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+
+  const parsed = professorProfileSchema.safeParse({
+    education: parseJsonField(formData.get("education")),
+    workHistory: parseJsonField(formData.get("workHistory")),
+    researchFields: parseJsonField(formData.get("researchFields")),
+    lectureSubjects: parseJsonField(formData.get("lectureSubjects")),
+  });
+  if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
+
+  const data = {
+    education: parsed.data.education,
+    workHistory: parsed.data.workHistory,
+    researchFields: parsed.data.researchFields,
+    lectureSubjects: parsed.data.lectureSubjects,
+  };
+  await prisma.member.update({
+    where: { id: prof.id },
+    data: data as Prisma.MemberUpdateInput,
+  });
+
+  // Audit only these 4 fields. Normalize existing null → [] so a first-ever
+  // null→[] transition isn't logged as a change and a later UPDATE revert never
+  // writes a plain JS null into a nullable Json column (which Prisma rejects).
+  const before = {
+    education: prof.education ?? [],
+    workHistory: prof.workHistory ?? [],
+    researchFields: prof.researchFields ?? [],
+    lectureSubjects: prof.lectureSubjects ?? [],
+  };
+  await logAudit({
+    userId: session.user.id,
+    action: "UPDATE",
+    entity: "Member",
+    entityId: prof.id,
+    data: { ip: getClientIp(), label: prof.name, ...diffChanges(before, data) },
   });
 
   redirect("/admin/members");
