@@ -18,6 +18,14 @@ import { thumbnailDiskPath } from "@/lib/thumbnail";
 // current row or inside an audit before/after/snapshot.
 const IMG_ENTITIES = ["Member", "Publication", "GalleryItem", "ResearchFigure"];
 
+// Audit entities whose serialized data can embed an upload path. Beyond the
+// imgPath-bearing models, a deleted ResearchTopic/ResearchSubsection snapshots
+// its whole subtree (7-10b), so a figure's imgPath rides inside a ResearchTopic/
+// ResearchSubsection DELETE entry. These two MUST stay out of IMG_ENTITIES —
+// they have no imgPath column, so countImgPathRefs' count({ where: { imgPath } })
+// would break on them. Audit-scan only.
+const AUDIT_IMG_ENTITIES = [...IMG_ENTITIES, "ResearchTopic", "ResearchSubsection"];
+
 // Count current rows across every imgPath-bearing model that point at this path.
 export async function countImgPathRefs(webPath: string): Promise<number> {
   const [members, publications, gallery, figures] = await Promise.all([
@@ -34,7 +42,7 @@ export async function countImgPathRefs(webPath: string): Promise<number> {
 // /uploads/<uuid> string, so a substring match over the serialized data is exact.
 export async function isReferencedInAudit(webPath: string): Promise<boolean> {
   const rows = await prisma.auditLog.findMany({
-    where: { entity: { in: IMG_ENTITIES } },
+    where: { entity: { in: AUDIT_IMG_ENTITIES } },
     select: { data: true },
   });
   return rows.some((r) => r.data != null && JSON.stringify(r.data).includes(webPath));
