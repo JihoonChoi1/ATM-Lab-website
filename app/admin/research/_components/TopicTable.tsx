@@ -105,7 +105,7 @@ export default function TopicTable({ topics }: { topics: TopicRow[] }) {
                   onClick={() => {
                     if (
                       window.confirm(
-                        `'${t.title}' 토픽을 삭제할까요? 하위 서브섹션과 그림도 함께 삭제되며 되돌릴 수 없습니다.`,
+                        `'${t.title}' 토픽을 삭제할까요? 하위 서브섹션과 그림도 함께 삭제됩니다. 90일 내 최근 활동에서 복원할 수 있습니다.`,
                       )
                     ) {
                       run(() => deleteTopic(t.id));

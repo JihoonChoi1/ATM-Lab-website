@@ -113,7 +113,7 @@ export default function FigureTable({
                 </Link>
                 <button
                   onClick={() => {
-                    if (window.confirm("이 그림을 삭제할까요? 되돌릴 수 없습니다.")) {
+                    if (window.confirm("이 그림을 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.")) {
                       run(() => deleteFigure(f.id));
                     }
                   }}

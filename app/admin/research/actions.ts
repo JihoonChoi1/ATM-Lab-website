@@ -13,10 +13,13 @@ import { figureSchema, pageMetaSchema, subsectionSchema, topicSchema } from "./s
 // with requireAdmin (Server Actions are their own entry points) and audits on
 // success ({ ip, label }; UPDATE adds a changed-field diff, DELETE a full-row
 // snapshot; toggles/moves are UPDATEs). CSRF is covered by Next's Server Action
-// origin check; no revalidatePath — every page is force-dynamic. Research is NOT
-// registered in REVERTIBLE_ENTITIES: onDelete Cascade means a single-row topic/
-// subsection snapshot can't restore its lost children, so no restore button is
-// offered (the audit trail is still recorded).
+// origin check; no revalidatePath — every page is force-dynamic.
+//
+// 7-10b: Topic/Subsection DELETE snapshot the whole cascaded subtree (subsections
+// + figures), not just the single row, so revert/restore can rebuild the children
+// that onDelete: Cascade removes. All four Research models are registered in
+// REVERTIBLE_ENTITIES; the tree is reassembled by a nested create in
+// app/admin/activity/actions.ts.
 
 export type ResearchFormState = {
   errors?: Record<string, string[] | undefined>;
@@ -107,7 +110,17 @@ export async function updateTopic(
 export async function deleteTopic(id: string): Promise<void> {
   const session = await requireAdmin("/admin/research");
 
-  const topic = await prisma.researchTopic.findUnique({ where: { id } });
+  // Snapshot the whole subtree before the cascade wipes the children — restore
+  // (7-10b) rebuilds subsections + figures from this single JSON blob.
+  const topic = await prisma.researchTopic.findUnique({
+    where: { id },
+    include: {
+      subsections: {
+        orderBy: { order: "asc" },
+        include: { figures: { orderBy: { order: "asc" } } },
+      },
+    },
+  });
   if (!topic) return;
 
   // Subsections/figures cascade on delete (DB-level onDelete: Cascade).
@@ -258,7 +271,11 @@ export async function updateSubsection(
 export async function deleteSubsection(id: string): Promise<void> {
   const session = await requireAdmin("/admin/research");
 
-  const sub = await prisma.researchSubsection.findUnique({ where: { id } });
+  // Snapshot figures with the subsection so restore (7-10b) can rebuild them.
+  const sub = await prisma.researchSubsection.findUnique({
+    where: { id },
+    include: { figures: { orderBy: { order: "asc" } } },
+  });
   if (!sub) return;
 
   // Figures cascade on delete (DB-level onDelete: Cascade).

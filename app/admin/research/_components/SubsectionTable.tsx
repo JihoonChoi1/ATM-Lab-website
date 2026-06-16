@@ -113,7 +113,7 @@ export default function SubsectionTable({
                   onClick={() => {
                     if (
                       window.confirm(
-                        `'${s.title}' 서브섹션을 삭제할까요? 하위 그림도 함께 삭제되며 되돌릴 수 없습니다.`,
+                        `'${s.title}' 서브섹션을 삭제할까요? 하위 그림도 함께 삭제됩니다. 90일 내 최근 활동에서 복원할 수 있습니다.`,
                       )
                     ) {
                       run(() => deleteSubsection(s.id));
