@@ -12,7 +12,7 @@ export default async function LoginPage({
 }: {
   searchParams: { callbackUrl?: string };
 }) {
-  const callbackUrl = safeCallbackUrl(searchParams.callbackUrl, "/admin/security");
+  const callbackUrl = safeCallbackUrl(searchParams.callbackUrl, "/admin");
 
   // Already signed in → skip the form.
   const session = await auth();

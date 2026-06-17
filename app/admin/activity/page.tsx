@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import Pagination from "@/app/admin/_components/Pagination";
+import { ACTION_LABELS, fmtTime, readLabel } from "@/app/admin/_components/audit-format";
 import RevertButton from "./_components/RevertButton";
 import { REVERTIBLE_ENTITIES } from "./revertable";
 
@@ -10,23 +11,6 @@ export const metadata: Metadata = { title: "최근 활동 · ATM Lab" };
 // Reads the session cookie + live audit rows → never cache.
 export const dynamic = "force-dynamic";
 
-// Korean labels for the compact action tokens stored in AuditLog.action.
-const ACTION_LABELS: Record<string, string> = {
-  LOGIN: "로그인",
-  LOGOUT: "로그아웃",
-  ENABLE_2FA: "2FA 켜기",
-  CREATE: "생성",
-  UPDATE: "수정",
-  DELETE: "삭제",
-};
-
-const fmtTime = (d: Date) =>
-  new Intl.DateTimeFormat("ko-KR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Seoul",
-  }).format(d);
-
 // data is best-effort { ip } for security events; read defensively.
 function readIp(data: unknown): string {
   if (data && typeof data === "object" && "ip" in data) {
@@ -34,16 +18,6 @@ function readIp(data: unknown): string {
     if (typeof ip === "string" && ip) return ip;
   }
   return "—";
-}
-
-// Content CRUD entries (7-2+) carry a human-readable { label } (name/title) —
-// the entityId cuid is meaningless to a human, especially after a delete.
-function readLabel(data: unknown): string | null {
-  if (data && typeof data === "object" && "label" in data) {
-    const label = (data as { label?: unknown }).label;
-    if (typeof label === "string" && label) return label;
-  }
-  return null;
 }
 
 // { before, after } on UPDATE entries, { snapshot } on DELETE entries.

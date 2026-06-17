@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type NavItem = { href: string; label: string; ready: boolean };
+type NavItem = { href: string; label: string; ready: boolean; exact?: boolean };
+
+// Dashboard landing. exact match only — every admin page lives under "/admin/…",
+// so prefix matching would keep this lit on every page.
+const DASHBOARD: NavItem = { href: "/admin", label: "대시보드", ready: true, exact: true };
 
 // 7 content types (CRUD pages land in 7-2+) + the two pages that already exist.
 const CONTENT: NavItem[] = [
@@ -40,8 +44,9 @@ export default function AdminNav() {
         </span>
       );
     }
-    const active =
-      pathname === item.href || pathname?.startsWith(item.href + "/");
+    const active = item.exact
+      ? pathname === item.href
+      : pathname === item.href || pathname?.startsWith(item.href + "/");
     return (
       <Link
         key={item.href}
@@ -59,6 +64,7 @@ export default function AdminNav() {
 
   return (
     <nav className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
+      {renderItem(DASHBOARD)}
       <p className="hidden px-3.5 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-ink-3 md:block">
         콘텐츠
       </p>
