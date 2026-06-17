@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import MembersClient, {
   type Person,
@@ -7,6 +8,12 @@ import MembersClient, {
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Members — ATM Lab",
+  description:
+    "Meet the Advanced Thermal Management Lab team at Ajou University — the principal investigator, researchers, graduate students, and alumni.",
+};
 
 type Entry = { period: string; title: string; inst: string };
 type LectureSubject = { title: string; code: string };

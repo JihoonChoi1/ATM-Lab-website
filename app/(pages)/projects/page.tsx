@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
 import { prisma } from "@/lib/db";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Projects — ATM Lab",
+  description:
+    "Funded research at the Advanced Thermal Management Lab, Ajou University — active grants in flight and completed contracts in thermal engineering.",
+};
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

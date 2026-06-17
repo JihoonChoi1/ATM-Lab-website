@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import LecturesClient, { type Lecture } from "./_components/LecturesClient";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Lectures — ATM Lab",
+  description:
+    "Undergraduate and graduate courses taught by the Advanced Thermal Management Lab at Ajou University.",
+};
 
 export default async function LecturesPage() {
   const rows = await prisma.lecture.findMany({

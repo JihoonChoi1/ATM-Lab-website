@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import PublicationsClient, {
   type Journal,
@@ -7,6 +8,12 @@ import PublicationsClient, {
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Publications — ATM Lab",
+  description:
+    "Journal articles, conference papers, and patents from the Advanced Thermal Management Lab at Ajou University.",
+};
 
 type Row = Awaited<ReturnType<typeof prisma.publication.findMany>>[number];
 

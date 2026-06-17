@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import ResearchClient, { type Topic } from "./_components/ResearchClient";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Research — ATM Lab",
+  description:
+    "Explore the research areas of the Advanced Thermal Management Lab at Ajou University, spanning two-phase cooling, battery thermal management, phase-change materials, and heat pump systems.",
+};
 
 export default async function ResearchPage() {
   const [rows, meta] = await Promise.all([

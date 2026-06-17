@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import BoardClient, {
   type NewsItem,
@@ -6,6 +7,12 @@ import BoardClient, {
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Board — ATM Lab",
+  description:
+    "Latest news and the photo gallery of the Advanced Thermal Management Lab at Ajou University.",
+};
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
