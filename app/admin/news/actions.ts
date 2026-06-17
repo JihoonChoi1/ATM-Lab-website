@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
+import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 import { newsSchema } from "./schema";
 
 // Phase 7-6: News CRUD — the 7-4 pattern without move: the public order is
@@ -40,7 +41,10 @@ export async function createNews(
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
-  const news = await prisma.news.create({ data: parsed.data });
+  // Force the body to the closed allowlist before it reaches the DB (the editor
+  // limit is client-side only). Empty/tag-only HTML collapses back to null.
+  const data = { ...parsed.data, content: sanitizeRichText(parsed.data.content) };
+  const news = await prisma.news.create({ data });
 
   await logAudit({
     userId: session.user.id,
@@ -68,7 +72,9 @@ export async function updateNews(
 
   // Writes only the form-managed columns — the diff below records changed
   // fields only, so the ~6KB content blob is stored just when it changes.
-  const data = parsed.data;
+  // Sanitize to the closed allowlist first (also lazy-normalizes a legacy body
+  // re-saved through the editor — recorded as a content diff, as intended).
+  const data = { ...parsed.data, content: sanitizeRichText(parsed.data.content) };
   await prisma.news.update({ where: { id }, data });
 
   await logAudit({

@@ -11,12 +11,14 @@ import {
   labelClass,
   messageClass,
 } from "@/app/admin/_components/form-ui";
+import RichTextEditor from "@/app/admin/_components/RichTextEditor";
 import { createNews, updateNews, type NewsFormState } from "../actions";
 
 // Create + edit form (React 18: useFormState, same pattern as LectureForm).
-// All fields are uncontrolled — News has no conditional fields. content is
-// one raw-HTML textarea: legacy bodies are CMS-pasted HTML blobs (3.5–6KB),
-// stored and rendered verbatim (single trusted admin model).
+// The date/title fields are uncontrolled; the body is a WYSIWYG editor (7-12)
+// that serializes its closed-vocabulary HTML into a hidden "content" input, so
+// this submit path stays the same useFormState flow. The server re-sanitizes to
+// the same allowlist (single trusted admin model).
 
 export type NewsFormValues = {
   id: string;
@@ -28,7 +30,13 @@ export type NewsFormValues = {
 
 const initialState: NewsFormState = {};
 
-export default function NewsForm({ news }: { news?: NewsFormValues }) {
+export default function NewsForm({
+  news,
+  uploadsEnabled,
+}: {
+  news?: NewsFormValues;
+  uploadsEnabled: boolean;
+}) {
   const action = news ? updateNews.bind(null, news.id) : createNews;
   const [state, formAction] = useFormState(action, initialState);
 
@@ -66,19 +74,16 @@ export default function NewsForm({ news }: { news?: NewsFormValues }) {
       </div>
 
       <div>
-        <label htmlFor="content" className={labelClass}>
-          본문 (HTML)
-        </label>
-        <textarea
-          id="content"
+        <span className={labelClass}>본문</span>
+        <RichTextEditor
           name="content"
-          rows={16}
           defaultValue={news?.content ?? ""}
-          className={`${inputClass} font-mono`}
+          uploadsEnabled={uploadsEnabled}
+          withImage
         />
         <p className={hintClass}>
-          HTML이 그대로 저장됩니다. 비워두면 상세 페이지에 &lsquo;No
-          content.&rsquo;로 표시됩니다.
+          단락·굵게·기울임·링크·목록·사진을 지원합니다. 비워두면 상세 페이지에
+          &lsquo;No content.&rsquo;로 표시됩니다.
         </p>
         <FieldError errors={state.errors?.content} />
       </div>

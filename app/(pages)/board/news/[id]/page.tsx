@@ -34,7 +34,7 @@ export default async function NewsDetailPage({
       {/* ── Header ── */}
       <header className="bg-white pt-[150px] pb-[56px] max-[640px]:pt-[120px] max-[640px]:pb-10">
         <Container>
-          <div className="max-w-[760px]">
+          <div className="max-w-[920px]">
             <Link
               href="/board#section-news"
               className="inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-ink-3 transition-colors hover:text-accent"
@@ -65,15 +65,18 @@ export default async function NewsDetailPage({
           {item.content ? (
             <div
               lang="ko"
-              className="news-body max-w-[760px] text-[17px] leading-[1.8] text-ink-2
+              className="news-body max-w-[920px] break-words text-[17px] leading-[1.8] text-ink-2
                 [&_p]:my-[1.1em]
+                [&_ul]:my-[1.1em] [&_ul]:list-disc [&_ul]:pl-[1.5em]
+                [&_ol]:my-[1.1em] [&_ol]:list-decimal [&_ol]:pl-[1.5em]
+                [&_li]:my-[0.35em] [&_li>p]:my-0
                 [&_img]:my-7 [&_img]:mx-auto [&_img]:block [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-[12px] [&_img]:border [&_img]:border-line
                 [&_a]:text-accent [&_a]:underline
                 [&_strong]:font-semibold [&_strong]:text-ink"
               dangerouslySetInnerHTML={{ __html: item.content }}
             />
           ) : (
-            <p className="max-w-[760px] text-[15px] italic text-ink-3">
+            <p className="max-w-[920px] text-[15px] italic text-ink-3">
               No content.
             </p>
           )}

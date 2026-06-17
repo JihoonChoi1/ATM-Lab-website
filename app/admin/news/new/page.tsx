@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth/guard";
+import { uploadsEnabled } from "@/lib/uploads";
 import NewsForm from "../_components/NewsForm";
 
 export const metadata: Metadata = { title: "새 소식 · ATM Lab" };
@@ -11,14 +12,14 @@ export default async function NewNewsPage() {
   await requireAdmin("/admin/news/new");
 
   return (
-    <div className="mx-auto w-full max-w-[640px]">
+    <div className="mx-auto w-full max-w-[920px]">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-[-0.02em]">새 소식</h1>
         <p className="mt-1 text-sm text-ink-3">
           저장하면 공개 /board 페이지에 바로 반영됩니다.
         </p>
       </div>
-      <NewsForm />
+      <NewsForm uploadsEnabled={uploadsEnabled()} />
     </div>
   );
 }
