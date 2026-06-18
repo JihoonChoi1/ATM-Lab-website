@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
 import SiteChrome from "@/app/_components/SiteChrome";
+import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  // Resolves relative Open Graph image + url to absolute URLs. Reuse AUTH_URL —
-  // already the per-deploy canonical origin (dev auto, prod verify
-  // http://localhost:3100, school server https://atmlab.ajou.ac.kr). AUTH_URL
-  // MUST be set on every deploy (Auth.js requires it too); the localhost
-  // fallback only applies to local dev.
-  metadataBase: new URL(process.env.AUTH_URL ?? "http://localhost:3000"),
+  // Resolves relative Open Graph image + url to absolute URLs. siteUrl reuses
+  // AUTH_URL — already the per-deploy canonical origin (dev auto, prod verify
+  // http://localhost:3100, school server https://atmlab.ajou.ac.kr).
+  metadataBase: new URL(siteUrl),
+  // The Vercel demo and the school server host identical content on two
+  // domains. Keep the demo (seed data) out of search to avoid cross-domain
+  // duplicates, so Google indexes the school deploy as canonical. VERCEL is set
+  // automatically on Vercel only; the school deploy emits no robots meta and
+  // stays indexable. Crawling is still allowed (robots.txt does not Disallow:/)
+  // so crawlers can actually read this noindex.
+  robots: process.env.VERCEL ? { index: false, follow: false } : undefined,
   title: "ATM Lab — Advanced Thermal Management Laboratory",
   description:
     "Advanced Thermal Management Lab at Ajou University. Research on two-phase cooling, battery thermal management, phase-change materials, and heat pump systems.",
