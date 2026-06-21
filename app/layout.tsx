@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SiteChrome from "@/app/_components/SiteChrome";
 import { siteUrl } from "@/lib/site-url";
+import { pretendard, jetbrainsMono } from "@/app/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,23 +40,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin=""
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html
+      lang="en"
+      className={`${pretendard.variable} ${jetbrainsMono.variable}`}
+    >
       <body className="font-sans bg-bg text-ink antialiased">
         <SiteChrome>{children}</SiteChrome>
       </body>

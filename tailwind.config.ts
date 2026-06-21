@@ -45,13 +45,19 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
+          "var(--font-pretendard)",
           "'Pretendard Variable'",
           "Pretendard",
           "-apple-system",
           "BlinkMacSystemFont",
           "sans-serif",
         ],
-        mono: ["'JetBrains Mono'", "ui-monospace", "monospace"],
+        mono: [
+          "var(--font-jetbrains-mono)",
+          "'JetBrains Mono'",
+          "ui-monospace",
+          "monospace",
+        ],
       },
       borderRadius: {
         "2xl": "14px",
