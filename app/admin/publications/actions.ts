@@ -6,7 +6,19 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
+import { commitWithUpload, resolveFormImage, type ResolvedImage } from "@/lib/upload-store";
 import { publicationSchema, toPublicationData } from "./schema";
+
+// Only the JOURNAL branch renders the image field; resolve an upload only there
+// so a (tampered) file submitted on another type can't write a file that
+// toPublicationData then nulls into an unreferenced orphan.
+async function resolvePublicationImage(
+  formData: FormData,
+  parsed: { type: string; imgPath: string | null },
+): Promise<ResolvedImage> {
+  if (parsed.type === "JOURNAL") return resolveFormImage(formData, parsed.imgPath);
+  return { ok: true, path: parsed.imgPath };
+}
 
 // Phase 7-4: Publications CRUD — the 7-3 pattern without move: the public
 // order is computed (year desc → order desc), so there is nothing to curate.
@@ -47,12 +59,20 @@ export async function createPublication(
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
+  const img = await resolvePublicationImage(formData, parsed.data);
+  if (!img.ok) return { errors: { imgPath: [img.error] } };
+
   // order = global max+1: within its year the newest addition sorts first
   // (year desc → order desc), matching the legacy numbering practice.
   const max = await prisma.publication.aggregate({ _max: { order: true } });
-  const publication = await prisma.publication.create({
-    data: { ...toPublicationData(parsed.data), order: (max._max.order ?? 0) + 1 },
-  });
+  const publication = await commitWithUpload(img.stored, () =>
+    prisma.publication.create({
+      data: {
+        ...toPublicationData({ ...parsed.data, imgPath: img.path }),
+        order: (max._max.order ?? 0) + 1,
+      },
+    }),
+  );
 
   await logAudit({
     userId: session.user.id,
@@ -78,10 +98,16 @@ export async function updatePublication(
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
+  const img = await resolvePublicationImage(formData, parsed.data);
+  if (!img.ok) return { errors: { imgPath: [img.error] } };
+
   // Writes every form-managed column — on a type switch toPublicationData
-  // nulls the other types' fields, so the clear lands in the diff below.
-  const data = toPublicationData(parsed.data);
-  await prisma.publication.update({ where: { id }, data });
+  // nulls the other types' fields, so the clear lands in the diff below. The
+  // previous imgPath is left on disk (audit restore window).
+  const data = toPublicationData({ ...parsed.data, imgPath: img.path });
+  await commitWithUpload(img.stored, () =>
+    prisma.publication.update({ where: { id }, data }),
+  );
 
   await logAudit({
     userId: session.user.id,

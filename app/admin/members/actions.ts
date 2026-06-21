@@ -7,6 +7,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { requireAdmin } from "@/lib/auth/guard";
 import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
+import { commitWithUpload, resolveFormImage } from "@/lib/upload-store";
 import { memberSchema, professorProfileSchema, toMemberData } from "./schema";
 
 // Phase 7-2: first content CRUD — the pattern 7-3+ replicates. Every action
@@ -43,11 +44,16 @@ export async function createMember(
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
+  const img = await resolveFormImage(formData, parsed.data.imgPath);
+  if (!img.ok) return { errors: { imgPath: [img.error] } };
+
   // End of the global order sequence = end of its role group on the public page.
   const max = await prisma.member.aggregate({ _max: { order: true } });
-  const member = await prisma.member.create({
-    data: { ...toMemberData(parsed.data), order: (max._max.order ?? 0) + 1 },
-  });
+  const member = await commitWithUpload(img.stored, () =>
+    prisma.member.create({
+      data: { ...toMemberData(parsed.data), imgPath: img.path, order: (max._max.order ?? 0) + 1 },
+    }),
+  );
 
   await logAudit({
     userId: session.user.id,
@@ -73,10 +79,16 @@ export async function updateMember(
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
+  const img = await resolveFormImage(formData, parsed.data.imgPath);
+  if (!img.ok) return { errors: { imgPath: [img.error] } };
+
   // Writes only the form-managed columns — the professor JSON blobs
   // (education/workHistory/researchFields/lectureSubjects) are never touched.
-  const data = toMemberData(parsed.data);
-  await prisma.member.update({ where: { id }, data });
+  // The previous imgPath is left on disk (audit restore window).
+  const data = { ...toMemberData(parsed.data), imgPath: img.path };
+  await commitWithUpload(img.stored, () =>
+    prisma.member.update({ where: { id }, data }),
+  );
 
   await logAudit({
     userId: session.user.id,

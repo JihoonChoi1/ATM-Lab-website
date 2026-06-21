@@ -17,8 +17,9 @@ import { createFigure, updateFigure, type ResearchFormState } from "../actions";
 
 // Create + edit form. width/height are controlled number inputs: required even
 // for a placeholder figure (they drive the public aspect-ratio box + portrait
-// pairing). An upload auto-fills them from the returned pixel dimensions (7-8),
-// and the admin can still type them in by hand for a pathless placeholder.
+// pairing). Picking an image auto-fills them from its client-read pixel
+// dimensions (8-7), and the admin can still type them in by hand for a pathless
+// placeholder.
 
 export type FigureFormValues = {
   id: string;
@@ -58,10 +59,10 @@ export default function FigureForm({
         label="이미지 경로"
         defaultValue={figure?.imgPath}
         placeholder="/uploads/figure.png"
-        hint="비워두면 공개 페이지에 자리표시 그림으로 표시됩니다. 업로드하면 아래 크기가 자동으로 채워집니다."
+        hint="비워두면 공개 페이지에 자리표시 그림으로 표시됩니다. 이미지를 선택하면 아래 크기가 자동으로 채워집니다."
         errors={state.errors?.imgPath}
         uploadsEnabled={uploadsEnabled}
-        onUploaded={({ width: w, height: h }) => {
+        onDimensions={({ width: w, height: h }) => {
           setWidth(String(w));
           setHeight(String(h));
         }}

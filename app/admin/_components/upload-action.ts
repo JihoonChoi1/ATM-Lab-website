@@ -1,31 +1,16 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
-import sharp from "sharp";
 import { requireAdmin } from "@/lib/auth/guard";
 import { uploadsEnabled } from "@/lib/uploads";
-import { writeThumbnail } from "@/lib/thumbnail";
+import { storeUpload } from "@/lib/upload-store";
 
-// Phase 7-8: shared image upload for the admin forms (Members/Publications/
-// Gallery imgPath; Research figures reuse it in 7-10). Immediate upload — the
-// client calls this the moment a file is picked, then drops the returned path
-// into the imgPath input, so the existing useFormState submit + Zod flow is
-// untouched ("/uploads/…" passes the startsWith("/") check). Not audited here:
-// the path lands in the entity's own CREATE/UPDATE diff once the row is saved
-// (7-2 policy). width/height are returned for 7-10's figure auto-layout; the
-// three current forms ignore them (no column to store).
-
-const MAX_BYTES = 5 * 1024 * 1024; // 5MB
-
-// Extension comes from the MIME map, never the original filename (untrusted).
-const MIME_EXT: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/gif": "gif",
-};
+// Phase 7-8 / 8-7: standalone image upload kept for the News rich-text editor
+// (RichTextEditor), where an inline image must exist the moment it's dropped so
+// it can be embedded into the contenteditable HTML. The four imgPath forms no
+// longer call this — they upload at form-save time via resolveFormImage. The
+// actual validation + write lives in storeUpload (shared with those forms); this
+// action only adds the auth re-guard and the uploads kill-switch. width/height
+// are returned for callers that want them (the editor ignores them).
 
 export type UploadResult =
   | { ok: true; path: string; width: number; height: number }
@@ -42,44 +27,11 @@ export async function uploadImage(formData: FormData): Promise<UploadResult> {
   }
 
   const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) {
+  if (!(file instanceof File)) {
     return { ok: false, error: "파일을 선택하세요." };
   }
-  if (file.size > MAX_BYTES) {
-    return { ok: false, error: "파일 크기는 5MB 이하여야 합니다." };
-  }
-  const ext = MIME_EXT[file.type];
-  if (!ext) {
-    return { ok: false, error: "이미지 파일(JPG·PNG·WebP·GIF)만 업로드할 수 있습니다." };
-  }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  // sharp.metadata() doubles as content validation: a non-image — including a
-  // text file renamed to .jpg with a forged MIME — throws here, and the same
-  // call yields the pixel dimensions in one pass.
-  let width: number | undefined;
-  let height: number | undefined;
-  try {
-    const meta = await sharp(buffer).metadata();
-    width = meta.width;
-    height = meta.height;
-  } catch {
-    return { ok: false, error: "이미지 파일(JPG·PNG·WebP·GIF)만 업로드할 수 있습니다." };
-  }
-  if (!width || !height) {
-    return { ok: false, error: "이미지 크기를 확인할 수 없습니다." };
-  }
-
-  const dir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(dir, { recursive: true });
-  const filename = `${randomUUID()}.${ext}`;
-  await writeFile(path.join(dir, filename), buffer);
-
-  // Bake the 600px WebP thumbnail now so list/card views never decode the
-  // original (7-9). buffer already validated as an image by sharp.metadata above.
-  const webPath = `/uploads/${filename}`;
-  await writeThumbnail(webPath, buffer);
-
-  return { ok: true, path: webPath, width, height };
+  const result = await storeUpload(file);
+  if (!result.ok) return result;
+  return { ok: true, ...result.image };
 }

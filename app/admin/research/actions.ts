@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
+import { commitWithUpload, resolveFormImage } from "@/lib/upload-store";
 import { figureSchema, pageMetaSchema, subsectionSchema, topicSchema } from "./schema";
 
 // Phase 7-10: Research CRUD — Topic / Subsection / Figure (3-level nesting) +
@@ -377,13 +378,20 @@ export async function createFigure(
   const parsed = parseFigureForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
+  // width/height come from the form (the client reads them off the picked image);
+  // resolveFormImage only persists the file and supplies the new imgPath.
+  const img = await resolveFormImage(formData, parsed.data.imgPath);
+  if (!img.ok) return { errors: { imgPath: [img.error] } };
+
   const max = await prisma.researchFigure.aggregate({
     where: { subsectionId },
     _max: { order: true },
   });
-  const figure = await prisma.researchFigure.create({
-    data: { ...parsed.data, subsectionId, order: (max._max.order ?? 0) + 1 },
-  });
+  const figure = await commitWithUpload(img.stored, () =>
+    prisma.researchFigure.create({
+      data: { ...parsed.data, imgPath: img.path, subsectionId, order: (max._max.order ?? 0) + 1 },
+    }),
+  );
 
   await logAudit({
     userId: session.user.id,
@@ -411,14 +419,21 @@ export async function updateFigure(
   const parsed = parseFigureForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
-  await prisma.researchFigure.update({ where: { id }, data: parsed.data });
+  const img = await resolveFormImage(formData, parsed.data.imgPath);
+  if (!img.ok) return { errors: { imgPath: [img.error] } };
+
+  // The previous imgPath is left on disk (audit restore window).
+  const data = { ...parsed.data, imgPath: img.path };
+  await commitWithUpload(img.stored, () =>
+    prisma.researchFigure.update({ where: { id }, data }),
+  );
 
   await logAudit({
     userId: session.user.id,
     action: "UPDATE",
     entity: "ResearchFigure",
     entityId: id,
-    data: { ip: getClientIp(), label: parsed.data.caption, ...diffChanges(existing, parsed.data) },
+    data: { ip: getClientIp(), label: data.caption, ...diffChanges(existing, data) },
   });
 
   redirect(`/admin/research/${topicId}/${subsectionId}`);

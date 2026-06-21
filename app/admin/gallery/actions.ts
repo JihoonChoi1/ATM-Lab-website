@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
+import { commitWithUpload, resolveFormImage } from "@/lib/upload-store";
 import { galleryItemSchema } from "./schema";
 
 // Phase 7-7: Gallery CRUD — the 7-6 News pattern (no move): the public order
@@ -41,7 +42,13 @@ export async function createGalleryItem(
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
-  const item = await prisma.galleryItem.create({ data: parsed.data });
+  const img = await resolveFormImage(formData, parsed.data.imgPath);
+  if (!img.ok) return { errors: { imgPath: [img.error] } };
+
+  const data = { ...parsed.data, imgPath: img.path };
+  const item = await commitWithUpload(img.stored, () =>
+    prisma.galleryItem.create({ data }),
+  );
 
   await logAudit({
     userId: session.user.id,
@@ -67,10 +74,15 @@ export async function updateGalleryItem(
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
 
+  const img = await resolveFormImage(formData, parsed.data.imgPath);
+  if (!img.ok) return { errors: { imgPath: [img.error] } };
+
   // Writes only the form-managed columns — the diff below records changed
-  // fields only.
-  const data = parsed.data;
-  await prisma.galleryItem.update({ where: { id }, data });
+  // fields only. The previous imgPath is left on disk (audit restore window).
+  const data = { ...parsed.data, imgPath: img.path };
+  await commitWithUpload(img.stored, () =>
+    prisma.galleryItem.update({ where: { id }, data }),
+  );
 
   await logAudit({
     userId: session.user.id,
