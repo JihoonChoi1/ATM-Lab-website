@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
+import { bestDetailSrc } from "@/lib/thumbnail";
 import ResearchClient, { type Topic } from "./_components/ResearchClient";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
@@ -42,7 +43,10 @@ export default async function ResearchPage() {
         w: f.width,
         h: f.height,
         caption: f.caption,
-        imgPath: f.imgPath,
+        // Research figures are scientific content — serve the sharp 1400px detail
+        // variant (not the 600px card thumbnail), and bestDetailSrc falls back to
+        // the original for GIFs so animated figures keep playing.
+        imgPath: f.imgPath ? bestDetailSrc(f.imgPath) : null,
       })),
     })),
   }));

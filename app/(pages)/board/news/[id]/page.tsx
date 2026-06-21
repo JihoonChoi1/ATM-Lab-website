@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import { prisma } from "@/lib/db";
+import { optimizeBodyImages } from "@/lib/thumbnail";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
@@ -73,7 +74,7 @@ export default async function NewsDetailPage({
                 [&_img]:my-7 [&_img]:mx-auto [&_img]:block [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-[12px] [&_img]:border [&_img]:border-line
                 [&_a]:text-accent [&_a]:underline
                 [&_strong]:font-semibold [&_strong]:text-ink"
-              dangerouslySetInnerHTML={{ __html: item.content }}
+              dangerouslySetInnerHTML={{ __html: optimizeBodyImages(item.content) }}
             />
           ) : (
             <p className="max-w-[920px] text-[15px] italic text-ink-3">

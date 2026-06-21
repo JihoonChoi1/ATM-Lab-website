@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import { prisma } from "@/lib/db";
-import { imageSize } from "@/lib/thumbnail";
+import { imageSize, bestDetailSrc } from "@/lib/thumbnail";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
@@ -71,7 +71,7 @@ export default async function GalleryDetailPage({
             {item.imgPath ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={item.imgPath}
+                src={bestDetailSrc(item.imgPath)}
                 alt={item.title}
                 width={dims?.width}
                 height={dims?.height}

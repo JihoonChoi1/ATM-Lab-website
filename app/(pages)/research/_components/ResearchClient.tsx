@@ -2,7 +2,6 @@
 
 import { Fragment, useEffect, useState } from "react";
 import Container from "@/components/ui/Container";
-import Thumb from "@/components/ui/Thumb";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -88,9 +87,14 @@ function FigureView({ fig }: { fig: Figure }) {
           style={{ aspectRatio: `${fig.w}/${fig.h}` }}
         >
           {fig.imgPath ? (
-            <Thumb
+            // src is pre-resolved server-side to the sharp detail variant (or the
+            // original GIF) — render it directly so figures stay crisp and GIFs play.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={fig.imgPath}
               alt={figBody(fig.caption)}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
           ) : (

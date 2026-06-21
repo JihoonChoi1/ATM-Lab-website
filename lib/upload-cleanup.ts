@@ -1,7 +1,7 @@
 import { unlink } from "node:fs/promises";
 import path from "node:path";
 import { prisma } from "@/lib/db";
-import { thumbnailDiskPath } from "@/lib/thumbnail";
+import { thumbnailDiskPath, detailDiskPath } from "@/lib/thumbnail";
 
 // Phase 7-9: reference checks + file removal for the upload sweep
 // (scripts/sweep-uploads.ts). An admin-uploaded image (original + thumbnail) is
@@ -54,9 +54,11 @@ export async function isUploadReferenced(webPath: string): Promise<boolean> {
   return isReferencedInAudit(webPath);
 }
 
-// Remove an upload's original file and its thumbnail. Missing files are ignored.
+// Remove an upload's original file, its thumbnail, and its detail variant.
+// Missing files are ignored (a GIF has no detail variant).
 export async function removeUploadFiles(webPath: string): Promise<void> {
   const original = path.join(process.cwd(), "public", webPath.replace(/^\//, ""));
   await unlink(original).catch(() => {});
   await unlink(thumbnailDiskPath(webPath)).catch(() => {});
+  await unlink(detailDiskPath(webPath)).catch(() => {});
 }

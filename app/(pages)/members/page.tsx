@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
+import { bestDetailSrc } from "@/lib/thumbnail";
 import MembersClient, {
   type Person,
   type Alumnus,
@@ -28,7 +29,9 @@ export default async function MembersPage() {
 
   const professor: Professor = {
     name: profRow?.name ?? "이정호",
-    img: profRow?.imgPath ?? null,
+    // Hero portrait is the one full-size image on /members (cards use Thumb);
+    // serve its detail variant (8-5).
+    img: profRow?.imgPath ? bestDetailSrc(profRow.imgPath) : null,
     education: (profRow?.education as unknown as Entry[]) ?? [],
     workHistory: (profRow?.workHistory as unknown as Entry[]) ?? [],
     researchFields:
