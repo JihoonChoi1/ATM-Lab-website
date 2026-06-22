@@ -522,22 +522,27 @@ export default function HomeClient({
             {/* Prof card */}
             <Link
               href="/members#professor"
-              className="reveal group relative aspect-[4/5] overflow-hidden rounded-[24px] text-white"
+              className="reveal group relative aspect-[4/5] overflow-hidden rounded-[24px] text-white max-[640px]:aspect-auto max-[640px]:flex max-[640px]:flex-col"
               style={{ background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
             >
-              <Thumb
-                src={professorImg}
-                alt="Professor portrait"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
-              />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,15,40,.85) 75%, rgba(0,15,40,.95) 100%), linear-gradient(135deg, rgba(0,102,255,.35) 0%, transparent 60%)",
-                }}
-              />
-              <div className="absolute bottom-0 left-0 right-0 p-8">
+              {/* Image: fills the card on desktop (text overlays it); a fixed 4:5
+                  block on top on mobile, where the text drops below so it can
+                  never climb over the face on narrow screens. */}
+              <div className="max-[640px]:relative max-[640px]:aspect-[4/5]">
+                <Thumb
+                  src={professorImg}
+                  alt="Professor portrait"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
+                />
+                <div
+                  className="absolute inset-0 max-[640px]:hidden"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,15,40,.85) 75%, rgba(0,15,40,.95) 100%), linear-gradient(135deg, rgba(0,102,255,.35) 0%, transparent 60%)",
+                  }}
+                />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-8 max-[640px]:static max-[640px]:p-6">
                 <span className="mb-3.5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.15] px-3 py-[5px] text-[11.5px] font-medium tracking-[0.04em] backdrop-blur-[10px]">
                   PRINCIPAL INVESTIGATOR
                 </span>
