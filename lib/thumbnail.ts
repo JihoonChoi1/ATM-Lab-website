@@ -1,8 +1,15 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import sharp from "sharp";
 import { thumbUrl, detailUrl } from "@/lib/thumbnail-path";
+
+// sharp is a native module, loaded lazily (dynamic import inside the functions
+// that resize/probe images) instead of at module top. That keeps pages which
+// only need the pure path helpers — bestDetailSrc / optimizeBodyImages — from
+// dragging the native binary into their serverless bundle. On the Vercel demo
+// (UPLOADS_ENABLED=0, public files not on the lambda FS) an eager `import sharp`
+// fails to load and 500s every page that imports this file; resizing only ever
+// runs where sharp is actually installed (school server, uploads on).
 
 // Phase 7-9: shared thumbnail generation (sharp). Imported by the upload action
 // (per-upload) and scripts/build-thumbnails.ts (legacy backfill) so both bake
@@ -20,6 +27,7 @@ export const DETAIL_WIDTH = 1400;
 // first-frame thumbnail — list/card views freeze GIFs while detail pages still
 // serve the original animated file.
 export async function toThumbnail(input: Buffer): Promise<Buffer> {
+  const sharp = (await import("sharp")).default;
   return sharp(input)
     .resize({ width: THUMB_WIDTH, withoutEnlargement: true })
     .webp({ quality: 80 })
@@ -30,6 +38,7 @@ export async function toThumbnail(input: Buffer): Promise<Buffer> {
 // thumbnail, just a larger cap; GIFs are excluded by the caller so animated files
 // keep playing on detail pages.
 export async function toDetail(input: Buffer): Promise<Buffer> {
+  const sharp = (await import("sharp")).default;
   return sharp(input)
     .resize({ width: DETAIL_WIDTH, withoutEnlargement: true })
     .webp({ quality: 80 })
@@ -42,6 +51,7 @@ export async function toDetail(input: Buffer): Promise<Buffer> {
 // Callers skip writing one in that case; bestDetailSrc then serves the original
 // (already small) on the detail page.
 export async function needsDetail(input: Buffer): Promise<boolean> {
+  const sharp = (await import("sharp")).default;
   const meta = await sharp(input).metadata();
   return (meta.width ?? 0) > THUMB_WIDTH;
 }
@@ -99,6 +109,7 @@ export async function imageSize(
   webPath: string,
 ): Promise<{ width: number; height: number } | null> {
   try {
+    const sharp = (await import("sharp")).default;
     const meta = await sharp(
       path.join(process.cwd(), "public", webPath.replace(/^\//, "")),
     ).metadata();
