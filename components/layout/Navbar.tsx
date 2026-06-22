@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type NavItem = { href: string; label: string; external?: boolean };
 
@@ -17,6 +17,8 @@ const NAV_LINKS: NavItem[] = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -24,6 +26,46 @@ export default function Navbar() {
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Closed drawer: pull its links out of the tab order + accessibility tree. The
+  // panel stays mounted (opacity-0) for the open/close transition, so otherwise
+  // its links stay focusable and keyboard focus disappears into an invisible menu
+  // (axe aria-hidden-focus). Set via the IDL property — react-dom 18.3 doesn't
+  // serialize the `inert` attribute, so the JSX prop wouldn't take effect.
+  useEffect(() => {
+    const el = drawerRef.current;
+    if (el) el.inert = !open;
+  }, [open]);
+
+  // Open drawer acts like a modal menu: focus moves in, Esc closes it (returning
+  // focus to the toggle), and Tab is trapped within the panel.
+  useEffect(() => {
+    if (!open) return;
+    const links = drawerRef.current
+      ? Array.from(drawerRef.current.querySelectorAll<HTMLElement>("a[href]"))
+      : [];
+    links[0]?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+        return;
+      }
+      if (e.key === "Tab" && links.length) {
+        const first = links[0];
+        const last = links[links.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const renderLink = (
     item: NavItem,
@@ -67,8 +109,9 @@ export default function Navbar() {
           </div>
 
           <button
+            ref={toggleRef}
             type="button"
-            aria-label="menu"
+            aria-label="메뉴"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
             className="inline-flex h-[42px] w-[42px] items-center justify-center rounded-lg min-[880px]:hidden text-ink"
@@ -87,6 +130,7 @@ export default function Navbar() {
       </nav>
 
       <div
+        ref={drawerRef}
         aria-hidden={!open}
         className={`fixed inset-x-0 bottom-0 top-[72px] z-[49] flex flex-col gap-1.5 border-t border-line bg-white p-6 transition-[opacity,transform] duration-[280ms] ease-out min-[880px]:hidden ${
           open
