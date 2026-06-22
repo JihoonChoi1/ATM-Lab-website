@@ -164,7 +164,7 @@ function SubRow({ sub }: { sub: Sub }) {
             {sub.keywords.map((k) => (
               <span
                 key={k}
-                className="rounded-md bg-accent-soft px-2 py-[3px] text-[11.5px] font-medium text-accent"
+                className="rounded-md bg-accent-soft px-2 py-[3px] text-[11.5px] font-medium text-accent-dark"
               >
                 {k}
               </span>
@@ -370,7 +370,7 @@ export default function ResearchClient({
                   }`}
                 >
                   <span
-                    className={`font-mono text-[11px] tracking-[0.04em] ${active ? "opacity-90" : "opacity-70"}`}
+                    className={`font-mono text-[11px] tracking-[0.04em] ${active ? "" : "opacity-80"}`}
                   >
                     {t.num}
                   </span>

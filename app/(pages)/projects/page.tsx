@@ -33,13 +33,15 @@ const pad2 = (n: number) => String(n).padStart(2, "0");
 function StatusPill({ status }: { status: Status }) {
   if (status === "active") {
     return (
-      <span className="inline-flex items-center self-start whitespace-nowrap rounded-full border border-accent/20 bg-accent-soft px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-accent">
+      <span className="inline-flex items-center self-start whitespace-nowrap rounded-full border border-accent/20 bg-accent-soft px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-accent-dark">
         In Progress
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center self-start whitespace-nowrap rounded-full border border-ajou-silver/40 bg-transparent px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-ajou-silver">
+    // text-[#5c7474]: ajou-silver (#8ca8a8) is only ~2.5:1 on white. This darker
+    // teal-gray keeps the muted look at ≥4.9:1 (border stays brand silver).
+    <span className="inline-flex items-center self-start whitespace-nowrap rounded-full border border-ajou-silver/40 bg-transparent px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-[#5c7474]">
       Completed
     </span>
   );

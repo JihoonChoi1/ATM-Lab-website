@@ -188,7 +188,10 @@ export default function PublicationsTable({
       </div>
 
       {totalPages > 1 && (
-        <nav className="mt-6 flex items-center justify-center gap-4">
+        <nav
+          aria-label="페이지 탐색"
+          className="mt-6 flex items-center justify-center gap-4"
+        >
           <button
             onClick={() => setPage(current - 1)}
             disabled={current <= 1}

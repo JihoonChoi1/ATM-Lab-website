@@ -190,12 +190,16 @@ export default function BoardClient({
                       : "border-line bg-white text-ink-2 hover:bg-accent-soft hover:text-accent hover:border-accent/30"
                   }`}
                 >
-                  <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] opacity-80">
+                  <span
+                    className={`font-mono text-[10.5px] uppercase tracking-[0.14em] ${
+                      isActive ? "" : "opacity-80"
+                    }`}
+                  >
                     {item.label}
                   </span>
                   <span
                     className={`font-mono text-[11px] tracking-[0.04em] ${
-                      isActive ? "text-white/80" : "text-accent"
+                      isActive ? "text-white" : "text-accent"
                     }`}
                   >
                     {item.count}

@@ -39,7 +39,10 @@ const config: Config = {
           line: "rgba(255,255,255,0.08)",
         },
         success: {
-          DEFAULT: "#0e9f6e",
+          // Darkened from #0e9f6e for WCAG AA: success text only ever sits on the
+          // pale `success.soft` tint or white (status badges), where the lighter
+          // green fell just under 4.5:1. #0a7d57 clears it (≥4.6:1), same hue.
+          DEFAULT: "#0a7d57",
           soft: "rgba(16,185,129,0.1)",
         },
       },

@@ -53,7 +53,7 @@ export default function AdminNav() {
         href={item.href}
         className={`whitespace-nowrap rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
           active
-            ? "bg-accent-soft text-accent"
+            ? "bg-accent-soft text-accent-dark"
             : "text-ink-2 hover:bg-accent-soft hover:text-accent"
         }`}
       >
@@ -63,7 +63,10 @@ export default function AdminNav() {
   };
 
   return (
-    <nav className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
+    <nav
+      aria-label="관리자 메뉴"
+      className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible"
+    >
       {renderItem(DASHBOARD)}
       <p className="hidden px-3.5 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-ink-3 md:block">
         콘텐츠

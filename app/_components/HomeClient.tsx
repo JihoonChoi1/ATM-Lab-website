@@ -576,7 +576,7 @@ export default function HomeClient({
                           {m.initials}
                         </span>
                         {m.name}
-                        {m.year && <span className="font-mono text-[11px] text-ink-3">{m.year}</span>}
+                        {m.year && <span className="font-mono text-[11px] text-ink-2">{m.year}</span>}
                       </Link>
                     ))}
                   </div>
@@ -680,9 +680,12 @@ export default function HomeClient({
                     href={`/board/gallery/${img.id}`}
                     className={`group/gal relative block overflow-hidden rounded-[14px] bg-[#eee] ${img.span}`}
                   >
+                    {/* Decorative: the link's accessible name comes from the
+                        caption span below (same text), so a duplicate alt would
+                        be announced twice (axe image-redundant-alt). */}
                     <Thumb
                       src={img.src}
-                      alt={img.cap}
+                      alt=""
                       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/gal:scale-[1.08]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/45 opacity-0 transition-opacity duration-[350ms] group-hover/gal:opacity-100" />

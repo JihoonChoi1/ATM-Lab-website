@@ -59,7 +59,7 @@ function ToolbarButton({
       onClick={onClick}
       disabled={disabled}
       className={`rounded-lg px-2.5 py-1.5 text-sm font-medium transition disabled:opacity-50 ${
-        active ? "bg-accent-soft text-accent" : "text-ink-2 hover:bg-bg"
+        active ? "bg-accent-soft text-accent-dark" : "text-ink-2 hover:bg-bg"
       }`}
     >
       {children}

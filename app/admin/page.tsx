@@ -136,7 +136,7 @@ export default async function AdminDashboardPage() {
                         {fmtTime(log.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="whitespace-nowrap rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-medium text-accent">
+                        <span className="whitespace-nowrap rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-medium text-accent-dark">
                           {ACTION_LABELS[log.action] ?? log.action}
                         </span>
                       </td>

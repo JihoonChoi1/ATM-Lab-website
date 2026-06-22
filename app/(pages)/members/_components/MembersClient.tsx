@@ -84,7 +84,7 @@ function MemberCard({ m }: { m: Person }) {
             <div className="mb-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3">Research Interests</div>
             <div className="mb-4 flex flex-wrap gap-1.5">
               {m.interests.map((it) => (
-                <span key={it} className="rounded-md bg-accent-soft px-2 py-[3px] text-[11.5px] font-medium text-accent max-w-full break-words">{it}</span>
+                <span key={it} className="rounded-md bg-accent-soft px-2 py-[3px] text-[11.5px] font-medium text-accent-dark max-w-full break-words">{it}</span>
               ))}
             </div>
           </>
@@ -124,7 +124,7 @@ function TabBar<T extends string>({
           }`}
         >
           <span>{t}</span>
-          <span className={`font-mono text-[11px] ${active === t ? "text-white/70" : "text-accent"}`}>
+          <span className={`font-mono text-[11px] ${active === t ? "text-white" : "text-accent"}`}>
             {String(counts[t]).padStart(2, "0")}
           </span>
         </button>

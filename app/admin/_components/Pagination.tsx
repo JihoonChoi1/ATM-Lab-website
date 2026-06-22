@@ -24,13 +24,21 @@ export default function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <nav className="mt-6 flex items-center justify-center gap-4">
+    <nav
+      aria-label="페이지 탐색"
+      className="mt-6 flex items-center justify-center gap-4"
+    >
       {page > 1 ? (
         <Link href={`${basePath}?page=${page - 1}`} className={pagerBtnClass}>
           ← 이전
         </Link>
       ) : (
-        <span className={pagerDisabledClass}>← 이전</span>
+        // Disabled <button> (not a styled <span>) so its intentionally dim text
+        // is exempt from the contrast check and screen readers announce it as
+        // unavailable.
+        <button type="button" disabled className={pagerDisabledClass}>
+          ← 이전
+        </button>
       )}
       <span className="text-sm text-ink-3">
         {page} / {totalPages}
@@ -40,7 +48,9 @@ export default function Pagination({
           다음 →
         </Link>
       ) : (
-        <span className={pagerDisabledClass}>다음 →</span>
+        <button type="button" disabled className={pagerDisabledClass}>
+          다음 →
+        </button>
       )}
     </nav>
   );

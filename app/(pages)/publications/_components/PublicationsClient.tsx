@@ -203,7 +203,7 @@ function PatentCard({ it, onNavigate }: { it: Patent; onNavigate: () => void }) 
             <dt className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-3">Application</dt>
             <dd className="font-mono text-[12.5px] text-ink-2">{it.applicationNo}</dd>
             <dt className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-3">Country</dt>
-            <dd className="text-[13px] text-ajou-silver">{it.country}</dd>
+            <dd className="text-[13px] text-[#5c7474]">{it.country}</dd>
             <dt className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-3">Filed</dt>
             <dd className="font-mono text-[12.5px] text-ink-2">{it.date}</dd>
           </dl>
@@ -418,7 +418,7 @@ export default function PublicationsClient({
                   <span>{c.label}</span>
                   <span
                     className={`font-mono text-[11.5px] ${
-                      isActive ? "text-white/80" : "text-accent"
+                      isActive ? "text-white" : "text-accent"
                     }`}
                   >
                     {pad3(c.count)}
@@ -451,7 +451,7 @@ export default function PublicationsClient({
                   <span className="font-mono tracking-[0.02em]">{y}</span>
                   <span
                     className={`font-mono text-[10.5px] ${
-                      isActive ? "text-white/75" : "text-accent"
+                      isActive ? "text-white" : "text-accent"
                     }`}
                   >
                     {pad2(yearCounts[y] ?? 0)}

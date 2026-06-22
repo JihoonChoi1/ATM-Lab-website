@@ -27,9 +27,11 @@ const CATEGORIES: Array<{ key: CategoryKey; label: string }> = [
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function chipClasses(category: string) {
+  // accent-dark / #5c7474 (darker silver): on the pale soft tints the brand
+  // accent (#0066ff, 4.32:1) and ajou-silver (#8ca8a8, 2.3:1) fell under AA.
   return category === "Undergraduate"
-    ? "border-accent/30 bg-accent-soft text-accent"
-    : "border-ajou-silver/40 bg-ajou-silver/10 text-ajou-silver";
+    ? "border-accent/30 bg-accent-soft text-accent-dark"
+    : "border-ajou-silver/40 bg-ajou-silver/10 text-[#5c7474]";
 }
 
 const ACTIVE_TITLE: Record<CategoryKey, string> = {
@@ -152,7 +154,7 @@ export default function LecturesClient({ lectures }: { lectures: Lecture[] }) {
                   <span>{label}</span>
                   <span
                     className={`font-mono text-[11.5px] ${
-                      isActive ? "text-white/80" : "text-accent"
+                      isActive ? "text-white" : "text-accent"
                     }`}
                   >
                     {String(categoryCounts[key]).padStart(2, "0")}

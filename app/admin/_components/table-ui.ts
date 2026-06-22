@@ -35,5 +35,9 @@ export const publishedBtnClass = (published: boolean) =>
   }`;
 
 export const editLinkClass = "font-medium text-accent hover:underline";
+// text-[#b35900]: brand ajou-yellow (#ff801a) is only ~2.5:1 on white — too low
+// for AA on this text-only control. This darker amber keeps the warning hue at
+// ≥4.8:1. (Kept inline rather than touching the brand token, which is also used
+// decoratively.)
 export const deleteBtnClass =
-  "ml-4 font-medium text-ajou-yellow hover:underline disabled:opacity-50";
+  "ml-4 font-medium text-[#b35900] hover:underline disabled:opacity-50";

@@ -79,7 +79,7 @@ export default function MemberForm({
       </div>
 
       {role === "PROFESSOR" && (
-        <p className="rounded-2xl bg-accent-soft px-4 py-2.5 text-sm text-accent">
+        <p className="rounded-2xl bg-accent-soft px-4 py-2.5 text-sm text-accent-dark">
           학력·경력·연구분야·강의 항목은{" "}
           <Link href="/admin/members/professor" className="font-semibold underline">
             교수 프로필 편집기
