@@ -6,6 +6,7 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
+    "postinstall": "prisma generate",
     "lint": "next lint",
     "db:seed-admin": "tsx --env-file=.env.local scripts/seed-admin.ts",
     "db:migrate-gnuboard": "tsx --env-file=.env.local scripts/migrate-gnuboard.ts",
