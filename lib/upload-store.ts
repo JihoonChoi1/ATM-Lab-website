@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import sharp from "sharp";
 import { writeThumbnail, writeDetail, THUMB_WIDTH } from "@/lib/thumbnail";
 import { removeUploadFiles } from "@/lib/upload-cleanup";
 import { uploadsEnabled } from "@/lib/uploads";
@@ -39,6 +38,14 @@ export async function storeUpload(file: File): Promise<StoreResult> {
   if (!ext) return { ok: false, error: "이미지 파일(JPG·PNG·WebP·GIF)만 업로드할 수 있습니다." };
 
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  // sharp is loaded lazily here, not at module top (same reason as lib/thumbnail.ts):
+  // the admin action modules import this file for the pure commit/resolve helpers,
+  // and an eager `import sharp` drags the native binary into their Vercel bundle
+  // where it fails to load (ERR_DLOPEN_FAILED) and 500s every action — even a delete
+  // that never touches an image. On the Vercel demo uploadsEnabled() is off so this
+  // never runs; resizing only happens on the school server where sharp is installed.
+  const sharp = (await import("sharp")).default;
 
   // sharp.metadata() doubles as content validation: a non-image — including a
   // text file renamed to .jpg with a forged MIME — throws here, and the same
