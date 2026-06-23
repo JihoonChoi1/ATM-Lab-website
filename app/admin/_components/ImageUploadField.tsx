@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Thumb from "@/components/ui/Thumb";
-import { FieldError, hintClass, inputClass, labelClass } from "./form-ui";
+import { FieldError, hintClass, labelClass } from "./form-ui";
 
 // Phase 7-8 / 8-7: image field shared by the Members/Publications/Gallery/
 // Research-figure forms.
@@ -24,7 +24,6 @@ import { FieldError, hintClass, inputClass, labelClass } from "./form-ui";
 export default function ImageUploadField({
   label,
   defaultValue,
-  placeholder,
   hint,
   errors,
   uploadsEnabled,
@@ -32,7 +31,6 @@ export default function ImageUploadField({
 }: {
   label: string;
   defaultValue?: string | null;
-  placeholder?: string;
   hint?: ReactNode;
   errors?: string[];
   uploadsEnabled: boolean;
@@ -44,9 +42,10 @@ export default function ImageUploadField({
   // drives "교체 vs 업로드" wording and whether a remove control makes sense.
   const hasExisting = Boolean(defaultValue);
 
-  // Demo only: the text path is editable. On the school server `value` is the
-  // constant carrier of the existing path (never edited — submitted via hidden).
-  const [value, setValue] = useState(defaultValue ?? "");
+  // The existing image path, carried unchanged into the submit via a hidden input
+  // in both modes. A picked file replaces it on the school server; the demo no
+  // longer lets it be typed or changed at all.
+  const value = defaultValue ?? "";
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -87,24 +86,16 @@ export default function ImageUploadField({
 
   const previewClass = "mt-3 h-24 w-24 rounded-xl border border-line object-cover";
 
-  // ── Cloud demo: editable text path only (uploads disabled) ──
+  // ── Cloud demo: uploads are off and the path box is hidden too — there's nothing
+  // an admin can usefully do here. Carry the existing path in a hidden input so
+  // saving an edit preserves the image, and show it read-only. ──
   if (!uploadsEnabled) {
     return (
       <div>
-        <label htmlFor="imgPath" className={labelClass}>
-          {label}
-        </label>
-        <input
-          id="imgPath"
-          name="imgPath"
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder={placeholder}
-          className={inputClass}
-        />
+        <p className={labelClass}>{label}</p>
+        <input type="hidden" name="imgPath" value={value} />
         {value ? <Thumb src={value} alt="미리보기" className={previewClass} /> : null}
-        {hint && <p className={hintClass}>{hint}</p>}
+        <p className={hintClass}>데모 모드에서는 이미지를 변경할 수 없습니다.</p>
         <FieldError errors={errors} />
       </div>
     );

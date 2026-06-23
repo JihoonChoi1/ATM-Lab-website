@@ -168,7 +168,6 @@ export default function PublicationForm({
           <ImageUploadField
             label="이미지 경로"
             defaultValue={publication?.imgPath}
-            placeholder="/legacy/paper.jpg"
             hint="/로 시작하는 사이트 내부 경로입니다."
             errors={state.errors?.imgPath}
             uploadsEnabled={uploadsEnabled}

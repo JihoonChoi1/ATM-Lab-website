@@ -58,7 +58,6 @@ export default function FigureForm({
       <ImageUploadField
         label="이미지 경로"
         defaultValue={figure?.imgPath}
-        placeholder="/uploads/figure.png"
         hint="비워두면 공개 페이지에 자리표시 그림으로 표시됩니다. 이미지를 선택하면 아래 크기가 자동으로 채워집니다."
         errors={state.errors?.imgPath}
         uploadsEnabled={uploadsEnabled}

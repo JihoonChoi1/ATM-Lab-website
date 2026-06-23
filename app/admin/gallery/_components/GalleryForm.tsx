@@ -75,7 +75,6 @@ export default function GalleryForm({
       <ImageUploadField
         label="이미지 경로"
         defaultValue={item?.imgPath}
-        placeholder="/legacy/photo.jpg"
         hint="/로 시작하는 사이트 내부 경로. 비워두면 /board에는 자리표시 카드로 표시되고, 홈 갤러리에는 노출되지 않습니다."
         errors={state.errors?.imgPath}
         uploadsEnabled={uploadsEnabled}
