@@ -11,6 +11,7 @@ export type AuditAction =
   | "LOGIN" // security / account events
   | "LOGOUT"
   | "ENABLE_2FA"
+  | "DISABLE_2FA"
   | "CREATE" // Phase 7 content mutations
   | "UPDATE"
   | "DELETE";

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import { generateTotpSecret, buildTotpUri } from "@/lib/auth/totp";
 import EnableTotpForm from "./security-form";
+import DisableTotpForm from "./disable-form";
 
 export const metadata: Metadata = { title: "보안 설정 · ATM Lab" };
 
@@ -14,7 +15,7 @@ export const dynamic = "force-dynamic";
 export default async function SecurityPage({
   searchParams,
 }: {
-  searchParams: { enabled?: string };
+  searchParams: { enabled?: string; disabled?: string };
 }) {
   const session = await requireAdmin("/admin/security");
 
@@ -50,6 +51,12 @@ export default async function SecurityPage({
         </p>
       )}
 
+      {searchParams.disabled && (
+        <p className="mb-6 rounded-2xl bg-success-soft px-4 py-2.5 text-sm text-success">
+          2단계 인증이 꺼졌습니다. 이제 비밀번호만으로 로그인합니다.
+        </p>
+      )}
+
       {twoFactorOn ? (
         <div className="rounded-3xl border border-line bg-surface p-6">
           <h2 className="text-lg font-semibold text-ink">2단계 인증 (2FA)</h2>
@@ -57,6 +64,7 @@ export default async function SecurityPage({
             <span className="font-medium text-success">활성화됨.</span> 로그인 시
             인증 앱의 6자리 코드가 필요합니다.
           </p>
+          <DisableTotpForm />
         </div>
       ) : (
         <div className="rounded-3xl border border-line bg-surface p-6">
