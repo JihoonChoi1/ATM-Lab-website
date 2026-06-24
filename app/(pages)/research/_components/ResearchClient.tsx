@@ -266,25 +266,38 @@ export default function ResearchClient({
     return () => io.disconnect();
   }, []);
 
-  // Sticky TOC active-pill tracking
+  // Sticky TOC active-pill tracking. Deliberately NOT an IntersectionObserver:
+  // the sections are far taller than the viewport, so intersectionRatio
+  // (intersection ÷ section height) is tiny and its max scales with viewport
+  // height — on short screens a section's ratio could land between two thresholds
+  // and never fire while it was the active one, skipping its pill entirely.
+  // Instead: the active topic is simply the last section whose top has scrolled
+  // above a fixed reference line. No height/threshold dead zones, viewport-stable.
   useEffect(() => {
-    const sections = document.querySelectorAll<HTMLElement>("section[data-topic]");
-    const tocIO = new IntersectionObserver(
-      (entries) => {
-        let best: IntersectionObserverEntry | undefined;
-        for (const e of entries) {
-          if (!e.isIntersecting) continue;
-          if (!best || e.intersectionRatio > best.intersectionRatio) best = e;
-        }
-        if (best) {
-          const id = (best.target as HTMLElement).dataset.topic;
-          if (id) setActiveId(id);
-        }
-      },
-      { rootMargin: "-200px 0px -50% 0px", threshold: [0, 0.1, 0.25, 0.5] }
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>("section[data-topic]")
     );
-    sections.forEach((s) => tocIO.observe(s));
-    return () => tocIO.disconnect();
+    if (!sections.length) return;
+
+    const LINE = 200; // px below the viewport top (clears navbar + sticky TOC)
+    const update = () => {
+      let current = sections[0].dataset.topic ?? "";
+      // Section tops increase down the page, so once one is below the line the
+      // rest are too — take the last one still above it.
+      for (const s of sections) {
+        if (s.getBoundingClientRect().top > LINE) break;
+        current = s.dataset.topic ?? current;
+      }
+      setActiveId(current);
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
   }, []);
 
   // Scroll-padding so anchor jumps clear navbar (72px) + sticky TOC
