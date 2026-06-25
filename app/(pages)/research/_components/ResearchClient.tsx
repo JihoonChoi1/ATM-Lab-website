@@ -179,7 +179,7 @@ function SubHeading({ sub }: { sub: Sub }) {
 function SubBody({ sub }: { sub: Sub }) {
   return (
     <>
-      <p className="text-justify text-[16px] leading-[1.75] text-ink-2">{sub.body}</p>
+      <p className="whitespace-pre-line text-justify text-[16px] leading-[1.75] text-ink-2">{sub.body}</p>
       {sub.keywords && sub.keywords.length > 0 && (
         <div className="mt-5 flex flex-wrap gap-1.5">
           {sub.keywords.map((k) => (
@@ -268,7 +268,7 @@ function TopicSection({ topic }: { topic: Topic }) {
               {topic.title}
             </h2>
             {topic.lead && (
-              <p className="mb-5 max-w-[620px] text-[17px] leading-[1.6] text-ink-2">
+              <p className="mb-5 max-w-[620px] whitespace-pre-line text-[17px] leading-[1.6] text-ink-2">
                 {topic.lead}
               </p>
             )}
@@ -395,7 +395,7 @@ export default function ResearchClient({
                 ))}
               </h1>
               <div className="wo-rule" />
-              <p className="max-w-[560px] text-[17px] leading-[1.7] text-ink-2">
+              <p className="max-w-[560px] whitespace-pre-line text-[17px] leading-[1.7] text-ink-2">
                 {heroParagraph}
               </p>
             </div>
