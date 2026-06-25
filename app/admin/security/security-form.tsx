@@ -28,7 +28,10 @@ export default function EnableTotpForm({
   secret: string;
   qrDataUrl: string;
 }) {
-  const [state, formAction] = useFormState(enableTotp, initialState);
+  // Success redirects back to /admin/security (same route), so this form can
+  // stay mounted while useFormState briefly yields an undefined state during the
+  // navigation — default it back so `state.error` can't be read off undefined.
+  const [state = initialState, formAction] = useFormState(enableTotp, initialState);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">

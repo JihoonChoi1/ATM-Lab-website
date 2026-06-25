@@ -22,7 +22,10 @@ function SubmitButton() {
 }
 
 export default function DisableTotpForm() {
-  const [state, formAction] = useFormState(disableTotp, initialState);
+  // Success redirects back to /admin/security (same route), so this form can
+  // stay mounted while useFormState briefly yields an undefined state during the
+  // navigation — default it back so `state.error` can't be read off undefined.
+  const [state = initialState, formAction] = useFormState(disableTotp, initialState);
 
   return (
     <form action={formAction} className="mt-5 flex flex-col gap-4 border-t border-line pt-5">
