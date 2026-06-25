@@ -11,6 +11,7 @@ import {
   inputClass,
   labelClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import ImageUploadField from "@/app/admin/_components/ImageUploadField";
 import { createFigure, updateFigure, type ResearchFormState } from "../actions";
@@ -55,7 +56,7 @@ export default function FigureForm({
   const [height, setHeight] = useState(String(figure?.height ?? 400));
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <ImageUploadField
         label="이미지 경로"
         defaultValue={figure?.imgPath}

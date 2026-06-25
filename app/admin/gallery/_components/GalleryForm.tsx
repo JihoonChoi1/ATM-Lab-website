@@ -10,6 +10,7 @@ import {
   inputClass,
   labelClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import ImageUploadField from "@/app/admin/_components/ImageUploadField";
 import { createGalleryItem, updateGalleryItem, type GalleryFormState } from "../actions";
@@ -40,7 +41,7 @@ export default function GalleryForm({
   const [state, formAction] = useFormState(action, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="date" className={labelClass}>
           날짜

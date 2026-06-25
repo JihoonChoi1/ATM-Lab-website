@@ -7,6 +7,7 @@ import {
   SubmitButton,
   cancelLinkClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import { iconBtnClass } from "@/app/admin/_components/table-ui";
 import { updateProfessorProfile } from "../actions";
@@ -364,7 +365,7 @@ export default function ProfessorProfileForm({
   const [lectureSubjects, setLectureSubjects] = useState<LectureRow[]>(lectureSubjectsInit);
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-6">
       {/* Serialized state — the only named fields the action reads. */}
       <input type="hidden" name="education" value={JSON.stringify(education)} />
       <input type="hidden" name="workHistory" value={JSON.stringify(workHistory)} />

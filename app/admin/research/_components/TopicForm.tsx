@@ -10,6 +10,7 @@ import {
   inputClass,
   labelClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import { createTopic, updateTopic, type ResearchFormState } from "../actions";
 import { TOPIC_BG, TOPIC_BG_LABELS, type TopicBgValue } from "../schema";
@@ -42,7 +43,7 @@ export default function TopicForm({
   const [state, formAction] = useFormState(action, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="num" className={labelClass}>
           번호

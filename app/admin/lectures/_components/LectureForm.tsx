@@ -10,6 +10,7 @@ import {
   inputClass,
   labelClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import { createLecture, updateLecture, type LectureFormState } from "../actions";
 import { CATEGORY_LABELS, LECTURE_CATEGORIES, type LectureCategoryValue } from "../schema";
@@ -35,7 +36,7 @@ export default function LectureForm({ lecture }: { lecture?: LectureFormValues }
   const [state, formAction] = useFormState(action, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="category" className={labelClass}>
           구분

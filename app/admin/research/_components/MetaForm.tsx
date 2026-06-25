@@ -10,6 +10,7 @@ import {
   inputClass,
   labelClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import { updatePageMeta, type ResearchFormState } from "../actions";
 
@@ -29,7 +30,7 @@ export default function MetaForm({ meta }: { meta: MetaFormValues }) {
   const [state, formAction] = useFormState(updatePageMeta, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="heroHeadline" className={labelClass}>
           Hero 헤드라인

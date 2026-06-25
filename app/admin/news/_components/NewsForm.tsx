@@ -10,6 +10,7 @@ import {
   inputClass,
   labelClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import RichTextEditor from "@/app/admin/_components/RichTextEditor";
 import { createNews, updateNews, type NewsFormState } from "../actions";
@@ -41,7 +42,7 @@ export default function NewsForm({
   const [state, formAction] = useFormState(action, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="date" className={labelClass}>
           날짜

@@ -11,6 +11,7 @@ import {
   inputClass,
   labelClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import ImageUploadField from "@/app/admin/_components/ImageUploadField";
 import { createMember, updateMember, type MemberFormState } from "../actions";
@@ -57,7 +58,7 @@ export default function MemberForm({
   const isAlumni = role === "ALUMNI";
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="role" className={labelClass}>
           구분

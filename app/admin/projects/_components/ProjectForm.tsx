@@ -10,6 +10,7 @@ import {
   inputClass,
   labelClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import { createProject, updateProject, type ProjectFormState } from "../actions";
 import { PROJECT_STATUSES, STATUS_LABELS, type ProjectStatusValue } from "../schema";
@@ -34,7 +35,7 @@ export default function ProjectForm({ project }: { project?: ProjectFormValues }
   const [state, formAction] = useFormState(action, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="status" className={labelClass}>
           상태

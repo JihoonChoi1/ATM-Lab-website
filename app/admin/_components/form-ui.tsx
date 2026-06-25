@@ -1,9 +1,25 @@
 "use client";
 
+import type { KeyboardEvent } from "react";
 import { useFormStatus } from "react-dom";
 
 // Shared controls for admin CRUD forms (7-2+) — same rationale as table-ui:
 // one source of truth for field/button styling across all content sections.
+
+// Pressing Enter inside a single-line <input> implicitly submits the form, which
+// surprises editors who hit Enter expecting to move within the field. Block it
+// for <input> only — <textarea> and the rich-text editor keep Enter as a line
+// break. Skip while an IME is composing so Enter can still confirm Korean input.
+// Attach to the <form> via onKeyDown so every field is covered in one place.
+export function blockImplicitSubmit(e: KeyboardEvent<HTMLFormElement>) {
+  if (
+    e.key === "Enter" &&
+    !e.nativeEvent.isComposing &&
+    e.target instanceof HTMLInputElement
+  ) {
+    e.preventDefault();
+  }
+}
 
 export const inputClass =
   "w-full rounded-2xl border border-line bg-surface px-4 py-3 text-base text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20";

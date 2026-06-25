@@ -11,6 +11,7 @@ import {
   inputClass,
   labelClass,
   messageClass,
+  blockImplicitSubmit,
 } from "@/app/admin/_components/form-ui";
 import ImageUploadField from "@/app/admin/_components/ImageUploadField";
 import { createPublication, updatePublication, type PublicationFormState } from "../actions";
@@ -59,7 +60,7 @@ export default function PublicationForm({
   const isPatent = type === "PATENT";
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="type" className={labelClass}>
           구분
