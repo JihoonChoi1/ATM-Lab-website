@@ -8,6 +8,11 @@ import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
 import { commitWithUpload, resolveFormImage, type ResolvedImage } from "@/lib/upload-store";
 import { publicationSchema, toPublicationData } from "./schema";
+import {
+  saveHeroMeta,
+  type HeroMetaFormState,
+  type SingletonDelegate,
+} from "../_lib/hero-meta";
 
 // Only the JOURNAL branch renders the image field; resolve an upload only there
 // so a (tampered) file submitted on another type can't write a file that
@@ -169,4 +174,21 @@ export async function togglePublicationPublished(id: string): Promise<void> {
       after: { published: !publication.published },
     },
   });
+}
+
+// ─── Page meta (singleton) ───────────────────────────────────────────────────
+
+export async function updatePageMeta(
+  _prev: HeroMetaFormState,
+  formData: FormData,
+): Promise<HeroMetaFormState> {
+  return saveHeroMeta(
+    {
+      delegate: prisma.publicationsPageMeta as unknown as SingletonDelegate,
+      entity: "PublicationsPageMeta",
+      label: "Publications 페이지 메타",
+      metaPath: "/admin/publications/meta",
+    },
+    formData,
+  );
 }

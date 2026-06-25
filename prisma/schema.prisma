@@ -189,6 +189,49 @@ model ResearchPageMeta {
   updatedAt     DateTime @updatedAt
 }
 
+// Singletons — exactly one row each. Hero copy (multi-line headline + intro
+// paragraph) for the remaining public pages. Same shape as ResearchPageMeta
+// minus the page-specific stat; the stat numbers/lists stay DB-computed.
+model MembersPageMeta {
+  id            String   @id @default(cuid())
+  heroHeadline  String   // newline-separated; public hero splits on "\n"
+  heroParagraph String   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ProjectsPageMeta {
+  id            String   @id @default(cuid())
+  heroHeadline  String
+  heroParagraph String   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PublicationsPageMeta {
+  id            String   @id @default(cuid())
+  heroHeadline  String
+  heroParagraph String   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model LecturesPageMeta {
+  id            String   @id @default(cuid())
+  heroHeadline  String
+  heroParagraph String   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model BoardPageMeta {
+  id            String   @id @default(cuid())
+  heroHeadline  String
+  heroParagraph String   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model User {
   id           String     @id @default(cuid())
   email        String     @unique

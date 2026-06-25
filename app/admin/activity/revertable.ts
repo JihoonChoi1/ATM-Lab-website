@@ -15,4 +15,11 @@ export const REVERTIBLE_ENTITIES = [
   "ResearchSubsection",
   "ResearchFigure",
   "ResearchPageMeta",
+  // Phase 2 page-hero singletons — UPDATE revert only (no delete, like
+  // ResearchPageMeta); the flat path in actions.ts writes `before` back.
+  "MembersPageMeta",
+  "ProjectsPageMeta",
+  "PublicationsPageMeta",
+  "LecturesPageMeta",
+  "BoardPageMeta",
 ] as const;

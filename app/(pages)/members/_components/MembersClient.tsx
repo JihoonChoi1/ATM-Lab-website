@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Container from "@/components/ui/Container";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
 import Thumb from "@/components/ui/Thumb";
@@ -46,6 +46,8 @@ export type MembersData = {
   students: Person[];
   alumni: Alumnus[];
   counts: { pi: number; researchers: number; students: number; alumni: number };
+  heroHeadline: string;
+  heroParagraph: string;
 };
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -157,6 +159,8 @@ export default function MembersClient({
   students,
   alumni,
   counts,
+  heroHeadline,
+  heroParagraph,
 }: MembersData) {
   const [researcherTab, setResearcherTab] = useState<"All" | "Postdoctoral Researcher" | "Research Staff">("All");
   const [studentTab, setStudentTab] = useState<"All" | "Ph.D. Course" | "Master's Course" | "Undergraduate Intern">("All");
@@ -214,10 +218,15 @@ export default function MembersClient({
             </div>
             <div className="grid grid-cols-[1.4fr_1fr] items-end gap-12 max-[900px]:grid-cols-1 max-[900px]:gap-8">
               <h1 className="font-bold leading-[1.02] tracking-[-0.035em] text-ink" style={{ fontSize: "clamp(40px,5.5vw,76px)" }}>
-                The people behind ATM&nbsp;Lab.
+                {heroHeadline.split("\n").map((line, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && <br />}
+                    {line}
+                  </Fragment>
+                ))}
               </h1>
-              <p className="max-w-[520px] text-[16px] leading-[1.65] text-ink-2">
-                A small principal investigator–led group of postdoctoral researchers, graduate students, and undergraduate interns advancing thermal management research — alongside alumni now working in industry, national labs, and academia.
+              <p className="max-w-[520px] whitespace-pre-line text-[16px] leading-[1.65] text-ink-2">
+                {heroParagraph}
               </p>
             </div>
           </div>

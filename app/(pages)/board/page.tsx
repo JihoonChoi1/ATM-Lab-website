@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
+import { PAGE_HERO_DEFAULTS } from "@/lib/page-hero-defaults";
 import BoardClient, {
   type NewsItem,
   type GalleryItem,
@@ -18,7 +19,7 @@ const pad2 = (n: number) => String(n).padStart(2, "0");
 const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
 
 export default async function BoardPage() {
-  const [newsRows, galleryRows] = await Promise.all([
+  const [newsRows, galleryRows, meta] = await Promise.all([
     // Newest first; highest display number is the most recent item. Ties
     // (same calendar date) fall back to legacy wr_id (`order`), then
     // createdAt — deterministic, not curation.
@@ -30,6 +31,7 @@ export default async function BoardPage() {
       where: { published: true },
       orderBy: [{ date: "desc" }, { order: "desc" }, { createdAt: "desc" }],
     }),
+    prisma.boardPageMeta.findFirst(),
   ]);
 
   const news: NewsItem[] = newsRows.map((n, i) => ({
@@ -47,5 +49,12 @@ export default async function BoardPage() {
     imgPath: g.imgPath,
   }));
 
-  return <BoardClient news={news} gallery={gallery} />;
+  return (
+    <BoardClient
+      news={news}
+      gallery={gallery}
+      heroHeadline={meta?.heroHeadline ?? PAGE_HERO_DEFAULTS.board.heroHeadline}
+      heroParagraph={meta?.heroParagraph ?? PAGE_HERO_DEFAULTS.board.heroParagraph}
+    />
+  );
 }

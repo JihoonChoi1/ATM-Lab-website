@@ -7,6 +7,11 @@ import { requireAdmin } from "@/lib/auth/guard";
 import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
 import { projectSchema } from "./schema";
+import {
+  saveHeroMeta,
+  type HeroMetaFormState,
+  type SingletonDelegate,
+} from "../_lib/hero-meta";
 
 // Phase 7-3: Projects CRUD — the 7-2 members pattern on a flat model. Every
 // action re-guards with requireAdmin (Server Actions are their own entry
@@ -169,4 +174,21 @@ export async function moveProject(id: string, direction: "up" | "down"): Promise
       after: { order: neighbor.order },
     },
   });
+}
+
+// ─── Page meta (singleton) ───────────────────────────────────────────────────
+
+export async function updatePageMeta(
+  _prev: HeroMetaFormState,
+  formData: FormData,
+): Promise<HeroMetaFormState> {
+  return saveHeroMeta(
+    {
+      delegate: prisma.projectsPageMeta as unknown as SingletonDelegate,
+      entity: "ProjectsPageMeta",
+      label: "Projects 페이지 메타",
+      metaPath: "/admin/projects/meta",
+    },
+    formData,
+  );
 }

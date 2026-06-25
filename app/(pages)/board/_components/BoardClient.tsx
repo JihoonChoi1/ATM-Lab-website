@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/ui/Container";
 import Thumb from "@/components/ui/Thumb";
@@ -29,9 +29,13 @@ type SectionId = "section-news" | "section-gallery";
 export default function BoardClient({
   news,
   gallery,
+  heroHeadline,
+  heroParagraph,
 }: {
   news: NewsItem[];
   gallery: GalleryItem[];
+  heroHeadline: string;
+  heroParagraph: string;
 }) {
   const [activeId, setActiveId] = useState<SectionId>("section-news");
 
@@ -118,15 +122,16 @@ export default function BoardClient({
                 className="mb-7 font-bold leading-[0.98] tracking-[-0.035em] text-ink"
                 style={{ fontSize: "clamp(40px,5.5vw,76px)" }}
               >
-                News &amp; moments
-                <br />
-                from the lab.
+                {heroHeadline.split("\n").map((line, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && <br />}
+                    {line}
+                  </Fragment>
+                ))}
               </h1>
               <div className="wo-rule" />
-              <p className="max-w-[560px] text-[17px] leading-[1.7] text-ink-2">
-                Press coverage, awards, and grant announcements alongside photos from conferences,
-                kickoff meetings, and lab events. Korean titles are preserved verbatim from the
-                legacy site.
+              <p className="max-w-[560px] whitespace-pre-line text-[17px] leading-[1.7] text-ink-2">
+                {heroParagraph}
               </p>
             </div>
             <div className="reveal delay-1 flex flex-col gap-4 justify-self-end max-[900px]:justify-self-start">

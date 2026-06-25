@@ -9,6 +9,11 @@ import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
 import { commitWithUpload, resolveFormImage } from "@/lib/upload-store";
 import { memberSchema, professorProfileSchema, toMemberData } from "./schema";
+import {
+  saveHeroMeta,
+  type HeroMetaFormState,
+  type SingletonDelegate,
+} from "../_lib/hero-meta";
 
 // Phase 7-2: first content CRUD — the pattern 7-3+ replicates. Every action
 // re-guards with requireAdmin (Server Actions are their own entry points) and
@@ -251,4 +256,21 @@ export async function moveMember(id: string, direction: "up" | "down"): Promise<
       after: { order: neighbor.order },
     },
   });
+}
+
+// ─── Page meta (singleton) ───────────────────────────────────────────────────
+
+export async function updatePageMeta(
+  _prev: HeroMetaFormState,
+  formData: FormData,
+): Promise<HeroMetaFormState> {
+  return saveHeroMeta(
+    {
+      delegate: prisma.membersPageMeta as unknown as SingletonDelegate,
+      entity: "MembersPageMeta",
+      label: "Members 페이지 메타",
+      metaPath: "/admin/members/meta",
+    },
+    formData,
+  );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
+import { PAGE_HERO_DEFAULTS } from "@/lib/page-hero-defaults";
 import PublicationsClient, {
   type Journal,
   type Conference,
@@ -28,7 +29,10 @@ function sortAndNumber<T>(rows: Row[], map: (r: Row, num: number) => T): T[] {
 }
 
 export default async function PublicationsPage() {
-  const rows = await prisma.publication.findMany({ where: { published: true } });
+  const [rows, meta] = await Promise.all([
+    prisma.publication.findMany({ where: { published: true } }),
+    prisma.publicationsPageMeta.findFirst(),
+  ]);
 
   const journals: Journal[] = sortAndNumber(
     rows.filter((r) => r.type === "JOURNAL"),
@@ -81,6 +85,8 @@ export default async function PublicationsPage() {
       conferences={conferences}
       patents={patents}
       earliest={earliest}
+      heroHeadline={meta?.heroHeadline ?? PAGE_HERO_DEFAULTS.publications.heroHeadline}
+      heroParagraph={meta?.heroParagraph ?? PAGE_HERO_DEFAULTS.publications.heroParagraph}
     />
   );
 }

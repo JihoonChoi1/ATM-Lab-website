@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Container from "@/components/ui/Container";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
 
@@ -42,7 +42,15 @@ const ACTIVE_TITLE: Record<CategoryKey, string> = {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function LecturesClient({ lectures }: { lectures: Lecture[] }) {
+export default function LecturesClient({
+  lectures,
+  heroHeadline,
+  heroParagraph,
+}: {
+  lectures: Lecture[];
+  heroHeadline: string;
+  heroParagraph: string;
+}) {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>("All");
 
   const categoryCounts: Record<CategoryKey, number> = {
@@ -91,15 +99,16 @@ export default function LecturesClient({ lectures }: { lectures: Lecture[] }) {
                 className="font-bold leading-[1.02] tracking-[-0.035em] text-ink"
                 style={{ fontSize: "clamp(40px,5.5vw,76px)" }}
               >
-                Courses taught
-                <br />
-                by the&nbsp;lab.
+                {heroHeadline.split("\n").map((line, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && <br />}
+                    {line}
+                  </Fragment>
+                ))}
               </h1>
               <div className="wo-rule mt-7" />
-              <p className="mt-7 max-w-[560px] text-[16.5px] leading-[1.65] text-ink-2">
-                Undergraduate and graduate courses on heat transfer, phase-change
-                phenomena, and experimental thermal-fluid mechanics — taught at Ajou
-                University&apos;s Department of Mechanical Engineering.
+              <p className="mt-7 max-w-[560px] whitespace-pre-line text-[16.5px] leading-[1.65] text-ink-2">
+                {heroParagraph}
               </p>
             </div>
 
@@ -213,7 +222,7 @@ export default function LecturesClient({ lectures }: { lectures: Lecture[] }) {
                     {lec.paragraphs.length > 0 ? (
                       <div className="mt-6 space-y-4 text-[16px] text-ink-2 leading-[1.75] text-justify">
                         {lec.paragraphs.map((p, j) => (
-                          <p key={j}>{p}</p>
+                          <p key={j} className="whitespace-pre-line">{p}</p>
                         ))}
                       </div>
                     ) : (

@@ -32,12 +32,20 @@ export default async function AdminLecturesPage() {
             강의 {lectures.length}건 — 공개 /lectures 페이지(All 탭)와 같은 순서입니다.
           </p>
         </div>
-        <Link
-          href="/admin/lectures/new"
-          className="rounded-2xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark"
-        >
-          새 강의 추가
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/lectures/meta"
+            className="rounded-2xl border border-line px-4 py-2.5 text-sm font-medium text-ink-2 transition hover:border-accent/30 hover:text-accent"
+          >
+            페이지 메타 편집
+          </Link>
+          <Link
+            href="/admin/lectures/new"
+            className="rounded-2xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark"
+          >
+            새 강의 추가
+          </Link>
+        </div>
       </div>
       <LecturesTable lectures={lectures} />
     </div>

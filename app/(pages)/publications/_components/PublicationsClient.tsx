@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/ui/Container";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
@@ -48,6 +48,8 @@ export type PublicationsData = {
   conferences: Conference[];
   patents: Patent[];
   earliest: string;
+  heroHeadline: string;
+  heroParagraph: string;
 };
 
 type CategoryKey = "journals" | "conferences" | "patents";
@@ -220,6 +222,8 @@ export default function PublicationsClient({
   conferences,
   patents,
   earliest,
+  heroHeadline,
+  heroParagraph,
 }: PublicationsData) {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>("journals");
   const [activeYear, setActiveYear] = useState<string>("All");
@@ -358,13 +362,16 @@ export default function PublicationsClient({
                 className="font-bold leading-[1.02] tracking-[-0.035em] text-ink"
                 style={{ fontSize: "clamp(40px,5.5vw,76px)" }}
               >
-                The lab&apos;s
-                <br />
-                published&nbsp;record.
+                {heroHeadline.split("\n").map((line, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && <br />}
+                    {line}
+                  </Fragment>
+                ))}
               </h1>
               <div className="wo-rule mt-7" />
-              <p className="max-w-[560px] text-[16.5px] leading-[1.65] text-ink-2">
-                Peer-reviewed journal articles, conference papers, and patents produced by ATM&nbsp;Lab and our collaborators. Filter by category and year.
+              <p className="max-w-[560px] whitespace-pre-line text-[16.5px] leading-[1.65] text-ink-2">
+                {heroParagraph}
               </p>
             </div>
 

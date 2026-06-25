@@ -7,6 +7,11 @@ import { requireAdmin } from "@/lib/auth/guard";
 import { getClientIp } from "@/lib/auth/rate-limit";
 import { diffChanges, logAudit } from "@/lib/audit";
 import { lectureSchema } from "./schema";
+import {
+  saveHeroMeta,
+  type HeroMetaFormState,
+  type SingletonDelegate,
+} from "../_lib/hero-meta";
 
 // Phase 7-5: Lectures CRUD — the 7-3 projects pattern on the flattest model.
 // Every action re-guards with requireAdmin (Server Actions are their own
@@ -168,4 +173,21 @@ export async function moveLecture(id: string, direction: "up" | "down"): Promise
       after: { order: neighbor.order },
     },
   });
+}
+
+// ─── Page meta (singleton) ───────────────────────────────────────────────────
+
+export async function updatePageMeta(
+  _prev: HeroMetaFormState,
+  formData: FormData,
+): Promise<HeroMetaFormState> {
+  return saveHeroMeta(
+    {
+      delegate: prisma.lecturesPageMeta as unknown as SingletonDelegate,
+      entity: "LecturesPageMeta",
+      label: "Lectures 페이지 메타",
+      metaPath: "/admin/lectures/meta",
+    },
+    formData,
+  );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
+import { PAGE_HERO_DEFAULTS } from "@/lib/page-hero-defaults";
 import LecturesClient, { type Lecture } from "./_components/LecturesClient";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
@@ -12,10 +13,13 @@ export const metadata: Metadata = {
 };
 
 export default async function LecturesPage() {
-  const rows = await prisma.lecture.findMany({
-    where: { published: true },
-    orderBy: { order: "asc" },
-  });
+  const [rows, meta] = await Promise.all([
+    prisma.lecture.findMany({
+      where: { published: true },
+      orderBy: { order: "asc" },
+    }),
+    prisma.lecturesPageMeta.findFirst(),
+  ]);
 
   const lectures: Lecture[] = rows.map((l) => ({
     id: l.id,
@@ -25,5 +29,11 @@ export default async function LecturesPage() {
     paragraphs: l.paragraphs,
   }));
 
-  return <LecturesClient lectures={lectures} />;
+  return (
+    <LecturesClient
+      lectures={lectures}
+      heroHeadline={meta?.heroHeadline ?? PAGE_HERO_DEFAULTS.lectures.heroHeadline}
+      heroParagraph={meta?.heroParagraph ?? PAGE_HERO_DEFAULTS.lectures.heroParagraph}
+    />
+  );
 }

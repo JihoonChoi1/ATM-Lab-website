@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { bestDetailSrc } from "@/lib/thumbnail";
+import { PAGE_HERO_DEFAULTS } from "@/lib/page-hero-defaults";
 import MembersClient, {
   type Person,
   type Alumnus,
@@ -20,10 +21,13 @@ type Entry = { period: string; title: string; inst: string };
 type LectureSubject = { title: string; code: string };
 
 export default async function MembersPage() {
-  const members = await prisma.member.findMany({
-    where: { published: true },
-    orderBy: { order: "asc" },
-  });
+  const [members, meta] = await Promise.all([
+    prisma.member.findMany({
+      where: { published: true },
+      orderBy: { order: "asc" },
+    }),
+    prisma.membersPageMeta.findFirst(),
+  ]);
 
   const profRow = members.find((m) => m.role === "PROFESSOR");
 
@@ -77,6 +81,8 @@ export default async function MembersPage() {
       students={students}
       alumni={alumni}
       counts={counts}
+      heroHeadline={meta?.heroHeadline ?? PAGE_HERO_DEFAULTS.members.heroHeadline}
+      heroParagraph={meta?.heroParagraph ?? PAGE_HERO_DEFAULTS.members.heroParagraph}
     />
   );
 }

@@ -34,6 +34,12 @@ const DELEGATES: Record<(typeof REVERTIBLE_ENTITIES)[number], Delegate> = {
   ResearchSubsection: prisma.researchSubsection as unknown as Delegate,
   ResearchFigure: prisma.researchFigure as unknown as Delegate,
   ResearchPageMeta: prisma.researchPageMeta as unknown as Delegate,
+  // Phase 2 page-hero singletons — UPDATE revert only (singletons, no delete).
+  MembersPageMeta: prisma.membersPageMeta as unknown as Delegate,
+  ProjectsPageMeta: prisma.projectsPageMeta as unknown as Delegate,
+  PublicationsPageMeta: prisma.publicationsPageMeta as unknown as Delegate,
+  LecturesPageMeta: prisma.lecturesPageMeta as unknown as Delegate,
+  BoardPageMeta: prisma.boardPageMeta as unknown as Delegate,
 };
 
 function readRecord(data: unknown, key: string): Record<string, unknown> | null {

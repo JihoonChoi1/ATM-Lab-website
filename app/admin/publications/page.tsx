@@ -38,12 +38,20 @@ export default async function AdminPublicationsPage() {
             순서(연도 내림차순)입니다.
           </p>
         </div>
-        <Link
-          href="/admin/publications/new"
-          className="rounded-2xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark"
-        >
-          새 게재물 추가
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/publications/meta"
+            className="rounded-2xl border border-line px-4 py-2.5 text-sm font-medium text-ink-2 transition hover:border-accent/30 hover:text-accent"
+          >
+            페이지 메타 편집
+          </Link>
+          <Link
+            href="/admin/publications/new"
+            className="rounded-2xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark"
+          >
+            새 게재물 추가
+          </Link>
+        </div>
       </div>
       <PublicationsTable publications={publications} />
     </div>

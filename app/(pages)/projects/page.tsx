@@ -1,7 +1,9 @@
+import { Fragment } from "react";
 import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
 import { prisma } from "@/lib/db";
+import { PAGE_HERO_DEFAULTS } from "@/lib/page-hero-defaults";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
@@ -112,10 +114,16 @@ function SectionHeader({
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default async function ProjectsPage() {
-  const rows = await prisma.project.findMany({
-    where: { published: true },
-    orderBy: { order: "asc" },
-  });
+  const [rows, meta] = await Promise.all([
+    prisma.project.findMany({
+      where: { published: true },
+      orderBy: { order: "asc" },
+    }),
+    prisma.projectsPageMeta.findFirst(),
+  ]);
+
+  const heroHeadline = meta?.heroHeadline ?? PAGE_HERO_DEFAULTS.projects.heroHeadline;
+  const heroParagraph = meta?.heroParagraph ?? PAGE_HERO_DEFAULTS.projects.heroParagraph;
 
   const toView = (p: (typeof rows)[number]): Project => ({
     id: p.id,
@@ -142,12 +150,15 @@ export default async function ProjectsPage() {
                 className="font-bold leading-[1.02] tracking-[-0.035em] text-ink"
                 style={{ fontSize: "clamp(40px,5.5vw,76px)" }}
               >
-                Funded research,
-                <br />
-                in flight and shipped.
+                {heroHeadline.split("\n").map((line, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && <br />}
+                    {line}
+                  </Fragment>
+                ))}
               </h1>
-              <p className="mt-7 max-w-[560px] text-[17px] leading-[1.7] text-ink-2">
-                A snapshot of the grants currently driving the lab&apos;s experimental work, alongside completed contracts that produced the apparatus, surfaces, and devices we still build on.
+              <p className="mt-7 max-w-[560px] whitespace-pre-line text-[17px] leading-[1.7] text-ink-2">
+                {heroParagraph}
               </p>
             </div>
 
