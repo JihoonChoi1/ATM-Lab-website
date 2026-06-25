@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
+import ScrollTopOnMount from "../_components/ScrollTopOnMount";
 import TopicTable from "./_components/TopicTable";
 
 export const metadata: Metadata = { title: "Research 관리 · ATM Lab" };
@@ -9,7 +10,11 @@ export const metadata: Metadata = { title: "Research 관리 · ATM Lab" };
 // Reads the session cookie + live rows → never cache.
 export const dynamic = "force-dynamic";
 
-export default async function AdminResearchPage() {
+export default async function AdminResearchPage({
+  searchParams,
+}: {
+  searchParams: { saved?: string };
+}) {
   await requireAdmin("/admin/research");
 
   // Same canonical order as the public page (order asc). Subsection counts feed
@@ -58,6 +63,14 @@ export default async function AdminResearchPage() {
           </Link>
         </div>
       </div>
+      {searchParams.saved && (
+        <>
+          <ScrollTopOnMount />
+          <p className="mb-6 rounded-2xl bg-success-soft px-4 py-2.5 text-sm text-success">
+            변경 사항이 저장되었습니다.
+          </p>
+        </>
+      )}
       <TopicTable topics={topics} />
     </div>
   );

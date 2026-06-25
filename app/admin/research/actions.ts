@@ -74,7 +74,7 @@ export async function createTopic(
     data: { ip: getClientIp(), label: topic.title },
   });
 
-  redirect("/admin/research");
+  redirect("/admin/research?saved=1");
 }
 
 export async function updateTopic(
@@ -105,7 +105,8 @@ export async function updateTopic(
 
   // Redirect to the list (not this same [topicId] route): useFormState's
   // post-redirect state would otherwise render on the still-mounted form.
-  redirect("/admin/research");
+  // ?saved=1 → the list shows a "saved" banner so the redirect reads as success.
+  redirect("/admin/research?saved=1");
 }
 
 export async function deleteTopic(id: string): Promise<void> {
@@ -237,7 +238,7 @@ export async function createSubsection(
     data: { ip: getClientIp(), label: sub.title },
   });
 
-  redirect(`/admin/research/${topicId}`);
+  redirect(`/admin/research/${topicId}?saved=1`);
 }
 
 export async function updateSubsection(
@@ -266,7 +267,8 @@ export async function updateSubsection(
 
   // Redirect to the topic detail (the subsection list), not this same
   // [subsectionId] route the form lives on (useFormState/redirect interplay).
-  redirect(`/admin/research/${topicId}`);
+  // ?saved=1 → the topic page shows a "saved" banner so leaving reads as success.
+  redirect(`/admin/research/${topicId}?saved=1`);
 }
 
 export async function deleteSubsection(id: string): Promise<void> {
@@ -402,7 +404,7 @@ export async function createFigure(
     data: { ip: getClientIp(), label: figure.caption },
   });
 
-  redirect(`/admin/research/${topicId}/${subsectionId}`);
+  redirect(`/admin/research/${topicId}/${subsectionId}?saved=1`);
 }
 
 export async function updateFigure(
@@ -437,7 +439,7 @@ export async function updateFigure(
     data: { ip: getClientIp(), label: data.caption, ...diffChanges(existing, data) },
   });
 
-  redirect(`/admin/research/${topicId}/${subsectionId}`);
+  redirect(`/admin/research/${topicId}/${subsectionId}?saved=1`);
 }
 
 export async function deleteFigure(id: string): Promise<void> {
@@ -535,5 +537,5 @@ export async function updatePageMeta(
     });
   }
 
-  redirect("/admin/research");
+  redirect("/admin/research?saved=1");
 }
