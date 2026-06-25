@@ -364,6 +364,7 @@ function parseFigureForm(formData: FormData) {
     caption: String(formData.get("caption") ?? ""),
     width: String(formData.get("width") ?? ""),
     height: String(formData.get("height") ?? ""),
+    wide: formData.get("wide") === "wide",
   });
 }
 

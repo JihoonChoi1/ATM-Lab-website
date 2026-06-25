@@ -43,6 +43,7 @@ export default async function ResearchPage() {
         w: f.width,
         h: f.height,
         caption: f.caption,
+        wide: f.wide,
         // Research figures are scientific content — serve the sharp 1400px detail
         // variant (not the 600px card thumbnail), and bestDetailSrc falls back to
         // the original for GIFs so animated figures keep playing.

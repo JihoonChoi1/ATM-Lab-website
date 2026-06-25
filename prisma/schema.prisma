@@ -170,6 +170,9 @@ model ResearchFigure {
   caption      String
   width        Int
   height       Int
+  // Public gallery emphasis: when true, a multi-figure subsection renders this
+  // figure across the full row (and at a taller height cap) instead of one slot.
+  wide         Boolean            @default(false)
   order        Int                @default(0)
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt

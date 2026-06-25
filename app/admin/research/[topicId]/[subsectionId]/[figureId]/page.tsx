@@ -28,6 +28,7 @@ export default async function EditFigurePage({
       caption: true,
       width: true,
       height: true,
+      wide: true,
     },
   });
   // Stale link or mismatched parent → back to the figure list.
@@ -55,6 +56,7 @@ export default async function EditFigurePage({
           caption: figure.caption,
           width: figure.width,
           height: figure.height,
+          wide: figure.wide,
         }}
         uploadsEnabled={uploadsEnabled()}
         cancelHref={`/admin/research/${topicId}/${subsectionId}`}

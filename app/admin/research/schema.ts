@@ -79,6 +79,8 @@ export const figureSchema = z.object({
   caption: z.string().trim().min(1, "캡션을 입력하세요."),
   width: dimField,
   height: dimField,
+  // "크게" = render across the full gallery row; default "보통" = one slot.
+  wide: z.boolean(),
 });
 
 export type FigureInput = z.output<typeof figureSchema>;

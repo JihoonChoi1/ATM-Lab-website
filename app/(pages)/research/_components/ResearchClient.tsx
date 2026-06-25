@@ -10,6 +10,7 @@ type Figure = {
   h: number;
   caption: string;
   imgPath: string | null;
+  wide: boolean;
 };
 
 type Sub = {
@@ -78,42 +79,57 @@ function groupFigures(figures: Figure[]): FigGroup[] {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function FigureView({ fig }: { fig: Figure }) {
+// Cap on a figure's rendered height. A portrait image rendered at full column
+// width balloons vertically (a 0.63-ratio image at 480px wide is ~768px tall),
+// dwarfing short body text. Bounding the height instead lets width follow the
+// aspect ratio, so any ratio in any order renders within a consistent band.
+// A "wide" (크게) gallery figure spans the full row, so it gets a taller cap.
+const FIG_MAX_H = "clamp(260px, 40vh, 420px)";
+const FIG_MAX_H_WIDE = "clamp(360px, 70vh, 640px)";
+
+function FigureView({ fig, wide = false }: { fig: Figure; wide?: boolean }) {
+  const ratio = `${fig.w}/${fig.h}`;
+  const maxH = wide ? FIG_MAX_H_WIDE : FIG_MAX_H;
   return (
     <>
-      <div className="rounded-[18px] border border-line bg-surface p-3">
-        <div
-          className="relative flex items-center justify-center overflow-hidden rounded-[12px]"
-          style={{ aspectRatio: `${fig.w}/${fig.h}` }}
-        >
-          {fig.imgPath ? (
-            // src is pre-resolved server-side to the sharp detail variant (or the
-            // original GIF) — render it directly so figures stay crisp and GIFs play.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={fig.imgPath}
-              alt={figBody(fig.caption)}
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="fig-placeholder absolute inset-0 flex items-center justify-center">
-              <div className="absolute left-3 top-3 font-mono text-[10.5px] uppercase tracking-[0.16em] text-accent/70">
-                {figLabel(fig.caption)}
-              </div>
-              <div className="px-5 text-center">
-                <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent/75">Placeholder</div>
-                <div className="mt-1 max-w-[360px] text-[13px] font-medium leading-[1.4] text-accent">
-                  {figBody(fig.caption)}
-                </div>
-              </div>
-              <div className="absolute right-3 bottom-3 font-mono text-[10px] tracking-[0.04em] text-accent/50">
-                {fig.w}×{fig.h}
+      <div className="flex justify-center rounded-[18px] border border-line bg-surface p-3">
+        {fig.imgPath ? (
+          // src is pre-resolved server-side to the sharp detail variant (or the
+          // original GIF) — render it directly so figures stay crisp and GIFs play.
+          // Height-capped + width:auto: never upscaled past its own pixels, never
+          // taller than the band; max-w-full keeps wide banners inside the column.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={fig.imgPath}
+            alt={figBody(fig.caption)}
+            loading="lazy"
+            decoding="async"
+            style={{ aspectRatio: ratio, maxHeight: maxH }}
+            className="block h-auto w-auto max-w-full rounded-[12px]"
+          />
+        ) : (
+          <div
+            className="fig-placeholder relative flex items-center justify-center overflow-hidden rounded-[12px]"
+            style={{
+              aspectRatio: ratio,
+              width: `calc(${fig.w} / ${fig.h} * ${maxH})`,
+              maxWidth: "100%",
+            }}
+          >
+            <div className="absolute left-3 top-3 font-mono text-[10.5px] uppercase tracking-[0.16em] text-accent/70">
+              {figLabel(fig.caption)}
+            </div>
+            <div className="px-5 text-center">
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent/75">Placeholder</div>
+              <div className="mt-1 max-w-[360px] text-[13px] font-medium leading-[1.4] text-accent">
+                {figBody(fig.caption)}
               </div>
             </div>
-          )}
-        </div>
+            <div className="absolute right-3 bottom-3 font-mono text-[10px] tracking-[0.04em] text-accent/50">
+              {fig.w}×{fig.h}
+            </div>
+          </div>
+        )}
       </div>
       <figcaption className="mt-2.5 px-1 font-mono text-[12px] leading-[1.5] text-ink-3">
         {fig.caption}
@@ -146,32 +162,80 @@ function SubFigure({ figures }: { figures: Figure[] }) {
   );
 }
 
+function SubHeading({ sub }: { sub: Sub }) {
+  return (
+    <>
+      <div className="mb-3 font-mono text-[12px] tracking-[0.04em] text-accent">{sub.num}</div>
+      <h3
+        className="mb-5 font-semibold tracking-[-0.015em] text-ink"
+        style={{ fontSize: "clamp(22px,2.4vw,30px)", lineHeight: 1.2 }}
+      >
+        {sub.title}
+      </h3>
+    </>
+  );
+}
+
+function SubBody({ sub }: { sub: Sub }) {
+  return (
+    <>
+      <p className="text-justify text-[16px] leading-[1.75] text-ink-2">{sub.body}</p>
+      {sub.keywords && sub.keywords.length > 0 && (
+        <div className="mt-5 flex flex-wrap gap-1.5">
+          {sub.keywords.map((k) => (
+            <span
+              key={k}
+              className="rounded-md bg-accent-soft px-2 py-[3px] text-[11.5px] font-medium text-accent-dark"
+            >
+              {k}
+            </span>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function SubText({ sub, className }: { sub: Sub; className: string }) {
+  return (
+    <div className={className}>
+      <SubHeading sub={sub} />
+      <SubBody sub={sub} />
+    </div>
+  );
+}
+
 function SubRow({ sub }: { sub: Sub }) {
+  // Adaptive layout. One figure → the alternating two-column editorial row.
+  // Two+ figures → a paper-style stack: subsection heading first (orients the
+  // reader), then the figures tiled in a row, then the body text. The side-by-side
+  // column can't balance a short body against several stacked tall figures.
+  if (sub.figures.length > 1) {
+    const cols =
+      sub.figures.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
+    return (
+      <div className="flex flex-col">
+        <div className="reveal">
+          <SubHeading sub={sub} />
+        </div>
+        <div className={`reveal mb-8 grid grid-cols-1 gap-4 ${cols}`}>
+          {sub.figures.map((fig, i) => (
+            <figure key={i} className={fig.wide ? "col-span-full" : undefined}>
+              <FigureView fig={fig} wide={fig.wide} />
+            </figure>
+          ))}
+        </div>
+        <div className="reveal delay-1 max-w-[760px]">
+          <SubBody sub={sub} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="sub-row grid grid-cols-2 gap-x-12 gap-y-8 max-[820px]:grid-cols-1 max-[820px]:gap-y-6">
       <SubFigure figures={sub.figures} />
-      <div className="sub-text reveal delay-1 flex flex-col">
-        <div className="mb-3 font-mono text-[12px] tracking-[0.04em] text-accent">{sub.num}</div>
-        <h3
-          className="mb-5 font-semibold tracking-[-0.015em] text-ink"
-          style={{ fontSize: "clamp(22px,2.4vw,30px)", lineHeight: 1.2 }}
-        >
-          {sub.title}
-        </h3>
-        <p className="text-justify text-[16px] leading-[1.75] text-ink-2">{sub.body}</p>
-        {sub.keywords && sub.keywords.length > 0 && (
-          <div className="mt-5 flex flex-wrap gap-1.5">
-            {sub.keywords.map((k) => (
-              <span
-                key={k}
-                className="rounded-md bg-accent-soft px-2 py-[3px] text-[11.5px] font-medium text-accent-dark"
-              >
-                {k}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
+      <SubText sub={sub} className="sub-text reveal delay-1 flex flex-col" />
     </div>
   );
 }

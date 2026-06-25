@@ -27,6 +27,7 @@ export type FigureFormValues = {
   caption: string;
   width: number;
   height: number;
+  wide: boolean;
 };
 
 const initialState: ResearchFormState = {};
@@ -121,6 +122,55 @@ export default function FigureForm({
         세로(너비/높이 &lt; 0.95) 그림이 연속 2장이면 공개 페이지에서 자동으로 좌우
         한 쌍이 되고, 그 외에는 전폭으로 표시됩니다.
       </p>
+
+      <fieldset>
+        <legend className={labelClass}>표시 크기</legend>
+        <div className="mt-1 grid grid-cols-2 gap-3">
+          <label className="cursor-pointer">
+            <input
+              type="radio"
+              name="wide"
+              value="normal"
+              defaultChecked={!figure?.wide}
+              className="peer sr-only"
+            />
+            <div className="rounded-xl border border-line p-3 transition peer-checked:border-accent peer-checked:bg-accent-soft peer-focus-visible:ring-2 peer-focus-visible:ring-accent/30">
+              <div className="mb-2 flex gap-1" aria-hidden>
+                <div className="h-9 flex-1 rounded bg-accent/70" />
+                <div className="h-9 flex-1 rounded bg-line" />
+                <div className="h-9 flex-1 rounded bg-line" />
+              </div>
+              <div className="text-sm font-medium text-ink">보통</div>
+              <div className="text-xs text-ink-3">다른 그림과 한 줄에 나란히</div>
+            </div>
+          </label>
+
+          <label className="cursor-pointer">
+            <input
+              type="radio"
+              name="wide"
+              value="wide"
+              defaultChecked={figure?.wide ?? false}
+              className="peer sr-only"
+            />
+            <div className="rounded-xl border border-line p-3 transition peer-checked:border-accent peer-checked:bg-accent-soft peer-focus-visible:ring-2 peer-focus-visible:ring-accent/30">
+              <div className="mb-1 flex" aria-hidden>
+                <div className="h-9 flex-1 rounded bg-accent/70" />
+              </div>
+              <div className="mb-2 flex gap-1" aria-hidden>
+                <div className="h-4 flex-1 rounded bg-line" />
+                <div className="h-4 flex-1 rounded bg-line" />
+              </div>
+              <div className="text-sm font-medium text-ink">크게</div>
+              <div className="text-xs text-ink-3">이 그림만 한 줄 전체로</div>
+            </div>
+          </label>
+        </div>
+        <p className={hintClass}>
+          그림이 2장 이상인 소절에서, “크게”로 둔 그림은 공개 페이지에서 한 줄 전체로
+          크게 표시됩니다.
+        </p>
+      </fieldset>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
