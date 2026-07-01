@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import VisitorTracker from "@/app/_components/VisitorTracker";
 
 // Hide the public marketing chrome on admin routes — they have their own shell
 // (sidebar layout). Home, the public pages, and login all keep it. This lives in
@@ -15,6 +16,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
       {!isAdmin && <Navbar />}
       {children}
       {!isAdmin && <Footer />}
+      {!isAdmin && <VisitorTracker />}
     </>
   );
 }
