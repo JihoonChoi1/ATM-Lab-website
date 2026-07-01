@@ -262,3 +262,18 @@ model LoginAttempt {
 
   @@index([ip, createdAt])
 }
+
+// unique-visitor analytics. One row per visitor per day — never the
+// raw IP/UA. visitorId = sha256(ip + ua + "YYYYMMDD"(KST) + VISITOR_SALT), so the
+// same person on the same day collapses to one hash; a new day yields a new hash.
+// @unique makes "one row per visitor per day" an atomic DB guarantee (writes use
+// createMany skipDuplicates) and already indexes visitorId, so no separate index.
+model PageView {
+  id        String   @id @default(cuid())
+  visitorId String   @unique
+  // timestamptz so the stored instant is unambiguous; the admin buckets/filters
+  // by KST day (AT TIME ZONE 'Asia/Seoul') regardless of the server's timezone.
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([createdAt])
+}
