@@ -21,6 +21,7 @@ const CONTENT: NavItem[] = [
 ];
 
 const SYSTEM: NavItem[] = [
+  { href: "/admin/analytics", label: "통계", ready: true },
   { href: "/admin/activity", label: "최근 활동", ready: true },
   { href: "/admin/security", label: "보안 설정", ready: true },
 ];
