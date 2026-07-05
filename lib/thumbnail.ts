@@ -45,17 +45,6 @@ export async function toDetail(input: Buffer): Promise<Buffer> {
     .toBuffer();
 }
 
-// A detail variant only helps when the source is wider than the thumbnail —
-// at or below THUMB_WIDTH both resize to the original size and produce a
-// byte-identical WebP, so the detail file would just duplicate the thumbnail.
-// Callers skip writing one in that case; bestDetailSrc then serves the original
-// (already small) on the detail page.
-export async function needsDetail(input: Buffer): Promise<boolean> {
-  const sharp = (await import("sharp")).default;
-  const meta = await sharp(input).metadata();
-  return (meta.width ?? 0) > THUMB_WIDTH;
-}
-
 // Public image path (/legacy/x.jpg) → absolute disk path of its thumbnail.
 export function thumbnailDiskPath(webPath: string): string {
   return path.join(process.cwd(), "public", thumbUrl(webPath).replace(/^\//, ""));

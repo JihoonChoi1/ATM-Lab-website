@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { writeThumbnail, writeDetail, THUMB_WIDTH } from "@/lib/thumbnail";
+import { writeThumbnail, writeDetail } from "@/lib/thumbnail";
 import { removeUploadFiles } from "@/lib/upload-cleanup";
 import { uploadsEnabled } from "@/lib/uploads";
 
@@ -28,7 +28,7 @@ export type StoreResult =
   | { ok: false; error: string };
 
 // Validate an uploaded image File (type + size + real-image check) and persist
-// the original + 600px thumbnail (+ 1400px detail variant, except GIF/small).
+// the original + 600px thumbnail (+ 1400px detail variant, except GIF).
 // Returns the public /uploads path and pixel dimensions. Auth and the
 // uploads-enabled kill-switch are the caller's responsibility (this is pure I/O).
 export async function storeUpload(file: File): Promise<StoreResult> {
@@ -71,9 +71,10 @@ export async function storeUpload(file: File): Promise<StoreResult> {
   const webPath = `/uploads/${filename}`;
   await writeThumbnail(webPath, buffer);
   // Bake the 1400px WebP detail variant too (8-5), except for GIFs (keep their
-  // animated original) and images no wider than the thumbnail (the detail would
-  // be a byte-identical duplicate — bestDetailSrc serves the original instead).
-  if (ext !== "gif" && width > THUMB_WIDTH) await writeDetail(webPath, buffer);
+  // animated original). Small images get one as well — it duplicates the
+  // thumbnail bytes, but guarantees detail pages never serve a dimension-small
+  // yet poorly-compressed original.
+  if (ext !== "gif") await writeDetail(webPath, buffer);
 
   return { ok: true, image: { path: webPath, width, height } };
 }

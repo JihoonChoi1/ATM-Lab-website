@@ -19,7 +19,6 @@ import {
   detailDiskPath,
   writeThumbnail,
   writeDetail,
-  needsDetail,
 } from "../lib/thumbnail";
 
 const LEGACY_DIR = path.join(process.cwd(), "public", "legacy");
@@ -60,9 +59,11 @@ async function exists(p: string): Promise<boolean> {
         await writeThumbnail(webPath, source);
         thumbsMade++;
       }
-      // Only bake a detail variant when it would differ from the thumbnail
-      // (source wider than THUMB_WIDTH) — otherwise it is a byte-identical dup.
-      if (needDetail && (await needsDetail(source))) {
+      // Bake a detail variant for every non-GIF, even sources at or below
+      // THUMB_WIDTH (where it duplicates the thumbnail bytes): legacy originals
+      // can be dimension-small but poorly compressed, and detail pages serve
+      // the original whenever this file is missing.
+      if (needDetail) {
         await writeDetail(webPath, source);
         detailsMade++;
       }
