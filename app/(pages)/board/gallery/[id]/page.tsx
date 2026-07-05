@@ -75,7 +75,8 @@ export default async function GalleryDetailPage({
                 alt={item.title}
                 width={dims?.width}
                 height={dims?.height}
-                loading="lazy"
+                loading="eager"
+                fetchPriority="high"
                 decoding="async"
                 className="h-auto w-full rounded-[16px] border border-line bg-surface"
               />

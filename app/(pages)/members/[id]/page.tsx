@@ -61,11 +61,14 @@ function ProfessorBody({ member }: { member: Member }) {
         className="group relative overflow-hidden rounded-[24px] text-white min-[981px]:sticky min-[981px]:top-[96px]"
         style={{ aspectRatio: "4/5", background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
       >
+        {/* Above the fold — eager + high priority so the portrait doesn't pop
+            in after the text (lazy defers the fetch until after layout). */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={member.imgPath ? bestDetailSrc(member.imgPath) : "/professor.png"}
           alt={`Portrait of ${member.name}`}
-          loading="lazy"
+          loading="eager"
+          fetchPriority="high"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
         />
@@ -170,7 +173,8 @@ function PersonBody({ member }: { member: Member }) {
           <img
             src={bestDetailSrc(member.imgPath)}
             alt={`Portrait of ${member.name}`}
-            loading="lazy"
+            loading="eager"
+            fetchPriority="high"
             decoding="async"
             className="aspect-[3/4] w-full rounded-[12px] border border-line object-cover"
           />

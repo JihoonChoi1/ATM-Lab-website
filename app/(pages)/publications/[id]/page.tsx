@@ -137,7 +137,8 @@ export default async function PublicationDetailPage({
                     alt=""
                     width={dims?.width}
                     height={dims?.height}
-                    loading="lazy"
+                    loading="eager"
+                    fetchPriority="high"
                     decoding="async"
                     className="h-auto w-full rounded-[12px] border border-line object-cover"
                   />
