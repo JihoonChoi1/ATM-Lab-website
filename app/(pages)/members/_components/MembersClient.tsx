@@ -1,24 +1,22 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import Link from "next/link";
 import Container from "@/components/ui/Container";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
 import Thumb from "@/components/ui/Thumb";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Entry = { period: string; title: string; inst: string };
-type LectureSubject = { title: string; code: string };
-export type ResearchFieldItem = { label: string; subs: string[] };
-export type ResearchFieldGroup = { group: string; items: ResearchFieldItem[] };
-
+// Full CV (education, work history, research fields, lectures) lives on the
+// profile page (/members/[id]); the list page shows the card face plus a short
+// intro panel (research-field labels flattened from the CV JSON, contact).
 export type Professor = {
+  id: string | null;
   name: string;
-  img: string | null;
-  education: Entry[];
-  workHistory: Entry[];
-  researchFields: ResearchFieldGroup[];
-  lectureSubjects: LectureSubject[];
+  img: string;
+  email: string | null;
+  fields: string[];
 };
 
 export type Person = {
@@ -69,7 +67,10 @@ function alumniCategory(a: Alumnus): "Master Degree" | "Doctor Degree" {
 
 function MemberCard({ m }: { m: Person }) {
   return (
-    <article id={`member-${m.id}`} className="group flex flex-col overflow-hidden rounded-[18px] border border-line bg-white transition-[transform,box-shadow,border-color] duration-[350ms] hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
+    <article className="group relative flex flex-col overflow-hidden rounded-[18px] border border-line bg-white transition-[transform,box-shadow,border-color] duration-[350ms] hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_50px_-25px_rgba(0,102,255,.25)]">
+      {/* Stretched link (sibling, not wrapper) so the mailto anchor below stays
+          valid HTML — nesting <a> inside <a> is not allowed. */}
+      <Link href={`/members/${m.id}`} className="absolute inset-0 z-[1]" aria-label={`View profile of ${m.name}`} />
       <div className="relative overflow-hidden" style={{ aspectRatio: "3/4" }}>
         <Thumb src={m.img} alt={`Portrait of ${m.name}`} className="h-full w-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.04]" />
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.18) 100%)" }} />
@@ -92,7 +93,7 @@ function MemberCard({ m }: { m: Person }) {
           </>
         )}
         {m.email && (
-          <a href={`mailto:${m.email}`} className="mt-auto inline-flex items-center gap-1.5 font-mono text-[12.5px] text-ink-2 transition-colors duration-200 hover:text-accent">
+          <a href={`mailto:${m.email}`} className="relative z-[2] mt-auto inline-flex items-center gap-1.5 font-mono text-[12.5px] text-ink-2 transition-colors duration-200 hover:text-accent">
             {MAIL_ICON}
             <span>{m.email}</span>
           </a>
@@ -135,19 +136,40 @@ function TabBar<T extends string>({
   );
 }
 
-function DefinitionList({ items }: { items: Entry[] }) {
-  return (
-    <ul className="flex flex-col">
-      {items.map((it, i) => (
-        <li key={i} className="grid grid-cols-[120px_1fr] items-baseline gap-6 border-t border-line py-4 last:border-b max-[640px]:grid-cols-1 max-[640px]:gap-1">
-          <span className="font-mono text-[12.5px] tracking-[0.04em] text-ink-3">{it.period}</span>
-          <span className="text-[15.5px] leading-[1.55]">
-            <b className="font-semibold text-ink">{it.title}</b>
-            {it.inst && <span className="text-ink-3">, {it.inst}</span>}
-          </span>
-        </li>
-      ))}
-    </ul>
+// The dark PI portrait card from the home Members section, linking to the
+// professor's profile page (unlinked fallback when no professor row exists).
+function ProfessorCard({ professor }: { professor: Professor }) {
+  const inner = (
+    <>
+      <Thumb
+        src={professor.img}
+        alt={`Portrait of ${professor.name}`}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
+      />
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,15,40,.85) 75%, rgba(0,15,40,.95) 100%), linear-gradient(135deg, rgba(0,102,255,.35) 0%, transparent 60%)" }}
+      />
+      <div className="absolute bottom-0 left-0 right-0 p-8">
+        <span className="mb-3.5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.15] px-3 py-[5px] text-[11.5px] font-medium tracking-[0.04em] backdrop-blur-[10px]">
+          PRINCIPAL INVESTIGATOR
+        </span>
+        <h3 className="mb-1 text-[30px] font-bold leading-[1.1] tracking-[-0.02em]">Prof. Jungho Lee</h3>
+        <div className="mb-1 text-[13px] text-white/55">Ph.D. POSTECH · 1999</div>
+        <div className="text-[14px] text-white/75">Department of Mechanical Engineering · Ajou University</div>
+      </div>
+    </>
+  );
+
+  const cardClass = "reveal group relative block overflow-hidden rounded-[24px] text-white";
+  const cardStyle = { aspectRatio: "4/5", background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" };
+
+  return professor.id ? (
+    <Link href={`/members/${professor.id}`} className={cardClass} style={cardStyle}>
+      {inner}
+    </Link>
+  ) : (
+    <div className={cardClass} style={cardStyle}>{inner}</div>
   );
 }
 
@@ -252,109 +274,47 @@ export default function MembersClient({
           </div>
 
           <div className="grid grid-cols-[0.9fr_1.4fr] items-start gap-14 max-[980px]:grid-cols-1 max-[980px]:gap-10">
-            {/* Portrait card */}
-            <div
-              className="reveal group relative overflow-hidden rounded-[24px] text-white min-[981px]:sticky min-[981px]:top-[96px]"
-              style={{ aspectRatio: "4/5", background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
-            >
-              {/* PI hero portrait — the single largest image on the page, so it
-                  serves the original (not a 600px thumb) to stay crisp on retina;
-                  one image, not a scrolling grid, so decode cost is a non-issue. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={professor.img ?? "/professor.png"}
-                alt={`Portrait of ${professor.name}`}
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
-              />
-              <div
-                className="absolute inset-0"
-                style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,15,40,.85) 75%, rgba(0,15,40,.95) 100%), linear-gradient(135deg, rgba(0,102,255,.35) 0%, transparent 60%)" }}
-              />
-              <div className="absolute bottom-0 left-0 right-0 p-8">
-                <span className="mb-3.5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.15] px-3 py-[5px] text-[11.5px] font-medium tracking-[0.04em] backdrop-blur-[10px]">
-                  PRINCIPAL INVESTIGATOR
-                </span>
-                <h3 className="mb-1 text-[30px] font-bold leading-[1.1] tracking-[-0.02em]">Prof. Jungho Lee</h3>
-                <div className="mb-1 text-[13px] text-white/55">Ph.D. POSTECH · 1999</div>
-                <div className="text-[14px] text-white/75">Department of Mechanical Engineering · Ajou University</div>
-              </div>
-            </div>
+            <ProfessorCard professor={professor} />
 
-            {/* Detail panel */}
-            <div className="flex flex-col gap-10">
-              {/* Education */}
-              <div className="reveal">
-                <div className="mb-2 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[14px] before:bg-accent before:content-['']">
-                  Education
-                </div>
-                <h3 className="mb-5 text-[22px] font-semibold tracking-[-0.015em]">Education</h3>
-                <DefinitionList items={professor.education} />
-              </div>
+            {/* Intro panel — teaser only; the full CV lives on the profile page. */}
+            <div className="reveal flex flex-col gap-7">
+              <p className="text-[17px] leading-[1.75] text-ink-2">
+                <strong className="font-semibold text-ink">Prof. Jungho Lee</strong> received his Ph.D. in Mechanical Engineering from POSTECH in 1999. His research spans phase-change heat transfer, data-center thermal management, thermosyphon-based waste-heat recovery, and boiling-driven heat spreaders, pairing precision experiments with predictive modeling.
+              </p>
 
-              {/* Work Experience */}
-              <div className="reveal border-t border-line pt-10">
-                <div className="mb-2 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[14px] before:bg-accent before:content-['']">
-                  Work Experience
+              {professor.fields.length > 0 && (
+                <div className="border-t border-line pt-7">
+                  <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">
+                    Research Field
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {professor.fields.map((f) => (
+                      <span key={f} className="rounded-[8px] border border-line bg-white px-3 py-1.5 text-[13px] text-ink-2">
+                        {f}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <h3 className="mb-5 text-[22px] font-semibold tracking-[-0.015em]">Work Experience</h3>
-                <DefinitionList items={professor.workHistory} />
-              </div>
+              )}
 
-              {/* Research Field */}
-              <div className="reveal border-t border-line pt-10">
-                <div className="mb-2 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[14px] before:bg-accent before:content-['']">
-                  Research Field
+              {(professor.email || professor.id) && (
+                <div className="flex flex-col items-start gap-3 border-t border-line pt-7">
+                  {professor.email && (
+                    <a href={`mailto:${professor.email}`} className="inline-flex items-center gap-1.5 font-mono text-[13px] text-ink-2 transition-colors duration-200 hover:text-accent">
+                      {MAIL_ICON}
+                      <span>{professor.email}</span>
+                    </a>
+                  )}
+                  {professor.id && (
+                    <Link href={`/members/${professor.id}`} className="group/cta inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-accent hover:underline">
+                      View full profile
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 transition-transform duration-200 group-hover/cta:translate-x-1">
+                        <path d="M5 12h14" /><path d="M13 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  )}
                 </div>
-                <h3 className="mb-5 text-[22px] font-semibold tracking-[-0.015em]">Research Field</h3>
-                <div className="flex flex-col gap-7">
-                  {professor.researchFields.map((g, gi) => (
-                    <div key={g.group} className={gi > 0 ? "border-t border-line pt-6" : ""}>
-                      <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">
-                        {g.group}
-                      </div>
-                      <ul className="flex flex-col gap-4">
-                        {g.items.map((it) => (
-                          <li key={it.label}>
-                            <div className="flex items-start gap-2.5">
-                              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent/60" />
-                              <span className="text-[15px] font-medium leading-[1.5] text-ink">
-                                {it.label}
-                              </span>
-                            </div>
-                            {it.subs.length > 0 && (
-                              <div className="ml-4 mt-2.5 flex flex-wrap gap-2">
-                                {it.subs.map((s) => (
-                                  <span key={s} className="rounded-[8px] border border-line bg-white px-3 py-1.5 text-[13px] text-ink-2 transition-colors duration-200 hover:border-accent/30 hover:bg-accent-soft hover:text-accent">
-                                    {s}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Lecture Subject */}
-              <div className="reveal border-t border-line pt-10">
-                <div className="mb-2 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[14px] before:bg-accent before:content-['']">
-                  Lecture Subject
-                </div>
-                <h3 className="mb-5 text-[22px] font-semibold tracking-[-0.015em]">Lecture Subject</h3>
-                <ul className="grid grid-cols-2 gap-x-6 gap-y-3 max-[640px]:grid-cols-1">
-                  {professor.lectureSubjects.map((l) => (
-                    <li key={l.title} className="flex items-baseline justify-between gap-3 border-b border-line pb-3">
-                      <span className="text-[15px] font-medium tracking-[-0.005em] text-ink">{l.title}</span>
-                      {l.code && <span className="font-mono text-[12px] tracking-[0.04em] text-ink-3">{l.code}</span>}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              )}
             </div>
           </div>
         </Container>

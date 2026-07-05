@@ -209,6 +209,7 @@ export default async function Home() {
     projects,
     publications,
     professorImg,
+    professorId: professor?.id ?? null,
     professorKeywords,
     publicationCount,
     memberGroups,

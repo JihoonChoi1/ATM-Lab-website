@@ -58,6 +58,7 @@ export type HomeData = {
   projects: ProjectItem[];
   publications: Record<TabKey, PubItem[]>;
   professorImg: string;
+  professorId: string | null;
   professorKeywords: string[];
   publicationCount: number;
   memberGroups: MemberGroup[];
@@ -87,6 +88,7 @@ export default function HomeClient({
   projects,
   publications,
   professorImg,
+  professorId,
   professorKeywords,
   publicationCount,
   memberGroups,
@@ -521,7 +523,7 @@ export default function HomeClient({
           <div className="grid grid-cols-[1fr_1.4fr] items-start gap-12 max-[980px]:grid-cols-1">
             {/* Prof card */}
             <Link
-              href="/members#professor"
+              href={professorId ? `/members/${professorId}` : "/members#professor"}
               className="reveal group relative aspect-[4/5] overflow-hidden rounded-[24px] text-white max-[640px]:aspect-auto max-[640px]:flex max-[640px]:flex-col"
               style={{ background: "#000D40", boxShadow: "0 30px 60px -25px rgba(0,0,0,.3)" }}
             >
@@ -574,7 +576,7 @@ export default function HomeClient({
                     {group.members.map((m) => (
                       <Link
                         key={m.id}
-                        href={`/members#member-${m.id}`}
+                        href={`/members/${m.id}`}
                         className="inline-flex items-center gap-2 rounded-[10px] border border-transparent bg-[#f5f6f8] px-3.5 py-2.5 text-[14px] font-medium text-ink transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:bg-white hover:shadow-[0_6px_18px_-8px_rgba(0,102,255,.4)]"
                       >
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-light text-[10.5px] font-semibold tracking-[0.02em] text-white">

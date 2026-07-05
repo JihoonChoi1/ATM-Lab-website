@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
-import { bestDetailSrc } from "@/lib/thumbnail";
 import { PAGE_HERO_DEFAULTS } from "@/lib/page-hero-defaults";
 import MembersClient, {
   type Person,
@@ -17,9 +16,6 @@ export const metadata: Metadata = {
     "Meet the Advanced Thermal Management Lab team at Ajou University — the principal investigator, researchers, graduate students, and alumni.",
 };
 
-type Entry = { period: string; title: string; inst: string };
-type LectureSubject = { title: string; code: string };
-
 export default async function MembersPage() {
   const [members, meta] = await Promise.all([
     prisma.member.findMany({
@@ -31,16 +27,19 @@ export default async function MembersPage() {
 
   const profRow = members.find((m) => m.role === "PROFESSOR");
 
+  // Card face + intro panel — the full CV renders on /members/[id]. The panel's
+  // chips are the top-level item labels of the researchFields CV JSON.
+  type ResearchFieldGroup = { group: string; items: { label: string; subs: string[] }[] };
+  const profFields = (
+    (profRow?.researchFields as unknown as ResearchFieldGroup[] | null) ?? []
+  ).flatMap((g) => g.items.map((it) => it.label));
+
   const professor: Professor = {
+    id: profRow?.id ?? null,
     name: profRow?.name ?? "이정호",
-    // Hero portrait is the one full-size image on /members (cards use Thumb);
-    // serve its detail variant (8-5).
-    img: profRow?.imgPath ? bestDetailSrc(profRow.imgPath) : null,
-    education: (profRow?.education as unknown as Entry[]) ?? [],
-    workHistory: (profRow?.workHistory as unknown as Entry[]) ?? [],
-    researchFields:
-      (profRow?.researchFields as unknown as Professor["researchFields"]) ?? [],
-    lectureSubjects: (profRow?.lectureSubjects as unknown as LectureSubject[]) ?? [],
+    img: profRow?.imgPath ?? "/professor.png",
+    email: profRow?.email ?? null,
+    fields: profFields,
   };
 
   const toPerson = (m: (typeof members)[number]): Person => ({
