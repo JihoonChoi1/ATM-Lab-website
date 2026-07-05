@@ -147,7 +147,10 @@ export default async function PublicationDetailPage({
               </div>
             ) : null}
 
-            <dl className="grid grid-cols-[180px_1fr] gap-x-6 gap-y-6 max-[640px]:grid-cols-1 max-[640px]:gap-y-1">
+            {/* content-start: the journal-cover column stretches this dl taller
+                than its rows; without it the extra height is distributed
+                between rows (long gaps between fields). */}
+            <dl className="grid grid-cols-[180px_1fr] content-start gap-x-6 gap-y-6 max-[640px]:grid-cols-1 max-[640px]:gap-y-1">
               {fields.map((f) => (
                 <Fragment key={f.label}>
                   <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3 pt-1 max-[640px]:mt-4 max-[640px]:first:mt-0">
