@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import { prisma } from "@/lib/db";
+import { recordPublicationView } from "@/lib/analytics/publication-view";
 import { imageSize, bestDetailSrc } from "@/lib/thumbnail";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
@@ -82,6 +83,10 @@ export default async function PublicationDetailPage({
     where: { id: params.id },
   });
   if (!pub || !pub.published) notFound();
+
+  // Popular-publications analytics (dedup'd per visitor/publication/day; bots
+  // and prefetches never reach this — see recordPublicationView).
+  await recordPublicationView(pub.id, pub.type);
 
   const eyebrow = TYPE_LABEL[pub.type];
   const fields = buildFields(pub);

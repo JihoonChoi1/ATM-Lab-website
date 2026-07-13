@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getClientIp } from "@/lib/auth/rate-limit";
-import { visitorIdFor } from "@/lib/analytics/visitor";
+import { BOT_UA, visitorIdFor } from "@/lib/analytics/visitor";
 
 // Phase 12-A: fire-and-forget unique-visitor recorder. Node runtime (not Edge) —
 // the middleware matcher already skips /api, so no CSP/nonce and a real Postgres
@@ -11,10 +11,6 @@ import { visitorIdFor } from "@/lib/analytics/visitor";
 // response, so we always answer 204 fast and never surface DB errors to visitors.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-// Obvious automated clients. We only have the UA to go on (no IP allowlists), so
-// match the common crawler/bot tokens and drop those hits.
-const BOT_UA = /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|embedly|quora|pinterest|vkshare|w3c_validator|headless|lighthouse|monitor|preview|fetch|curl|wget|python-requests|axios|node-fetch/i;
 
 export async function POST() {
   const h = headers();

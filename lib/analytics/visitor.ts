@@ -1,5 +1,10 @@
 import { createHash } from "crypto";
 
+// Obvious automated clients. We only have the UA to go on (no IP allowlists), so
+// match the common crawler/bot tokens and drop those hits. Shared by every
+// analytics write path (/api/track, publication views).
+export const BOT_UA = /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|embedly|quora|pinterest|vkshare|w3c_validator|headless|lighthouse|monitor|preview|fetch|curl|wget|python-requests|axios|node-fetch/i;
+
 // derive the daily visitor hash. The raw IP/UA never leave this
 // function — only the digest is stored (privacy minimization). Mixing the KST
 // date means the same person gets a fresh hash each day, so a row per visitor
