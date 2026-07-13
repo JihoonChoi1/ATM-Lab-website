@@ -14,7 +14,7 @@ import {
 
 export const metadata: Metadata = { title: "통계 · ATM Lab" };
 
-// Reads the session cookie + live PageView rows → never cache.
+// Reads the session cookie + live PageView/PublicationView rows → never cache.
 export const dynamic = "force-dynamic";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -53,12 +53,38 @@ type Gran = keyof typeof GRAN;
 
 type BucketRow = { bucket: string; visitors: number };
 
+// Page sections. Split into tabs (not stacked) so a long visitor table — e.g.
+// a year viewed 일별 — never buries the publications ranking; only the active
+// tab's queries run. The period picker above the tabs applies to both.
+const TABS = { visitors: "접속자 통계", pubs: "인기 논문" } as const;
+type Tab = keyof typeof TABS;
+
+// Popular-publications type tabs (12-B). Keys mirror the PublicationType enum
+// (plus ALL) and are whitelisted below, so passing one as a SQL param is safe.
+const PTYPES = {
+  ALL: "전체",
+  JOURNAL: "논문",
+  PATENT: "특허",
+  CONFERENCE: "학회",
+} as const;
+type Ptype = keyof typeof PTYPES;
+
+type RankRow = { id: string; title: string; views: number };
+
 export default async function AnalyticsPage({
   searchParams,
 }: {
-  searchParams: { from?: string; to?: string; gran?: string };
+  searchParams: {
+    from?: string;
+    to?: string;
+    gran?: string;
+    ptype?: string;
+    tab?: string;
+  };
 }) {
   await requireAdmin("/admin/analytics");
+
+  const tab: Tab = searchParams.tab === "pubs" ? "pubs" : "visitors";
 
   const today = kstDate(new Date());
   // Selectable floor: RETENTION_YEARS back (same month/day). Earlier dates hold no
@@ -96,6 +122,14 @@ export default async function AnalyticsPage({
       ? "day"
       : requested;
 
+  // Popular-publications type tab (whitelist → ALL on anything unexpected).
+  const ptype: Ptype =
+    searchParams.ptype === "JOURNAL" ||
+    searchParams.ptype === "PATENT" ||
+    searchParams.ptype === "CONFERENCE"
+      ? searchParams.ptype
+      : "ALL";
+
   // Recent-period shortcuts: each sets [from, today] plus a sensible default unit
   // (a 1-year window opens monthly, not 365 daily rows). The toggle can override.
   const presets: { label: string; from: string; gran: Gran }[] = [
@@ -116,6 +150,10 @@ export default async function AnalyticsPage({
       DELETE FROM "PageView"
       WHERE "createdAt" < (${floorDate}::date)::timestamp AT TIME ZONE 'Asia/Seoul'
     `;
+    await prisma.$executeRaw`
+      DELETE FROM "PublicationView"
+      WHERE "createdAt" < (${floorDate}::date)::timestamp AT TIME ZONE 'Asia/Seoul'
+    `;
   } catch {
     // A failed sweep must never block viewing stats.
   }
@@ -132,42 +170,82 @@ export default async function AnalyticsPage({
   // counts sum to the same range total at any granularity (a repeat visitor counts
   // once per day they came). unit/fmt are fixed constants passed as params.
   const { unit, fmt, header } = GRAN[gran];
-  const buckets = await prisma.$queryRaw<BucketRow[]>`
-    SELECT to_char(date_trunc(${unit}, "createdAt" AT TIME ZONE 'Asia/Seoul'), ${fmt}) AS bucket,
-           COUNT(DISTINCT "visitorId")::int AS visitors
-    FROM "PageView"
-    WHERE "createdAt" >= ${lower} AND "createdAt" < ${upper}
-    GROUP BY 1
-    ORDER BY 1 DESC
-  `;
+  const buckets =
+    tab === "visitors"
+      ? await prisma.$queryRaw<BucketRow[]>`
+          SELECT to_char(date_trunc(${unit}, "createdAt" AT TIME ZONE 'Asia/Seoul'), ${fmt}) AS bucket,
+                 COUNT(DISTINCT "visitorId")::int AS visitors
+          FROM "PageView"
+          WHERE "createdAt" >= ${lower} AND "createdAt" < ${upper}
+          GROUP BY 1
+          ORDER BY 1 DESC
+        `
+      : [];
   const total = buckets.reduce((sum, b) => sum + b.visitors, 0);
 
   // Single-day view: each unique visitor's first-seen time (anonymous — no IP/UA,
   // just the arrival time). One row per visitor (writes dedupe per visitor/day).
-  const visitTimes = singleDay
-    ? await prisma.$queryRaw<{ time: string }[]>`
-        SELECT to_char("createdAt" AT TIME ZONE 'Asia/Seoul', 'HH24:MI') AS time
-        FROM "PageView"
-        WHERE "createdAt" >= ${lower} AND "createdAt" < ${upper}
-        ORDER BY "createdAt" ASC
-      `
-    : [];
+  const visitTimes =
+    tab === "visitors" && singleDay
+      ? await prisma.$queryRaw<{ time: string }[]>`
+          SELECT to_char("createdAt" AT TIME ZONE 'Asia/Seoul', 'HH24:MI') AS time
+          FROM "PageView"
+          WHERE "createdAt" >= ${lower} AND "createdAt" < ${upper}
+          ORDER BY "createdAt" ASC
+        `
+      : [];
+
+  // Popular publications in the same [from, to] window. Rows are already
+  // dedup'd per visitor/publication/day (the visitorId hash embeds the KST
+  // date), so COUNT(*) = the sum of daily unique views per publication. The
+  // type filter uses the denormalized pv."type" (whitelisted above); the join
+  // only supplies the title. Ties break alphabetically for a stable order.
+  const typeCond =
+    ptype === "ALL"
+      ? Prisma.empty
+      : Prisma.sql`AND pv."type" = ${ptype}::"PublicationType"`;
+  const ranks =
+    tab === "pubs"
+      ? await prisma.$queryRaw<RankRow[]>`
+          SELECT p."id" AS id, p."title" AS title, COUNT(*)::int AS views
+          FROM "PublicationView" pv
+          JOIN "Publication" p ON p."id" = pv."publicationId"
+          WHERE pv."createdAt" >= ${lower} AND pv."createdAt" < ${upper} ${typeCond}
+          GROUP BY p."id", p."title"
+          ORDER BY views DESC, p."title" ASC
+        `
+      : [];
 
   return (
     <div className="mx-auto w-full max-w-[720px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">접속자 통계</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">통계</h1>
         <p className="mt-1 text-sm text-ink-3">
-          순방문자 수 (KST 기준). 개인정보 최소화를 위해 IP·브라우저 정보는 저장하지 않으며,
-          개인을 특정할 수는 없습니다.
+          기간 선택은 두 탭에 공통으로 적용됩니다 (KST 기준).
         </p>
+      </div>
+
+      <div className="mb-6 flex gap-6 border-b border-line">
+        {(Object.keys(TABS) as Tab[]).map((key) => (
+          <Link
+            key={key}
+            href={`/admin/analytics?from=${from}&to=${to}&gran=${gran}&ptype=${ptype}&tab=${key}`}
+            className={`-mb-px border-b-2 pb-2.5 text-sm font-medium transition-colors ${
+              tab === key
+                ? "border-accent text-accent"
+                : "border-transparent text-ink-3 hover:text-ink"
+            }`}
+          >
+            {TABS[key]}
+          </Link>
+        ))}
       </div>
 
       <div className="mb-3 flex flex-wrap gap-2">
         {presets.map((p) => (
           <Link
             key={p.label}
-            href={`/admin/analytics?from=${p.from}&to=${today}&gran=${p.gran}`}
+            href={`/admin/analytics?from=${p.from}&to=${today}&gran=${p.gran}&ptype=${ptype}&tab=${tab}`}
             className={chipClass(from === p.from && to === today)}
           >
             {p.label}
@@ -176,8 +254,10 @@ export default async function AnalyticsPage({
       </div>
 
       <form method="get" className="mb-6 flex flex-wrap items-end gap-3">
-        {/* Preserve the chosen granularity when the date range is re-submitted. */}
+        {/* Preserve the tab/granularity/type when the range is re-submitted. */}
+        <input type="hidden" name="tab" value={tab} />
         <input type="hidden" name="gran" value={gran} />
+        <input type="hidden" name="ptype" value={ptype} />
         <label className="flex flex-col gap-1 text-xs font-medium text-ink-3">
           시작일
           <input key={from} type="date" name="from" defaultValue={from} min={floorDate} max={today} className={dateInputClass} />
@@ -195,103 +275,172 @@ export default async function AnalyticsPage({
         </button>
       </form>
 
-      <p className="mb-5 text-sm text-ink-2">
-        <span className="font-semibold text-ink">{from}</span>
-        {!singleDay && (
-          <>
-            {" ~ "}
-            <span className="font-semibold text-ink">{to}</span>
-          </>
-        )}{" "}
-        기간 순방문자 <span className="text-lg font-bold text-accent">{total.toLocaleString()}</span>명
-      </p>
+      {tab === "visitors" && (
+        <>
+          <p className="mb-5 text-sm text-ink-3">
+            순방문자 수. 개인정보 최소화를 위해 IP·브라우저 정보는 저장하지 않으며, 개인을
+            특정할 수는 없습니다.
+          </p>
 
-      {!singleDay && (
-        <div className="mb-4 flex gap-2">
-          {(
-            [
-              { key: "day", enabled: true },
-              { key: "month", enabled: monthEnabled },
-              { key: "year", enabled: yearEnabled },
-            ] as const
-          ).map((t) =>
-            t.enabled ? (
-              <Link
-                key={t.key}
-                href={`/admin/analytics?from=${from}&to=${to}&gran=${t.key}`}
-                className={chipClass(gran === t.key)}
-              >
-                {GRAN[t.key].label}
-              </Link>
-            ) : (
-              <span
-                key={t.key}
-                title="이 기간에는 사용할 수 없습니다"
-                className="cursor-not-allowed rounded-full border border-line bg-surface px-3.5 py-1.5 text-[13px] font-medium text-ink-3/40"
-              >
-                {GRAN[t.key].label}
-              </span>
-            ),
+          <p className="mb-5 text-sm text-ink-2">
+            <span className="font-semibold text-ink">{from}</span>
+            {!singleDay && (
+              <>
+                {" ~ "}
+                <span className="font-semibold text-ink">{to}</span>
+              </>
+            )}{" "}
+            기간 순방문자 <span className="text-lg font-bold text-accent">{total.toLocaleString()}</span>명
+          </p>
+
+          {!singleDay && (
+            <div className="mb-4 flex gap-2">
+              {(
+                [
+                  { key: "day", enabled: true },
+                  { key: "month", enabled: monthEnabled },
+                  { key: "year", enabled: yearEnabled },
+                ] as const
+              ).map((t) =>
+                t.enabled ? (
+                  <Link
+                    key={t.key}
+                    href={`/admin/analytics?from=${from}&to=${to}&gran=${t.key}&ptype=${ptype}&tab=visitors`}
+                    className={chipClass(gran === t.key)}
+                  >
+                    {GRAN[t.key].label}
+                  </Link>
+                ) : (
+                  <span
+                    key={t.key}
+                    title="이 기간에는 사용할 수 없습니다"
+                    className="cursor-not-allowed rounded-full border border-line bg-surface px-3.5 py-1.5 text-[13px] font-medium text-ink-3/40"
+                  >
+                    {GRAN[t.key].label}
+                  </span>
+                ),
+              )}
+            </div>
           )}
-        </div>
+
+          {singleDay ? (
+            <div className={tableWrapClass}>
+              <table className="w-full min-w-[360px] text-sm">
+                <thead>
+                  <tr className={theadRowClass}>
+                    <th className={thClass}>방문자</th>
+                    <th className={thClass}>첫 접속 시각</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visitTimes.length === 0 ? (
+                    <tr>
+                      <td colSpan={2} className={emptyCellClass}>
+                        이 날짜의 방문 기록이 없습니다.
+                      </td>
+                    </tr>
+                  ) : (
+                    visitTimes.map((v, i) => (
+                      <tr key={i} className={rowClass}>
+                        <td className="px-4 py-3 text-ink-2">방문자 {i + 1}</td>
+                        <td className="px-4 py-3 font-medium text-ink">{v.time}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className={tableWrapClass}>
+              <table className="w-full min-w-[360px] text-sm">
+                <thead>
+                  <tr className={theadRowClass}>
+                    <th className={thClass}>{header}</th>
+                    <th className={`${thClass} text-right`}>순방문자</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {buckets.length === 0 ? (
+                    <tr>
+                      <td colSpan={2} className={emptyCellClass}>
+                        이 기간의 방문 기록이 없습니다.
+                      </td>
+                    </tr>
+                  ) : (
+                    buckets.map((b) => (
+                      <tr key={b.bucket} className={rowClass}>
+                        <td className="px-4 py-3 text-ink-2">{b.bucket}</td>
+                        <td className="px-4 py-3 text-right font-medium text-ink">
+                          {b.visitors.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
-      {singleDay ? (
-        <div className={tableWrapClass}>
-          <table className="w-full min-w-[360px] text-sm">
-            <thead>
-              <tr className={theadRowClass}>
-                <th className={thClass}>방문자</th>
-                <th className={thClass}>첫 접속 시각</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visitTimes.length === 0 ? (
-                <tr>
-                  <td colSpan={2} className={emptyCellClass}>
-                    이 날짜의 방문 기록이 없습니다.
-                  </td>
+      {tab === "pubs" && (
+        <>
+          <p className="mb-5 text-sm text-ink-3">
+            선택한 기간에 상세 페이지가 열람된 발행물 순위입니다. 조회수는 일별 순 조회수의
+            합으로, 같은 사람이 같은 날 같은 발행물을 여러 번 열어도 1회로 집계됩니다.
+          </p>
+
+          <div className="mb-4 flex flex-wrap gap-2">
+            {(Object.keys(PTYPES) as Ptype[]).map((key) => (
+              <Link
+                key={key}
+                href={`/admin/analytics?from=${from}&to=${to}&gran=${gran}&ptype=${key}&tab=pubs`}
+                className={chipClass(ptype === key)}
+              >
+                {PTYPES[key]}
+              </Link>
+            ))}
+          </div>
+
+          <div className={tableWrapClass}>
+            <table className="w-full min-w-[360px] text-sm">
+              <thead>
+                <tr className={theadRowClass}>
+                  <th className={thClass}>순위</th>
+                  <th className={thClass}>제목</th>
+                  <th className={`${thClass} text-right`}>조회수</th>
                 </tr>
-              ) : (
-                visitTimes.map((v, i) => (
-                  <tr key={i} className={rowClass}>
-                    <td className="px-4 py-3 text-ink-2">방문자 {i + 1}</td>
-                    <td className="px-4 py-3 font-medium text-ink">{v.time}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className={tableWrapClass}>
-          <table className="w-full min-w-[360px] text-sm">
-            <thead>
-              <tr className={theadRowClass}>
-                <th className={thClass}>{header}</th>
-                <th className={`${thClass} text-right`}>순방문자</th>
-              </tr>
-            </thead>
-            <tbody>
-              {buckets.length === 0 ? (
-                <tr>
-                  <td colSpan={2} className={emptyCellClass}>
-                    이 기간의 방문 기록이 없습니다.
-                  </td>
-                </tr>
-              ) : (
-                buckets.map((b) => (
-                  <tr key={b.bucket} className={rowClass}>
-                    <td className="px-4 py-3 text-ink-2">{b.bucket}</td>
-                    <td className="px-4 py-3 text-right font-medium text-ink">
-                      {b.visitors.toLocaleString()}
+              </thead>
+              <tbody>
+                {ranks.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className={emptyCellClass}>
+                      이 기간의 열람 기록이 없습니다.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  ranks.map((r, i) => (
+                    <tr key={r.id} className={rowClass}>
+                      <td className="w-14 px-4 py-3 font-mono text-ink-2">{i + 1}</td>
+                      <td className="px-4 py-3">
+                        <Link
+                          href={`/publications/${r.id}`}
+                          target="_blank"
+                          className="font-medium text-ink hover:text-accent hover:underline"
+                        >
+                          {r.title}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-ink">
+                        {r.views.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
