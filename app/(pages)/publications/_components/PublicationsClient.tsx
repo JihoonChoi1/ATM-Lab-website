@@ -227,20 +227,22 @@ export default function PublicationsClient({
 }: PublicationsData) {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>("journals");
   const [activeYear, setActiveYear] = useState<string>("All");
+  const [query, setQuery] = useState("");
   const [pendingScroll, setPendingScroll] = useState<number | null>(null);
 
-  // Snapshot the current tab/year/scroll right before opening a detail page, so
-  // returning here (back button or browser back) lands on the same spot.
+  // Snapshot the current tab/year/search/scroll right before opening a detail
+  // page, so returning here (back button or browser back) lands on the same spot.
   const saveReturnState = useCallback(() => {
     sessionStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
         category: activeCategory,
         year: activeYear,
+        query,
         scrollY: window.scrollY,
       })
     );
-  }, [activeCategory, activeYear]);
+  }, [activeCategory, activeYear, query]);
 
   // On mount (incl. when navigating back from a detail page) restore the saved
   // tab/year and queue the saved scroll offset. One-shot: cleared after reading,
@@ -253,10 +255,12 @@ export default function PublicationsClient({
       const saved = JSON.parse(raw) as {
         category?: CategoryKey;
         year?: string;
+        query?: string;
         scrollY?: number;
       };
       if (saved.category) setActiveCategory(saved.category);
       if (saved.year) setActiveYear(saved.year);
+      if (saved.query) setQuery(saved.query);
       if (typeof saved.scrollY === "number") setPendingScroll(saved.scrollY);
     } catch {
       /* ignore malformed state */
@@ -276,7 +280,7 @@ export default function PublicationsClient({
       window.scrollTo(0, y);
       html.style.scrollBehavior = prev;
     });
-  }, [pendingScroll, activeCategory, activeYear]);
+  }, [pendingScroll, activeCategory, activeYear, query]);
 
   const categories = useMemo(
     () => ({
@@ -296,19 +300,35 @@ export default function PublicationsClient({
     return patents;
   }, [activeCategory, journals, conferences, patents]);
 
+  // Text search over the active category (case-insensitive substring). Pure
+  // client-side filter UX — the query is never sent or recorded anywhere.
+  const needle = query.trim().toLowerCase();
+  const searched = useMemo(() => {
+    if (!needle) return data;
+    const match = (...fields: Array<string | null>) =>
+      fields.some((f) => f !== null && f.toLowerCase().includes(needle));
+    if (activeCategory === "journals")
+      return (data as Journal[]).filter((it) => match(it.title, it.authors, it.journal));
+    if (activeCategory === "conferences")
+      return (data as Conference[]).filter((it) => match(it.title, it.authors, it.conference));
+    return (data as Patent[]).filter((it) =>
+      match(it.title, it.inventors, it.applicationNo, it.country)
+    );
+  }, [data, needle, activeCategory]);
+
   const filtered = useMemo(
-    () => (activeYear === "All" ? data : data.filter((it) => it.year === activeYear)),
-    [data, activeYear]
+    () => (activeYear === "All" ? searched : searched.filter((it) => it.year === activeYear)),
+    [searched, activeYear]
   );
 
   const yearCounts = useMemo(() => {
-    const m: Record<string, number> = { All: data.length };
+    const m: Record<string, number> = { All: searched.length };
     for (const y of cat.years) {
       if (y === "All") continue;
-      m[y] = data.filter((it) => it.year === y).length;
+      m[y] = searched.filter((it) => it.year === y).length;
     }
     return m;
-  }, [data, cat.years]);
+  }, [searched, cat.years]);
 
   const groups = useMemo(() => {
     const orderedYears = cat.years.filter((y) => y !== "All");
@@ -473,16 +493,26 @@ export default function PublicationsClient({
       {/* ── Entry list ── */}
       <section className="bg-bg pt-14 pb-[120px] max-[640px]:pt-10 max-[640px]:pb-20">
         <Container>
-          <div className="mb-10 flex items-baseline justify-between gap-6 flex-wrap">
+          <div className="mb-10 flex items-center justify-between gap-6 flex-wrap">
             <h2
               id="active-title"
               className="text-[clamp(26px,3vw,36px)] font-bold tracking-[-0.025em]"
             >
               {cat.label}
             </h2>
-            <div className="font-mono text-[12.5px] uppercase tracking-[0.08em] text-ink-3">
-              {pad3(filtered.length)} ENTRIES
-              {activeYear !== "All" ? ` · ${activeYear}` : ""}
+            <div className="flex items-center gap-5 flex-wrap">
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search title, author…"
+                aria-label={`Search ${cat.label}`}
+                className="w-60 max-w-full rounded-full border border-line bg-white px-4 py-2 text-[13.5px] text-ink placeholder:text-ink-3 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
+              />
+              <div className="font-mono text-[12.5px] uppercase tracking-[0.08em] text-ink-3">
+                {pad3(filtered.length)} ENTRIES
+                {activeYear !== "All" ? ` · ${activeYear}` : ""}
+              </div>
             </div>
           </div>
 
@@ -558,7 +588,7 @@ export default function PublicationsClient({
       {/* threshold 0 (not a %): year blocks vary wildly in height (2025 has 22
           entries, others ~5), and a % threshold makes tall blocks reveal much
           later. 0 fires when the top edge peeks in — uniform regardless of height. */}
-      <RevealOnScroll watch={`${activeCategory}|${activeYear}`} threshold={0} />
+      <RevealOnScroll watch={`${activeCategory}|${activeYear}|${needle}`} threshold={0} />
     </main>
   );
 }
