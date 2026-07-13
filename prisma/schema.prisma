@@ -95,6 +95,7 @@ model Publication {
   imgPath       String?
   published     Boolean         @default(true)
   order         Int             @default(0)
+  views         PublicationView[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 }
@@ -276,4 +277,24 @@ model PageView {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 
   @@index([createdAt])
+}
+
+// publication-detail view analytics (popular-publications ranking). visitorId
+// reuses the PageView daily hash — it embeds the KST date, so the unique pair
+// below means "same person, same publication, same day → one row" (refresh
+// abuse collapses to 1; interest across days still accrues). type is
+// denormalized from Publication so per-type rankings filter without a join;
+// rows die with their publication (Cascade). Writes use ON CONFLICT DO NOTHING
+// with DB now() — same dedup/tz reasoning as PageView.
+model PublicationView {
+  id            String          @id @default(cuid())
+  publicationId String
+  publication   Publication     @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  type          PublicationType
+  visitorId     String
+  createdAt     DateTime        @default(now()) @db.Timestamptz(3)
+
+  @@unique([visitorId, publicationId])
+  @@index([createdAt])
+  @@index([publicationId])
 }
