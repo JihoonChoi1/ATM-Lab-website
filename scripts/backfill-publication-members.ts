@@ -30,14 +30,24 @@ const NAME_ALIASES: Record<string, { given: string; surname: string }> = {
 
 // Extra literal spellings per DB member name — domestic conference papers list
 // authors in Korean, which can't be derived from the English DB names. Only
-// high-confidence 1:1 romanizations are pre-filled; extend and re-run as more
-// are confirmed (the dry run is the review step). 헌병찬 covers a source typo.
+// 1:1 mappings confirmed against the actual author strings are listed; extend
+// and re-run as more are confirmed (the dry run is the review step). 헌병찬
+// covers a source typo. "Jungho Lee"/이정호 covers both spellings of the
+// professor's own Member row (the dev and production DBs differ).
 const EXTRA_NAMES: Record<string, string[]> = {
+  "Jungho Lee": ["이정호"],
   "Hyunmuk Lim": ["임현묵"],
   "JinHyeuk Seo": ["서진혁"],
   "Sukkyung Kang": ["강석경"],
   "Kyuil Kim": ["김규일"],
   "ByungChan Hyun": ["현병찬", "헌병찬"],
+  "Seung Woo Choi": ["최승우"],
+  "Su-Yoon Doh": ["도수윤"],
+  "Junyoung Choi": ["최준영"],
+  "Sanghyeon Shin": ["신상현"],
+  "Seokjin Lee": ["이석진"],
+  "Jung Chan Moc": ["목정찬"],
+  "Gangmin Geum": ["금강민"],
 };
 
 // "Su-Yoon" → [Su, Yoon]; "JinHyeuk" → [Jin, Hyeuk]; "Seung Woo" → [Seung, Woo]
