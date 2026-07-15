@@ -57,6 +57,11 @@ model Member {
   workHistory     Json?      // [{ period: string, title: string, inst: string }]
   researchFields  Json?      // [{ group: string, items: [{ label: string, subs: string[] }] }]
   lectureSubjects Json?      // [{ title: string, code: string }]
+  // Publications this member is tagged as a lab author on (implicit m2m).
+  // The display author line stays the free-text Publication.authors/inventors;
+  // this relation only marks which of those names are lab members, so member
+  // profiles can list their publications. External co-authors are never rows.
+  publications    Publication[]
   published       Boolean    @default(true)
   order           Int        @default(0)
   createdAt       DateTime   @default(now())
@@ -93,6 +98,8 @@ model Publication {
   country       String?
   registeredAt  String?
   imgPath       String?
+  // Lab members tagged as authors (see Member.publications).
+  members       Member[]
   published     Boolean         @default(true)
   order         Int             @default(0)
   views         PublicationView[]
