@@ -3,12 +3,26 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import { prisma } from "@/lib/db";
+import type { PublicationType } from "@/app/generated/prisma/client";
 import { bestDetailSrc } from "@/lib/thumbnail";
 
 // Render per request so admin edits show up immediately (no rebuild needed).
 export const dynamic = "force-dynamic";
 
 type Member = NonNullable<Awaited<ReturnType<typeof prisma.member.findUnique>>>;
+
+type PubItem = {
+  id: string;
+  type: PublicationType;
+  year: string;
+  title: string;
+  journal: string | null;
+  conference: string | null;
+  authors: string | null;
+  inventors: string | null;
+  country: string | null;
+  applicationNo: string | null;
+};
 
 // Professor-only structured JSON (shapes documented in prisma/schema.prisma).
 type Entry = { period: string; title: string; inst: string };
@@ -187,17 +201,51 @@ function PersonBody({ member }: { member: Member }) {
           rows; without it the extra height is distributed between rows (long
           gaps, stretched interest chips). */}
       <dl className="grid grid-cols-[180px_1fr] content-start gap-x-6 gap-y-6 max-[640px]:grid-cols-1 max-[640px]:gap-y-1">
-        <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3 pt-1 max-[640px]:mt-4 max-[640px]:first:mt-0">
-          Position
-        </dt>
-        <dd className="text-[15px] leading-[1.6] text-ink-2">{member.position}</dd>
-
-        {member.year && (
+        {member.role === "ALUMNI" ? (
+          // Alumni store their degree in both position and degree, so the
+          // generic Position row would duplicate Degree — show the
+          // alumni-specific trio instead.
           <>
-            <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3 pt-1 max-[640px]:mt-4">
-              Year
+            {(member.degree ?? member.position) && (
+              <>
+                <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3 pt-1 max-[640px]:mt-4 max-[640px]:first:mt-0">
+                  Degree
+                </dt>
+                <dd className="text-[15px] leading-[1.6] text-ink-2">{member.degree ?? member.position}</dd>
+              </>
+            )}
+            {member.year && (
+              <>
+                <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3 pt-1 max-[640px]:mt-4">
+                  Graduated
+                </dt>
+                <dd className="font-mono text-[14px] leading-[1.6] tracking-[0.01em] text-ink-2">{member.year}</dd>
+              </>
+            )}
+            {member.currentPosition && (
+              <>
+                <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3 pt-1 max-[640px]:mt-4">
+                  Current Position
+                </dt>
+                <dd className="text-[15px] leading-[1.6] text-ink-2">{member.currentPosition}</dd>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3 pt-1 max-[640px]:mt-4 max-[640px]:first:mt-0">
+              Position
             </dt>
-            <dd className="font-mono text-[14px] leading-[1.6] tracking-[0.01em] text-ink-2">{member.year}</dd>
+            <dd className="text-[15px] leading-[1.6] text-ink-2">{member.position}</dd>
+
+            {member.year && (
+              <>
+                <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3 pt-1 max-[640px]:mt-4">
+                  Year
+                </dt>
+                <dd className="font-mono text-[14px] leading-[1.6] tracking-[0.01em] text-ink-2">{member.year}</dd>
+              </>
+            )}
           </>
         )}
 
@@ -231,12 +279,111 @@ function PersonBody({ member }: { member: Member }) {
   );
 }
 
+// Publications this member is tagged on (admin form / backfill script), in the
+// public list's order (year desc → order desc), grouped by type.
+const PUB_GROUPS: { type: PublicationType; label: string }[] = [
+  { type: "JOURNAL", label: "Journals" },
+  { type: "CONFERENCE", label: "Conferences" },
+  { type: "PATENT", label: "Selected Patents" },
+];
+
+function MemberPublications({ publications }: { publications: PubItem[] }) {
+  const groups = PUB_GROUPS.map((g) => ({
+    ...g,
+    items: publications.filter((p) => p.type === g.type),
+  })).filter((g) => g.items.length > 0);
+
+  return (
+    <div className="mt-16 max-w-[860px] border-t border-line pt-10">
+      <div className="mb-2 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[14px] before:bg-accent before:content-['']">
+        Publications
+      </div>
+      <h3 className="mb-6 text-[22px] font-semibold tracking-[-0.015em]">Publications</h3>
+      <div className="flex flex-col gap-9">
+        {groups.map((g) => (
+          <div key={g.type}>
+            <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">
+              {g.label} · {String(g.items.length).padStart(2, "0")}
+            </div>
+            <ul className="flex flex-col">
+              {g.items.map((p) => {
+                const venue = p.journal ?? p.conference;
+                const people = p.authors ?? p.inventors;
+                return (
+                  <li key={p.id} className="border-t border-line last:border-b">
+                    <Link
+                      href={`/publications/${p.id}`}
+                      className="group grid grid-cols-[64px_1fr] items-baseline gap-6 py-4 max-[640px]:grid-cols-1 max-[640px]:gap-1"
+                    >
+                      <span className="font-mono text-[12.5px] tracking-[0.04em] text-ink-3">
+                        {p.year}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[15px] font-medium leading-[1.55] text-ink transition-colors duration-200 group-hover:text-accent">
+                          {p.type === "PATENT" ? p.title : <>&ldquo;{p.title}&rdquo;</>}
+                        </span>
+                        {venue && (
+                          <span className="mt-1 block text-[13.5px] italic leading-[1.55] text-ink-2">
+                            {venue}
+                          </span>
+                        )}
+                        {/* Same patent filed in several jurisdictions shares
+                            title + inventors — this line tells them apart. */}
+                        {p.type === "PATENT" && (p.country || p.applicationNo) && (
+                          <span className="mt-1 block text-[13px] leading-[1.6] text-ink-2">
+                            {p.country}
+                            {p.country && p.applicationNo && " · "}
+                            {p.applicationNo && (
+                              <span className="font-mono text-[12px] tracking-[0.01em]">
+                                {p.applicationNo}
+                              </span>
+                            )}
+                          </span>
+                        )}
+                        {people && (
+                          <span className="mt-0.5 block text-[12.5px] leading-[1.6] text-ink-3">
+                            {people}
+                          </span>
+                        )}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default async function MemberDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const member = await prisma.member.findUnique({ where: { id: params.id } });
+  const member = await prisma.member.findUnique({
+    where: { id: params.id },
+    include: {
+      publications: {
+        where: { published: true },
+        orderBy: [{ year: "desc" }, { order: "desc" }],
+        select: {
+          id: true,
+          type: true,
+          year: true,
+          title: true,
+          journal: true,
+          conference: true,
+          authors: true,
+          inventors: true,
+          country: true,
+          applicationNo: true,
+        },
+      },
+    },
+  });
   if (!member || !member.published) notFound();
 
   return (
@@ -252,8 +399,10 @@ export default async function MemberDetailPage({
               <span aria-hidden="true">←</span> Members
             </Link>
 
+            {/* Alumni keep their degree in position, which reads oddly as an
+                eyebrow — label them by section instead, like the list page. */}
             <div className="mt-8 mb-4 flex items-center gap-2.5 text-xs font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[18px] before:bg-accent before:content-['']">
-              {member.position}
+              {member.role === "ALUMNI" ? "Alumni" : member.position}
             </div>
 
             <h1 className="font-bold leading-[1.18] tracking-[-0.02em] text-ink text-[clamp(26px,3.4vw,42px)]">
@@ -272,6 +421,11 @@ export default async function MemberDetailPage({
             <ProfessorBody member={member} />
           ) : (
             <PersonBody member={member} />
+          )}
+          {/* The professor is on essentially every publication, so the list
+              would just mirror /publications — his CV page skips it. */}
+          {member.role !== "PROFESSOR" && member.publications.length > 0 && (
+            <MemberPublications publications={member.publications} />
           )}
         </Container>
       </section>

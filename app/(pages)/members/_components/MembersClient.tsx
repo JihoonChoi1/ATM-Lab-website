@@ -30,6 +30,7 @@ export type Person = {
 };
 
 export type Alumnus = {
+  id: string;
   name: string;
   year: string;
   degree: string;
@@ -411,14 +412,17 @@ export default function MembersClient({
                 <div className="flex flex-1 flex-col">
                   {alumniByYear[year].map((a) => (
                     <div
-                      key={a.email ?? a.name}
-                      className="grid grid-cols-[44px_1.4fr_0.8fr_1.2fr_auto] items-center gap-5 border-b border-line/70 py-4 last:border-0 transition-[padding] duration-300 hover:pl-3.5 max-[820px]:grid-cols-[44px_1fr] max-[820px]:gap-x-4 max-[820px]:gap-y-1"
+                      key={a.id}
+                      className="group relative grid grid-cols-[44px_1.4fr_0.8fr_1.2fr_auto] items-center gap-5 border-b border-line/70 py-4 last:border-0 transition-[padding] duration-300 hover:pl-3.5 max-[820px]:grid-cols-[44px_1fr] max-[820px]:gap-x-4 max-[820px]:gap-y-1"
                     >
+                      {/* Stretched link (sibling, not wrapper) so the mailto
+                          anchor below stays valid HTML — same as MemberCard. */}
+                      <Link href={`/members/${a.id}`} className="absolute inset-0 z-[1]" aria-label={`View profile of ${a.name}`} />
                       <div className="row-span-2 flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-accent to-accent-light text-white max-[820px]:row-span-1">
                         <Thumb src={a.img} alt={`Portrait of ${a.name}`} className="h-full w-full object-cover" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[16px] font-semibold tracking-[-0.005em] text-ink">{a.name}</div>
+                        <div className="text-[16px] font-semibold tracking-[-0.005em] text-ink transition-colors duration-200 group-hover:text-accent">{a.name}</div>
                         <div className="text-[12.5px] text-ink-3">{a.degree}</div>
                       </div>
                       <div className="font-mono text-[12.5px] tracking-[0.04em] text-ink-3 max-[820px]:hidden">{a.year}</div>
@@ -426,7 +430,7 @@ export default function MembersClient({
                       {a.email && (
                         <a
                           href={`mailto:${a.email}`}
-                          className="inline-flex items-center gap-1.5 font-mono text-[12px] text-ink-3 transition-colors duration-200 hover:text-accent max-[820px]:col-span-2 max-[820px]:col-start-2 max-[820px]:justify-self-start"
+                          className="relative z-[2] inline-flex items-center gap-1.5 font-mono text-[12px] text-ink-3 transition-colors duration-200 hover:text-accent max-[820px]:col-span-2 max-[820px]:col-start-2 max-[820px]:justify-self-start"
                         >
                           {MAIL_ICON}
                           <span className="truncate">{a.email}</span>

@@ -58,6 +58,7 @@ export default async function MembersPage() {
   const alumni: Alumnus[] = members
     .filter((m) => m.role === "ALUMNI")
     .map((m) => ({
+      id: m.id,
       name: m.name,
       year: m.year ?? "",
       degree: m.degree ?? "",
