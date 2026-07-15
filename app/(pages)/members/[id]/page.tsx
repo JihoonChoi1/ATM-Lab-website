@@ -295,16 +295,24 @@ function MemberPublications({ publications }: { publications: PubItem[] }) {
 
   return (
     <div className="mt-16 max-w-[860px] border-t border-line pt-10">
-      <div className="mb-2 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[14px] before:bg-accent before:content-['']">
+      {/* One eyebrow for the whole block; each type gets a full-size section
+          heading (professor-page rhythm) — the small gray sublabels were easy
+          to lose mid-scroll when every group ran long. */}
+      <div className="mb-8 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-accent before:block before:h-px before:w-[14px] before:bg-accent before:content-['']">
         Publications
       </div>
-      <h3 className="mb-6 text-[22px] font-semibold tracking-[-0.015em]">Publications</h3>
-      <div className="flex flex-col gap-9">
-        {groups.map((g) => (
-          <div key={g.type}>
-            <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">
-              {g.label} · {String(g.items.length).padStart(2, "0")}
-            </div>
+      <div className="flex flex-col gap-10">
+        {groups.map((g, gi) => (
+          <div key={g.type} className={gi > 0 ? "border-t border-line pt-10" : ""}>
+            {/* Sticks just below the fixed 72px navbar while its group scrolls
+                by, so long lists always show which type you're in. Opaque bg-bg
+                (the section background) hides rows passing underneath. */}
+            <h3 className="sticky top-[72px] z-10 mb-2.5 bg-bg py-2.5 text-[22px] font-semibold tracking-[-0.015em]">
+              {g.label}
+              <span className="ml-2.5 font-mono text-[13px] font-normal tracking-[0.04em] text-ink-3">
+                · {g.items.length}
+              </span>
+            </h3>
             <ul className="flex flex-col">
               {g.items.map((p) => {
                 const venue = p.journal ?? p.conference;
