@@ -74,9 +74,9 @@ export default function GalleryForm({
       </div>
 
       <ImageUploadField
-        label="이미지 경로"
+        label="이미지"
         defaultValue={item?.imgPath}
-        hint="/로 시작하는 사이트 내부 경로. 비워두면 /board에는 자리표시 카드로 표시되고, 홈 갤러리에는 노출되지 않습니다."
+        hint="이미지 없이 저장해도 됩니다 — 게시판 목록에는 사진 대신 제목이 적힌 대체 카드로 표시되고, 홈 화면 갤러리에서는 제외됩니다."
         errors={state.errors?.imgPath}
         uploadsEnabled={uploadsEnabled}
       />

@@ -222,9 +222,8 @@ export default function MemberForm({
       )}
 
       <ImageUploadField
-        label="사진 경로"
+        label="사진"
         defaultValue={member?.imgPath}
-        hint="/로 시작하는 사이트 내부 경로입니다."
         errors={state.errors?.imgPath}
         uploadsEnabled={uploadsEnabled}
       />
