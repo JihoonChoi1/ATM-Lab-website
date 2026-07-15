@@ -37,6 +37,20 @@ export type PublicationFormState = {
   message?: string;
 };
 
+// Lab-member author tags. Dedup, then keep only ids that exist — a tampered
+// or stale id must degrade to "not tagged", not a 500 from a bad connect.
+async function parseMemberIds(formData: FormData): Promise<string[]> {
+  const ids = Array.from(
+    new Set(formData.getAll("memberIds").map(String).filter(Boolean)),
+  );
+  if (ids.length === 0) return [];
+  const found = await prisma.member.findMany({
+    where: { id: { in: ids } },
+    select: { id: true },
+  });
+  return found.map((m) => m.id);
+}
+
 function parseForm(formData: FormData) {
   return publicationSchema.safeParse({
     type: String(formData.get("type") ?? ""),
@@ -67,6 +81,8 @@ export async function createPublication(
   const img = await resolvePublicationImage(formData, parsed.data);
   if (!img.ok) return { errors: { imgPath: [img.error] } };
 
+  const memberIds = await parseMemberIds(formData);
+
   // order = global max+1: within its year the newest addition sorts first
   // (year desc → order desc), matching the legacy numbering practice.
   const max = await prisma.publication.aggregate({ _max: { order: true } });
@@ -75,6 +91,7 @@ export async function createPublication(
       data: {
         ...toPublicationData({ ...parsed.data, imgPath: img.path }),
         order: (max._max.order ?? 0) + 1,
+        members: { connect: memberIds.map((id) => ({ id })) },
       },
     }),
   );
@@ -97,7 +114,10 @@ export async function updatePublication(
 ): Promise<PublicationFormState> {
   const session = await requireAdmin(`/admin/publications/${id}`);
 
-  const existing = await prisma.publication.findUnique({ where: { id } });
+  const existing = await prisma.publication.findUnique({
+    where: { id },
+    include: { members: { select: { id: true } } },
+  });
   if (!existing) return { message: "게재물을 찾을 수 없습니다. 목록에서 다시 시도하세요." };
 
   const parsed = parseForm(formData);
@@ -106,20 +126,33 @@ export async function updatePublication(
   const img = await resolvePublicationImage(formData, parsed.data);
   if (!img.ok) return { errors: { imgPath: [img.error] } };
 
+  const memberIds = await parseMemberIds(formData);
+
   // Writes every form-managed column — on a type switch toPublicationData
   // nulls the other types' fields, so the clear lands in the diff below. The
   // previous imgPath is left on disk (audit restore window).
   const data = toPublicationData({ ...parsed.data, imgPath: img.path });
   await commitWithUpload(img.stored, () =>
-    prisma.publication.update({ where: { id }, data }),
+    prisma.publication.update({
+      where: { id },
+      data: { ...data, members: { set: memberIds.map((mid) => ({ id: mid })) } },
+    }),
   );
 
+  // Sorted id arrays so the member-tag diff is order-insensitive.
   await logAudit({
     userId: session.user.id,
     action: "UPDATE",
     entity: "Publication",
     entityId: id,
-    data: { ip: getClientIp(), label: data.title, ...diffChanges(existing, data) },
+    data: {
+      ip: getClientIp(),
+      label: data.title,
+      ...diffChanges(
+        { ...existing, memberIds: existing.members.map((m) => m.id).sort() },
+        { ...data, memberIds: [...memberIds].sort() },
+      ),
+    },
   });
 
   redirect("/admin/publications");

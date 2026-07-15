@@ -18,9 +18,16 @@ import { createPublication, updatePublication, type PublicationFormState } from 
 import { PUBLICATION_TYPES, TYPE_LABELS, type PublicationTypeValue } from "../schema";
 
 // Create + edit form (React 18: useFormState, same pattern as MemberForm).
-// Fields are uncontrolled except `type`, which drives which fields render.
+// Fields are uncontrolled except `type`, which drives which fields render,
+// and the lab-member tags, whose hidden inputs are rendered from state.
 // Switching type on edit is allowed — the action clears the other types'
 // fields to null (see toPublicationData), so nothing stale survives.
+
+export type MemberOption = {
+  id: string;
+  name: string;
+  position: string;
+};
 
 export type PublicationFormValues = {
   id: string;
@@ -37,15 +44,18 @@ export type PublicationFormValues = {
   registeredAt: string | null;
   imgPath: string | null;
   published: boolean;
+  memberIds: string[];
 };
 
 const initialState: PublicationFormState = {};
 
 export default function PublicationForm({
   publication,
+  members,
   uploadsEnabled,
 }: {
   publication?: PublicationFormValues;
+  members: MemberOption[];
   uploadsEnabled: boolean;
 }) {
   const action = publication
@@ -55,9 +65,25 @@ export default function PublicationForm({
   const [type, setType] = useState<PublicationTypeValue>(
     publication?.type ?? "JOURNAL",
   );
+  const [memberQuery, setMemberQuery] = useState("");
+  const [memberIds, setMemberIds] = useState<string[]>(
+    publication?.memberIds ?? [],
+  );
 
   const isJournal = type === "JOURNAL";
   const isPatent = type === "PATENT";
+
+  const toggleMember = (id: string) =>
+    setMemberIds((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
+    );
+  const q = memberQuery.trim().toLowerCase();
+  const matchingMembers = q
+    ? members.filter((m) => m.name.toLowerCase().includes(q))
+    : members;
+  const selectedMembers = memberIds
+    .map((id) => members.find((m) => m.id === id))
+    .filter((m): m is MemberOption => m !== undefined);
 
   return (
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
@@ -167,9 +193,8 @@ export default function PublicationForm({
           </div>
 
           <ImageUploadField
-            label="이미지 경로"
+            label="표지 이미지"
             defaultValue={publication?.imgPath}
-            hint="/로 시작하는 사이트 내부 경로입니다."
             errors={state.errors?.imgPath}
             uploadsEnabled={uploadsEnabled}
           />
@@ -227,16 +252,19 @@ export default function PublicationForm({
 
           <div>
             <label htmlFor="country" className={labelClass}>
-              국가
+              국가/특허청
             </label>
             <input
               id="country"
               name="country"
               type="text"
               defaultValue={publication?.country ?? ""}
-              placeholder="Republic of Korea"
+              placeholder="Republic of Korea 또는 European Patent Office (EPO)"
               className={inputClass}
             />
+            <p className={hintClass}>
+              공개 페이지에는 &ldquo;Jurisdiction&rdquo;으로 표시됩니다.
+            </p>
             <FieldError errors={state.errors?.country} />
           </div>
 
@@ -257,6 +285,62 @@ export default function PublicationForm({
           </div>
         </>
       )}
+
+      <div>
+        <span className={labelClass}>참여 멤버</span>
+        <p className={hintClass}>
+          저자/발명자 중 랩 멤버를 선택하면 그 멤버의 프로필 페이지에 이 게재물이
+          표시됩니다. 외부 저자는 위 저자 칸에 적는 것으로 충분합니다.
+        </p>
+        {selectedMembers.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {selectedMembers.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => toggleMember(m.id)}
+                title="클릭하여 제외"
+                className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent-dark transition-colors hover:bg-accent hover:text-white"
+              >
+                {m.name}
+                <span aria-hidden="true">×</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <input
+          type="text"
+          value={memberQuery}
+          onChange={(e) => setMemberQuery(e.target.value)}
+          placeholder="이름 검색 (예: Choi)"
+          aria-label="멤버 이름 검색"
+          className={inputClass}
+        />
+        <div className="mt-2 max-h-44 overflow-y-auto rounded-2xl border border-line">
+          {matchingMembers.length === 0 ? (
+            <p className="px-3.5 py-3 text-sm text-ink-3">일치하는 멤버가 없습니다.</p>
+          ) : (
+            matchingMembers.map((m) => (
+              <label
+                key={m.id}
+                className="flex cursor-pointer items-center gap-2.5 px-3.5 py-2 text-sm transition-colors hover:bg-accent-soft"
+              >
+                <input
+                  type="checkbox"
+                  checked={memberIds.includes(m.id)}
+                  onChange={() => toggleMember(m.id)}
+                  className="h-4 w-4 accent-accent"
+                />
+                <span className="font-medium text-ink">{m.name}</span>
+                <span className="text-xs text-ink-3">{m.position}</span>
+              </label>
+            ))
+          )}
+        </div>
+        {memberIds.map((id) => (
+          <input key={id} type="hidden" name="memberIds" value={id} />
+        ))}
+      </div>
 
       <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2">
         <input

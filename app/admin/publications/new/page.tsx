@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import { uploadsEnabled } from "@/lib/uploads";
 import PublicationForm from "../_components/PublicationForm";
@@ -11,6 +12,13 @@ export const dynamic = "force-dynamic";
 export default async function NewPublicationPage() {
   await requireAdmin("/admin/publications/new");
 
+  // Tag options — every member (published or not; hidden profiles can still be
+  // authors), in the members-page order: PI → researchers → students → alumni.
+  const members = await prisma.member.findMany({
+    orderBy: { order: "asc" },
+    select: { id: true, name: true, position: true },
+  });
+
   return (
     <div className="mx-auto w-full max-w-[640px]">
       <div className="mb-8">
@@ -19,7 +27,7 @@ export default async function NewPublicationPage() {
           저장하면 공개 /publications 페이지에 바로 반영됩니다.
         </p>
       </div>
-      <PublicationForm uploadsEnabled={uploadsEnabled()} />
+      <PublicationForm members={members} uploadsEnabled={uploadsEnabled()} />
     </div>
   );
 }
