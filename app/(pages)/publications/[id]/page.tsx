@@ -52,7 +52,9 @@ function buildFields(pub: Pub): Field[] {
       value: pub.applicationNo ?? "—",
       mono: true,
     },
-    { label: "Country", value: pub.country ?? "—" },
+    // "Jurisdiction", not "Country": the value can be a regional patent
+    // office (e.g. "European Patent Office (EPO)") as well as a country.
+    { label: "Jurisdiction", value: pub.country ?? "—" },
     {
       label: "Filing / Registration Date",
       value: pub.registeredAt ?? "—",
