@@ -808,6 +808,7 @@ cmpe74j390000gzx1cuk8wyur	cmpe74j5v002cgzx13ifmrkxb
 --
 
 COPY public."BoardPageMeta" (id, "heroHeadline", "heroParagraph", "createdAt", "updatedAt") FROM stdin;
+cmqt1tsdn0000ykx14wpgwhj5	News & moments\r\nfrom the lab.	Press coverage, awards, and grant announcements alongside photos from conferences, kickoff meetings, and lab events. Korean titles are preserved verbatim from the legacy site.	2026-06-25 05:15:39.371	2026-06-25 05:20:59.943
 \.
 
 
@@ -851,6 +852,7 @@ cmpe74j8y006kgzx1zbzbg90c	04	GRADUATE	Experimental Thermal and Fluid Mechanics	{
 --
 
 COPY public."LecturesPageMeta" (id, "heroHeadline", "heroParagraph", "createdAt", "updatedAt") FROM stdin;
+cmqt1vcyb0004ykx1xrd0rusw	Courses taught\r\nby the lab.	Undergraduate and graduate courses on heat transfer, phase-change phenomena, and experimental thermal-fluid mechanics — taught at Ajou University's Department of Mechanical Engineering.	2026-06-25 05:16:52.691	2026-06-25 05:16:52.691
 \.
 
 
@@ -859,6 +861,7 @@ COPY public."LecturesPageMeta" (id, "heroHeadline", "heroParagraph", "createdAt"
 --
 
 COPY public."MembersPageMeta" (id, "heroHeadline", "heroParagraph", "createdAt", "updatedAt") FROM stdin;
+cmqt1wmkg000bykx16911ejvs	The people behind ATM Lab.	A small principal investigator–led group of postdoctoral researchers, graduate students, and undergraduate interns advancing thermal management research — alongside alumni now working in industry, national labs, and academia.	2026-06-25 05:17:51.808	2026-06-25 05:20:33.293
 \.
 
 
@@ -897,6 +900,7 @@ cmpe74j4e000ogzx1rybgoa29	Core Technology and Module Development in Boiling-type
 --
 
 COPY public."ProjectsPageMeta" (id, "heroHeadline", "heroParagraph", "createdAt", "updatedAt") FROM stdin;
+cmqt1viao0008ykx193pkwycn	Funded research,\r\nin flight and shipped.	A snapshot of the grants currently driving the lab's experimental work, alongside completed contracts that produced the apparatus, surfaces, and devices \r\n\r\nwe still build on.	2026-06-25 05:16:59.616	2026-06-25 05:27:14.286
 \.
 
 
@@ -905,6 +909,7 @@ COPY public."ProjectsPageMeta" (id, "heroHeadline", "heroParagraph", "createdAt"
 --
 
 COPY public."PublicationsPageMeta" (id, "heroHeadline", "heroParagraph", "createdAt", "updatedAt") FROM stdin;
+cmqt1vfxo0006ykx1wsv9cmmz	The lab's\r\npublished record.	Peer-reviewed journal articles, conference papers, and patents produced by ATM Lab and our collaborators. Filter by category and year.	2026-06-25 05:16:56.556	2026-06-25 05:19:07.27
 \.
 
 
