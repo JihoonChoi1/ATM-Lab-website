@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SiteChrome from "@/app/_components/SiteChrome";
 import { siteUrl } from "@/lib/site-url";
+import { uploadsEnabled } from "@/lib/uploads";
 import { pretendard, jetbrainsMono } from "@/app/fonts";
 import "./globals.css";
 
@@ -45,7 +46,7 @@ export default function RootLayout({
       className={`${pretendard.variable} ${jetbrainsMono.variable}`}
     >
       <body className="font-sans bg-bg text-ink antialiased">
-        <SiteChrome>{children}</SiteChrome>
+        <SiteChrome demo={!uploadsEnabled()}>{children}</SiteChrome>
       </body>
     </html>
   );
