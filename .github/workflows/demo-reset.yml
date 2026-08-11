@@ -1,0 +1,43 @@
+name: Reset demo database
+
+# Periodically restores the public Vercel/Neon demo to a known-good state so
+# content recruiters create/edit/delete while trying the admin CMS never lingers.
+# It truncates content + analytics tables (keeping the demo admin account) and
+# reloads the committed seed. Set the DEMO_DATABASE_URL repo secret to the Neon
+# demo connection string for this to run.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # every 6 hours (UTC)
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+concurrency:
+  group: demo-reset
+  cancel-in-progress: false
+
+permissions: {} # no repo write access needed; we only talk to an external DB
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    # Never run on forks — they lack the secret and shouldn't reset anyone's DB.
+    if: github.repository == 'JihoonChoi1/ATM-Lab-website'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+
+      - name: Reset content and reload seed
+        env:
+          DEMO_DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+        run: |
+          if [ -z "$DEMO_DATABASE_URL" ]; then
+            echo "::error::DEMO_DATABASE_URL secret is not set." >&2
+            exit 1
+          fi
+          psql --version
+          psql "$DEMO_DATABASE_URL" -v ON_ERROR_STOP=1 --single-transaction \
+            -f prisma/demo-reset.sql \
+            -f prisma/seed-data.sql
+          echo "Demo database reset to seed state."
