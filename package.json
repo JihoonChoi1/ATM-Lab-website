@@ -9,6 +9,7 @@
     "postinstall": "prisma generate",
     "lint": "next lint",
     "db:seed-admin": "tsx --env-file=.env.local scripts/seed-admin.ts",
+    "db:reset-demo-admin": "tsx --env-file=.env.local scripts/reset-demo-admin.ts",
     "db:migrate-gnuboard": "tsx --env-file=.env.local scripts/migrate-gnuboard.ts",
     "db:seed-research": "tsx --env-file=.env.local scripts/seed-research.ts",
     "db:seed-professor": "tsx --env-file=.env.local scripts/seed-professor-profile.ts",
