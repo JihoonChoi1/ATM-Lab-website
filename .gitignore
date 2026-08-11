@@ -42,6 +42,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# raw pg_dump source for prisma/seed-data.sql — contains User hashes + is
+# PG17-only custom format; the committed seed-data.sql is the sanitized artifact
+dump.dump
+
 # project planning / local-only docs
 Steps.md
 html_files
