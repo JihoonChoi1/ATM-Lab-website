@@ -36,7 +36,7 @@ export default async function MembersPage() {
 
   const professor: Professor = {
     id: profRow?.id ?? null,
-    name: profRow?.name ?? "이정호",
+    name: profRow?.name ?? "Jungho Lee",
     img: profRow?.imgPath ?? "/professor.png",
     email: profRow?.email ?? null,
     fields: profFields,

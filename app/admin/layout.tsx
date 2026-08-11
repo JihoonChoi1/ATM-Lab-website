@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AdminNav from "./_components/AdminNav";
 import { signOutAction } from "./security/actions";
 
-export const metadata: Metadata = { title: "관리자 · ATM Lab" };
+export const metadata: Metadata = { title: "Admin · ATM Lab" };
 
 // Phase 7-1: shared admin shell — vertical sidebar on desktop, a horizontal
 // scrollable nav bar on mobile (CSS-only, no toggle state). No auth here: the
@@ -26,7 +26,7 @@ export default function AdminLayout({
             type="submit"
             className="w-full rounded-2xl border border-line px-3.5 py-2.5 text-left text-sm font-medium text-ink-2 transition hover:border-ink-3 hover:text-ink"
           >
-            로그아웃
+            Sign out
           </button>
         </form>
       </aside>

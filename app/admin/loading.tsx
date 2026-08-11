@@ -9,8 +9,8 @@
 export default function AdminLoading() {
   return (
     <div aria-busy="true" className="mx-auto w-full max-w-[1000px]">
-      <h1 className="sr-only">불러오는 중입니다.</h1>
-      <div role="status" aria-label="로딩 중" className="animate-pulse">
+      <h1 className="sr-only">Loading…</h1>
+      <div role="status" aria-label="Loading" className="animate-pulse">
         <div className="h-8 w-48 rounded-lg bg-line" aria-hidden="true" />
         <div className="mt-7 space-y-3" aria-hidden="true">
           <div className="h-12 w-full rounded-xl bg-line/70" />

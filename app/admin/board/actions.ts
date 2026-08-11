@@ -19,7 +19,7 @@ export async function updatePageMeta(
     {
       delegate: prisma.boardPageMeta as unknown as SingletonDelegate,
       entity: "BoardPageMeta",
-      label: "Board 페이지 메타",
+      label: "Board page meta",
       metaPath: "/admin/board/meta",
     },
     formData,

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import ProjectForm from "../_components/ProjectForm";
 
-export const metadata: Metadata = { title: "프로젝트 수정 · ATM Lab" };
+export const metadata: Metadata = { title: "Edit project · ATM Lab" };
 
 // Reads the session cookie + a live row → never cache.
 export const dynamic = "force-dynamic";
@@ -34,7 +34,7 @@ export default async function EditProjectPage({
   return (
     <div className="mx-auto w-full max-w-[640px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">프로젝트 수정</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Edit project</h1>
         <p className="mt-1 text-sm text-ink-3">{project.title}</p>
       </div>
       <ProjectForm project={project} />

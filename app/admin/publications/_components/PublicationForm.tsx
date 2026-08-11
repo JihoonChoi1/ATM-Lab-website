@@ -89,7 +89,7 @@ export default function PublicationForm({
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="type" className={labelClass}>
-          구분
+          Type
         </label>
         <select
           id="type"
@@ -109,7 +109,7 @@ export default function PublicationForm({
 
       <div>
         <label htmlFor="year" className={labelClass}>
-          연도
+          Year
         </label>
         <input
           id="year"
@@ -120,7 +120,7 @@ export default function PublicationForm({
           className={inputClass}
         />
         <p className={hintClass}>
-          공개 페이지 연도 필터에 표기 그대로 사용됩니다 (그룹 표기 예:
+          Used exactly as entered in the public Year filter (group example:
           2014~Before).
         </p>
         <FieldError errors={state.errors?.year} />
@@ -128,7 +128,7 @@ export default function PublicationForm({
 
       <div>
         <label htmlFor="title" className={labelClass}>
-          제목
+          Title
         </label>
         <input
           id="title"
@@ -143,7 +143,7 @@ export default function PublicationForm({
       {!isPatent && (
         <div>
           <label htmlFor="authors" className={labelClass}>
-            저자
+            Authors
           </label>
           <input
             id="authors"
@@ -161,7 +161,7 @@ export default function PublicationForm({
         <>
           <div>
             <label htmlFor="journal" className={labelClass}>
-              저널명
+              Journal
             </label>
             <input
               id="journal"
@@ -176,7 +176,7 @@ export default function PublicationForm({
 
           <div>
             <label htmlFor="doi" className={labelClass}>
-              DOI 링크
+              DOI link
             </label>
             <input
               id="doi"
@@ -187,13 +187,13 @@ export default function PublicationForm({
               className={inputClass}
             />
             <p className={hintClass}>
-              비워도 됩니다 — 입력 시 공개 상세 페이지에 링크로 표시됩니다.
+              Optional — if set, it appears as a link on the public detail page.
             </p>
             <FieldError errors={state.errors?.doi} />
           </div>
 
           <ImageUploadField
-            label="표지 이미지"
+            label="Cover image"
             defaultValue={publication?.imgPath}
             errors={state.errors?.imgPath}
             uploadsEnabled={uploadsEnabled}
@@ -204,7 +204,7 @@ export default function PublicationForm({
       {type === "CONFERENCE" && (
         <div>
           <label htmlFor="conference" className={labelClass}>
-            학회명
+            Conference
           </label>
           <input
             id="conference"
@@ -222,7 +222,7 @@ export default function PublicationForm({
         <>
           <div>
             <label htmlFor="inventors" className={labelClass}>
-              발명자
+              Inventors
             </label>
             <input
               id="inventors"
@@ -237,7 +237,7 @@ export default function PublicationForm({
 
           <div>
             <label htmlFor="applicationNo" className={labelClass}>
-              출원/등록번호
+              Application / registration no.
             </label>
             <input
               id="applicationNo"
@@ -252,25 +252,25 @@ export default function PublicationForm({
 
           <div>
             <label htmlFor="country" className={labelClass}>
-              국가/특허청
+              Country / patent office
             </label>
             <input
               id="country"
               name="country"
               type="text"
               defaultValue={publication?.country ?? ""}
-              placeholder="Republic of Korea 또는 European Patent Office (EPO)"
+              placeholder="Republic of Korea or European Patent Office (EPO)"
               className={inputClass}
             />
             <p className={hintClass}>
-              공개 페이지에는 &ldquo;Jurisdiction&rdquo;으로 표시됩니다.
+              Shown as &ldquo;Jurisdiction&rdquo; on the public page.
             </p>
             <FieldError errors={state.errors?.country} />
           </div>
 
           <div>
             <label htmlFor="registeredAt" className={labelClass}>
-              출원/등록일
+              Filing / registration date
             </label>
             <input
               id="registeredAt"
@@ -280,17 +280,18 @@ export default function PublicationForm({
               placeholder="2026-03-15"
               className={inputClass}
             />
-            <p className={hintClass}>YYYY-MM-DD 형식 권장 — 표기 그대로 표시됩니다.</p>
+            <p className={hintClass}>YYYY-MM-DD recommended — shown exactly as entered.</p>
             <FieldError errors={state.errors?.registeredAt} />
           </div>
         </>
       )}
 
       <div>
-        <span className={labelClass}>참여 멤버</span>
+        <span className={labelClass}>Lab members</span>
         <p className={hintClass}>
-          저자/발명자 중 랩 멤버를 선택하면 그 멤버의 프로필 페이지에 이 게재물이
-          표시됩니다. 외부 저자는 위 저자 칸에 적는 것으로 충분합니다.
+          Selecting lab members among the authors/inventors makes this publication
+          appear on their profile pages. External authors only need to be listed in
+          the Authors field above.
         </p>
         {selectedMembers.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-1.5">
@@ -299,7 +300,7 @@ export default function PublicationForm({
                 key={m.id}
                 type="button"
                 onClick={() => toggleMember(m.id)}
-                title="클릭하여 제외"
+                title="Click to remove"
                 className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent-dark transition-colors hover:bg-accent hover:text-white"
               >
                 {m.name}
@@ -312,13 +313,13 @@ export default function PublicationForm({
           type="text"
           value={memberQuery}
           onChange={(e) => setMemberQuery(e.target.value)}
-          placeholder="이름 검색 (예: Choi)"
-          aria-label="멤버 이름 검색"
+          placeholder="Search by name (e.g. Choi)"
+          aria-label="Search member names"
           className={inputClass}
         />
         <div className="mt-2 max-h-44 overflow-y-auto rounded-2xl border border-line">
           {matchingMembers.length === 0 ? (
-            <p className="px-3.5 py-3 text-sm text-ink-3">일치하는 멤버가 없습니다.</p>
+            <p className="px-3.5 py-3 text-sm text-ink-3">No matching members.</p>
           ) : (
             matchingMembers.map((m) => (
               <label
@@ -349,15 +350,15 @@ export default function PublicationForm({
           defaultChecked={publication?.published ?? true}
           className="h-4 w-4 accent-accent"
         />
-        공개 (체크 해제 시 공개 페이지에서 숨김)
+        Published (uncheck to hide from public pages)
       </label>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label={publication ? "변경 사항 저장" : "게재물 추가"} />
+        <SubmitButton label={publication ? "Save changes" : "Add publication"} />
         <Link href="/admin/publications" className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

@@ -69,7 +69,7 @@ export default function ProjectsTable({ projects }: { projects: ProjectRow[] }) 
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <button onClick={() => setStatusFilter("ALL")} className={chipClass(statusFilter === "ALL")}>
-          전체 {projects.length}
+          All {projects.length}
         </button>
         {STATUS_ORDER.map((s) => (
           <button key={s} onClick={() => setStatusFilter(s)} className={chipClass(statusFilter === s)}>
@@ -80,7 +80,7 @@ export default function ProjectsTable({ projects }: { projects: ProjectRow[] }) 
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="프로젝트명·기관 검색"
+          placeholder="Search project name or institution"
           className={searchInputClass}
         />
       </div>
@@ -89,19 +89,19 @@ export default function ProjectsTable({ projects }: { projects: ProjectRow[] }) 
         <table className={tableClass}>
           <thead>
             <tr className={theadRowClass}>
-              <th className={`w-20 ${thClass}`}>순서</th>
-              <th className={thClass}>프로젝트명</th>
-              <th className={thClass}>기관</th>
-              <th className={thClass}>기간</th>
-              <th className={thClass}>공개</th>
-              <th className={thClass}>관리</th>
+              <th className={`w-20 ${thClass}`}>Order</th>
+              <th className={thClass}>Project name</th>
+              <th className={thClass}>Institution</th>
+              <th className={thClass}>Period</th>
+              <th className={thClass}>Published</th>
+              <th className={thClass}>Manage</th>
             </tr>
           </thead>
           <tbody>
             {visibleTotal === 0 && (
               <tr>
                 <td colSpan={6} className={emptyCellClass}>
-                  검색 결과가 없습니다.
+                  No results found.
                 </td>
               </tr>
             )}
@@ -110,7 +110,7 @@ export default function ProjectsTable({ projects }: { projects: ProjectRow[] }) 
                 {g.visible.length > 0 && (
                   <tr className={groupRowClass}>
                     <td colSpan={6} className={groupCellClass}>
-                      {STATUS_LABELS[g.status]} · {g.all.length}건
+                      {STATUS_LABELS[g.status]} · {g.all.length}
                     </td>
                   </tr>
                 )}
@@ -124,7 +124,7 @@ export default function ProjectsTable({ projects }: { projects: ProjectRow[] }) 
                             onClick={() => run(() => moveProject(p.id, "up"))}
                             disabled={isPending || idx === 0}
                             className={iconBtnClass}
-                            aria-label={`${p.title} 위로 이동`}
+                            aria-label={`${p.title} Move up`}
                           >
                             ↑
                           </button>
@@ -132,7 +132,7 @@ export default function ProjectsTable({ projects }: { projects: ProjectRow[] }) 
                             onClick={() => run(() => moveProject(p.id, "down"))}
                             disabled={isPending || idx === g.all.length - 1}
                             className={iconBtnClass}
-                            aria-label={`${p.title} 아래로 이동`}
+                            aria-label={`${p.title} Move down`}
                           >
                             ↓
                           </button>
@@ -151,18 +151,18 @@ export default function ProjectsTable({ projects }: { projects: ProjectRow[] }) 
                           disabled={isPending}
                           className={publishedBtnClass(p.published)}
                         >
-                          {p.published ? "공개" : "비공개"}
+                          {p.published ? "Published" : "Unpublished"}
                         </button>
                       </td>
                       <td className="whitespace-nowrap px-4 py-2.5">
                         <Link href={`/admin/projects/${p.id}`} className={editLinkClass}>
-                          수정
+                          Edit
                         </Link>
                         <button
                           onClick={() => {
                             if (
                               window.confirm(
-                                `'${p.title}' 프로젝트를 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.`,
+                                `Delete the project '${p.title}'? You can restore it from Recent activity within 90 days.`,
                               )
                             ) {
                               run(() => deleteProject(p.id));
@@ -171,7 +171,7 @@ export default function ProjectsTable({ projects }: { projects: ProjectRow[] }) 
                           disabled={isPending}
                           className={deleteBtnClass}
                         >
-                          삭제
+                          Delete
                         </button>
                       </td>
                     </tr>

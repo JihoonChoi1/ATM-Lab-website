@@ -21,16 +21,16 @@ const emptyToNull = z
 // relative order).
 const dateField = z
   .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "날짜를 입력하세요.")
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Please enter a date.")
   .refine((v) => {
     const d = new Date(`${v}T00:00:00Z`);
     return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v;
-  }, "유효한 날짜가 아닙니다.")
+  }, "Not a valid date.")
   .transform((v) => new Date(`${v}T00:00:00Z`));
 
 export const galleryItemSchema = z.object({
   date: dateField,
-  title: z.string().trim().min(1, "제목을 입력하세요."),
+  title: z.string().trim().min(1, "Please enter a title."),
   // Until the 7-8 upload component lands this is a plain text path; site-internal
   // paths only ("/legacy/…", "/uploads/…") — no external URLs or odd schemes.
   // Empty → null: board card/detail render a placeholder, and the home strip
@@ -38,7 +38,7 @@ export const galleryItemSchema = z.object({
   imgPath: emptyToNull.pipe(
     z
       .string()
-      .startsWith("/", "이미지 경로는 /로 시작하는 사이트 내부 경로여야 합니다.")
+      .startsWith("/", "The image path must be an internal site path starting with /.")
       .nullable(),
   ),
   published: z.boolean(),

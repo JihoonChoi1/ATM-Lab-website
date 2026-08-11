@@ -44,18 +44,18 @@ export default function GalleryTable({ items }: { items: GalleryRow[] }) {
       <table className={tableClass}>
         <thead>
           <tr className={theadRowClass}>
-            <th className={thClass}>날짜</th>
-            <th className={thClass}>제목</th>
-            <th className={thClass}>이미지</th>
-            <th className={thClass}>공개</th>
-            <th className={thClass}>관리</th>
+            <th className={thClass}>Date</th>
+            <th className={thClass}>Title</th>
+            <th className={thClass}>Image</th>
+            <th className={thClass}>Published</th>
+            <th className={thClass}>Manage</th>
           </tr>
         </thead>
         <tbody>
           {items.length === 0 && (
             <tr>
               <td colSpan={5} className={emptyCellClass}>
-                갤러리 항목이 없습니다.
+                No gallery items yet.
               </td>
             </tr>
           )}
@@ -76,17 +76,17 @@ export default function GalleryTable({ items }: { items: GalleryRow[] }) {
                   disabled={isPending}
                   className={publishedBtnClass(g.published)}
                 >
-                  {g.published ? "공개" : "비공개"}
+                  {g.published ? "Published" : "Unpublished"}
                 </button>
               </td>
               <td className="whitespace-nowrap px-4 py-2.5">
                 <Link href={`/admin/gallery/${g.id}`} className={editLinkClass}>
-                  수정
+                  Edit
                 </Link>
                 <button
                   onClick={() => {
                     if (
-                      window.confirm(`'${g.title}' 갤러리 항목을 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.`)
+                      window.confirm(`Delete the gallery item '${g.title}'? You can restore it from Recent activity within 90 days.`)
                     ) {
                       run(() => deleteGalleryItem(g.id));
                     }
@@ -94,7 +94,7 @@ export default function GalleryTable({ items }: { items: GalleryRow[] }) {
                   disabled={isPending}
                   className={deleteBtnClass}
                 >
-                  삭제
+                  Delete
                 </button>
               </td>
             </tr>

@@ -92,7 +92,7 @@ export default function PublicationsTable({
           }}
           className={chipClass(typeFilter === "ALL")}
         >
-          전체 {publications.length}
+          All {publications.length}
         </button>
         {PUBLICATION_TYPES.map((t) => (
           <button
@@ -113,7 +113,7 @@ export default function PublicationsTable({
             setQuery(e.target.value);
             setPage(1);
           }}
-          placeholder="제목·저자 검색"
+          placeholder="Search title or authors"
           className={searchInputClass}
         />
       </div>
@@ -122,19 +122,19 @@ export default function PublicationsTable({
         <table className={tableClass}>
           <thead>
             <tr className={theadRowClass}>
-              <th className={thClass}>연도</th>
-              <th className={thClass}>구분</th>
-              <th className={thClass}>제목</th>
-              <th className={thClass}>출처</th>
-              <th className={thClass}>공개</th>
-              <th className={thClass}>관리</th>
+              <th className={thClass}>Year</th>
+              <th className={thClass}>Type</th>
+              <th className={thClass}>Title</th>
+              <th className={thClass}>Source</th>
+              <th className={thClass}>Published</th>
+              <th className={thClass}>Manage</th>
             </tr>
           </thead>
           <tbody>
             {pageRows.length === 0 && (
               <tr>
                 <td colSpan={6} className={emptyCellClass}>
-                  검색 결과가 없습니다.
+                  No results found.
                 </td>
               </tr>
             )}
@@ -158,18 +158,18 @@ export default function PublicationsTable({
                     disabled={isPending}
                     className={publishedBtnClass(p.published)}
                   >
-                    {p.published ? "공개" : "비공개"}
+                    {p.published ? "Published" : "Unpublished"}
                   </button>
                 </td>
                 <td className="whitespace-nowrap px-4 py-2.5">
                   <Link href={`/admin/publications/${p.id}`} className={editLinkClass}>
-                    수정
+                    Edit
                   </Link>
                   <button
                     onClick={() => {
                       if (
                         window.confirm(
-                          `'${p.title}' 게재물을 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.`,
+                          `Delete the publication '${p.title}'? You can restore it from Recent activity within 90 days.`,
                         )
                       ) {
                         run(() => deletePublication(p.id));
@@ -178,7 +178,7 @@ export default function PublicationsTable({
                     disabled={isPending}
                     className={deleteBtnClass}
                   >
-                    삭제
+                    Delete
                   </button>
                 </td>
               </tr>
@@ -189,7 +189,7 @@ export default function PublicationsTable({
 
       {totalPages > 1 && (
         <nav
-          aria-label="페이지 탐색"
+          aria-label="Pagination"
           className="mt-6 flex items-center justify-center gap-4"
         >
           <button
@@ -197,7 +197,7 @@ export default function PublicationsTable({
             disabled={current <= 1}
             className={current <= 1 ? pagerDisabledClass : pagerBtnClass}
           >
-            ← 이전
+            ← Previous
           </button>
           <span className="text-sm text-ink-3">
             {current} / {totalPages}
@@ -207,7 +207,7 @@ export default function PublicationsTable({
             disabled={current >= totalPages}
             className={current >= totalPages ? pagerDisabledClass : pagerBtnClass}
           >
-            다음 →
+            Next →
           </button>
         </nav>
       )}

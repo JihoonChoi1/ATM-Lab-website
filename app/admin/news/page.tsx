@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import NewsTable from "./_components/NewsTable";
 
-export const metadata: Metadata = { title: "News 관리 · ATM Lab" };
+export const metadata: Metadata = { title: "Manage News · ATM Lab" };
 
 // Reads the session cookie + live rows → never cache.
 export const dynamic = "force-dynamic";
@@ -32,8 +32,8 @@ export default async function AdminNewsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-[-0.02em]">News</h1>
           <p className="mt-1 text-sm text-ink-3">
-            소식 {news.length}건 — 공개 /board News 섹션과 같은 순서(날짜
-            내림차순)입니다.
+            {news.length} news posts — same order as the public /board News section
+            (by date, descending).
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -41,13 +41,13 @@ export default async function AdminNewsPage() {
             href="/admin/board/meta"
             className="rounded-2xl border border-line px-4 py-2.5 text-sm font-medium text-ink-2 transition hover:border-accent/30 hover:text-accent"
           >
-            Board 페이지 메타 편집
+            Edit Board page meta
           </Link>
           <Link
             href="/admin/news/new"
             className="rounded-2xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark"
           >
-            새 소식 추가
+            Add news post
           </Link>
         </div>
       </div>

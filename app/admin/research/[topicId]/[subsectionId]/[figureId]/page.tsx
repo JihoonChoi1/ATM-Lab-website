@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/auth/guard";
 import { uploadsEnabled } from "@/lib/uploads";
 import FigureForm from "../../../_components/FigureForm";
 
-export const metadata: Metadata = { title: "그림 수정 · ATM Lab" };
+export const metadata: Metadata = { title: "Edit figure · ATM Lab" };
 
 // Reads the session cookie + a live row → never cache.
 export const dynamic = "force-dynamic";
@@ -43,10 +43,10 @@ export default async function EditFigurePage({
           href={`/admin/research/${topicId}/${subsectionId}`}
           className="text-sm text-accent hover:underline"
         >
-          ← 그림 목록
+          ← Figures
         </Link>
       </div>
-      <h1 className="mb-8 text-3xl font-bold tracking-[-0.02em]">그림 수정</h1>
+      <h1 className="mb-8 text-3xl font-bold tracking-[-0.02em]">Edit figure</h1>
       <FigureForm
         topicId={topicId}
         subsectionId={subsectionId}

@@ -4,16 +4,16 @@
 
 // Korean labels for the compact action tokens stored in AuditLog.action.
 export const ACTION_LABELS: Record<string, string> = {
-  LOGIN: "로그인",
-  LOGOUT: "로그아웃",
-  ENABLE_2FA: "2FA 켜기",
-  CREATE: "생성",
-  UPDATE: "수정",
-  DELETE: "삭제",
+  LOGIN: "Sign in",
+  LOGOUT: "Sign out",
+  ENABLE_2FA: "Enable 2FA",
+  CREATE: "Create",
+  UPDATE: "Update",
+  DELETE: "Delete",
 };
 
 export const fmtTime = (d: Date) =>
-  new Intl.DateTimeFormat("ko-KR", {
+  new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Asia/Seoul",

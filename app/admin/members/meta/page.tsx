@@ -6,7 +6,7 @@ import ScrollTopOnMount from "@/app/admin/_components/ScrollTopOnMount";
 import { PAGE_HERO_DEFAULTS } from "@/lib/page-hero-defaults";
 import { updatePageMeta } from "../actions";
 
-export const metadata: Metadata = { title: "Members 페이지 메타 · ATM Lab" };
+export const metadata: Metadata = { title: "Members page meta · ATM Lab" };
 
 // Reads the session cookie + the singleton row → never cache.
 export const dynamic = "force-dynamic";
@@ -24,9 +24,9 @@ export default async function MembersMetaPage({
   return (
     <div className="mx-auto w-full max-w-[640px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">Members 페이지 메타</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Members page meta</h1>
         <p className="mt-1 text-sm text-ink-3">
-          공개 /members 상단의 Hero 제목과 소개 문단입니다.
+          The hero heading and intro paragraph at the top of the public /members page.
         </p>
       </div>
 
@@ -34,7 +34,7 @@ export default async function MembersMetaPage({
         <>
           <ScrollTopOnMount />
           <p className="mb-6 rounded-2xl bg-success-soft px-4 py-2.5 text-sm text-success">
-            변경 사항이 저장되었습니다.
+            Your changes have been saved.
           </p>
         </>
       )}

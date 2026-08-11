@@ -18,7 +18,7 @@ import {
 import { deleteTopic, moveTopic, toggleTopicPublished } from "../actions";
 
 // Topic list: rows arrive sorted by order asc — the canonical public sequence.
-// Arrows swap with the global neighbor (no grouping). "관리" opens the topic
+// Arrows swap with the global neighbor (no grouping). "Manage" opens the topic
 // detail page (edit its fields + manage its subsections).
 
 export type TopicRow = {
@@ -45,19 +45,19 @@ export default function TopicTable({ topics }: { topics: TopicRow[] }) {
       <table className={tableClass}>
         <thead>
           <tr className={theadRowClass}>
-            <th className={`w-20 ${thClass}`}>순서</th>
-            <th className={thClass}>번호</th>
-            <th className={thClass}>제목</th>
-            <th className={thClass}>서브섹션</th>
-            <th className={thClass}>공개</th>
-            <th className={thClass}>관리</th>
+            <th className={`w-20 ${thClass}`}>Order</th>
+            <th className={thClass}>No.</th>
+            <th className={thClass}>Title</th>
+            <th className={thClass}>Subsection</th>
+            <th className={thClass}>Published</th>
+            <th className={thClass}>Manage</th>
           </tr>
         </thead>
         <tbody>
           {topics.length === 0 && (
             <tr>
               <td colSpan={6} className={emptyCellClass}>
-                토픽이 없습니다.
+                No topics yet.
               </td>
             </tr>
           )}
@@ -69,7 +69,7 @@ export default function TopicTable({ topics }: { topics: TopicRow[] }) {
                     onClick={() => run(() => moveTopic(t.id, "up"))}
                     disabled={isPending || idx === 0}
                     className={iconBtnClass}
-                    aria-label={`${t.title} 위로 이동`}
+                    aria-label={`${t.title} Move up`}
                   >
                     ↑
                   </button>
@@ -77,7 +77,7 @@ export default function TopicTable({ topics }: { topics: TopicRow[] }) {
                     onClick={() => run(() => moveTopic(t.id, "down"))}
                     disabled={isPending || idx === topics.length - 1}
                     className={iconBtnClass}
-                    aria-label={`${t.title} 아래로 이동`}
+                    aria-label={`${t.title} Move down`}
                   >
                     ↓
                   </button>
@@ -87,25 +87,25 @@ export default function TopicTable({ topics }: { topics: TopicRow[] }) {
                 {t.num}
               </td>
               <td className="min-w-[260px] px-4 py-2.5 font-medium text-ink">{t.title}</td>
-              <td className="whitespace-nowrap px-4 py-2.5 text-ink-2">{t.subCount}개</td>
+              <td className="whitespace-nowrap px-4 py-2.5 text-ink-2">{t.subCount}</td>
               <td className="px-4 py-2.5">
                 <button
                   onClick={() => run(() => toggleTopicPublished(t.id))}
                   disabled={isPending}
                   className={publishedBtnClass(t.published)}
                 >
-                  {t.published ? "공개" : "비공개"}
+                  {t.published ? "Published" : "Unpublished"}
                 </button>
               </td>
               <td className="whitespace-nowrap px-4 py-2.5">
                 <Link href={`/admin/research/${t.id}`} className={editLinkClass}>
-                  관리
+                  Manage
                 </Link>
                 <button
                   onClick={() => {
                     if (
                       window.confirm(
-                        `'${t.title}' 토픽을 삭제할까요? 하위 서브섹션과 그림도 함께 삭제됩니다. 90일 내 최근 활동에서 복원할 수 있습니다.`,
+                        `Delete the topic '${t.title}'? Its subsections and figures are deleted too. You can restore it from Recent activity within 90 days.`,
                       )
                     ) {
                       run(() => deleteTopic(t.id));
@@ -114,7 +114,7 @@ export default function TopicTable({ topics }: { topics: TopicRow[] }) {
                   disabled={isPending}
                   className={deleteBtnClass}
                 >
-                  삭제
+                  Delete
                 </button>
               </td>
             </tr>

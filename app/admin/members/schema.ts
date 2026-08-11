@@ -14,10 +14,10 @@ export const MEMBER_ROLES = [
 export type MemberRole = (typeof MEMBER_ROLES)[number];
 
 export const ROLE_LABELS: Record<MemberRole, string> = {
-  PROFESSOR: "교수",
-  RESEARCHER: "연구원",
-  STUDENT: "학생",
-  ALUMNI: "졸업생",
+  PROFESSOR: "Professor",
+  RESEARCHER: "Researcher",
+  STUDENT: "Student",
+  ALUMNI: "Alumni",
 };
 
 export const POSITION_OPTIONS = {
@@ -35,11 +35,11 @@ const emptyToNull = z
 
 export const memberSchema = z
   .object({
-    name: z.string().trim().min(1, "이름을 입력하세요."),
-    role: z.enum(MEMBER_ROLES, "구분을 선택하세요."),
+    name: z.string().trim().min(1, "Please enter a name."),
+    role: z.enum(MEMBER_ROLES, "Please select a type."),
     position: z.string().trim(),
     email: emptyToNull.pipe(
-      z.email("이메일 형식이 올바르지 않습니다.").nullable(),
+      z.email("That email format is not valid.").nullable(),
     ),
     year: emptyToNull,
     degree: emptyToNull,
@@ -53,7 +53,7 @@ export const memberSchema = z
     imgPath: emptyToNull.pipe(
       z
         .string()
-        .startsWith("/", "이미지 경로는 /로 시작하는 사이트 내부 경로여야 합니다.")
+        .startsWith("/", "The image path must be an internal site path starting with /.")
         .nullable(),
     ),
     published: z.boolean(),
@@ -63,15 +63,15 @@ export const memberSchema = z
       (m.role === "RESEARCHER" || m.role === "STUDENT") &&
       !(POSITION_OPTIONS[m.role] as readonly string[]).includes(m.position)
     ) {
-      ctx.addIssue({ code: "custom", path: ["position"], message: "직책을 선택하세요." });
+      ctx.addIssue({ code: "custom", path: ["position"], message: "Please select a position." });
     }
     if (m.role === "ALUMNI") {
       if (!m.degree || !(DEGREE_OPTIONS as readonly string[]).includes(m.degree)) {
-        ctx.addIssue({ code: "custom", path: ["degree"], message: "학위를 선택하세요." });
+        ctx.addIssue({ code: "custom", path: ["degree"], message: "Please select a degree." });
       }
       // Public page groups alumni rows under a Number(year) heading.
       if (!m.year) {
-        ctx.addIssue({ code: "custom", path: ["year"], message: "졸업년도를 입력하세요. (예: 2024)" });
+        ctx.addIssue({ code: "custom", path: ["year"], message: "Please enter a graduation year (e.g. 2024)." });
       }
     }
   });
@@ -110,12 +110,12 @@ export function toMemberData(m: MemberInput) {
 // is required.
 const profEntrySchema = z.object({
   period: z.string().trim(),
-  title: z.string().trim().min(1, "직함/학위를 입력하세요."),
+  title: z.string().trim().min(1, "Please enter a title or degree."),
   inst: z.string().trim(),
 });
 
 const profResearchItemSchema = z.object({
-  label: z.string().trim().min(1, "연구분야 항목명을 입력하세요."),
+  label: z.string().trim().min(1, "Please enter a research field item name."),
   // Comma-separated sub-tags → string[] (same convention as `interests`).
   subs: z
     .string()
@@ -123,12 +123,12 @@ const profResearchItemSchema = z.object({
 });
 
 const profResearchGroupSchema = z.object({
-  group: z.string().trim().min(1, "연구분야 그룹명을 입력하세요."),
+  group: z.string().trim().min(1, "Please enter a research field group name."),
   items: z.array(profResearchItemSchema),
 });
 
 const profLectureSchema = z.object({
-  title: z.string().trim().min(1, "강의명을 입력하세요."),
+  title: z.string().trim().min(1, "Please enter a lecture name."),
   code: z.string().trim(), // optional — legacy rows store ""
 });
 
@@ -147,21 +147,21 @@ export const professorProfileSchema = z
     const groups = new Set<string>();
     for (const g of p.researchFields) {
       if (groups.has(g.group))
-        ctx.addIssue({ code: "custom", path: ["researchFields"], message: `연구분야 그룹명이 중복됩니다: "${g.group}"` });
+        ctx.addIssue({ code: "custom", path: ["researchFields"], message: `Duplicate research field group name: "${g.group}"` });
       groups.add(g.group);
       const labels = new Set<string>();
       for (const it of g.items) {
         if (labels.has(it.label))
-          ctx.addIssue({ code: "custom", path: ["researchFields"], message: `연구분야 항목명이 중복됩니다: "${it.label}"` });
+          ctx.addIssue({ code: "custom", path: ["researchFields"], message: `Duplicate research field item name: "${it.label}"` });
         labels.add(it.label);
         if (new Set(it.subs).size !== it.subs.length)
-          ctx.addIssue({ code: "custom", path: ["researchFields"], message: `"${it.label}" 항목의 세부 태그가 중복됩니다.` });
+          ctx.addIssue({ code: "custom", path: ["researchFields"], message: `Duplicate detail tags in the "${it.label}" item.` });
       }
     }
     const titles = new Set<string>();
     for (const l of p.lectureSubjects) {
       if (titles.has(l.title))
-        ctx.addIssue({ code: "custom", path: ["lectureSubjects"], message: `강의명이 중복됩니다: "${l.title}"` });
+        ctx.addIssue({ code: "custom", path: ["lectureSubjects"], message: `Duplicate lecture name: "${l.title}"` });
       titles.add(l.title);
     }
   });

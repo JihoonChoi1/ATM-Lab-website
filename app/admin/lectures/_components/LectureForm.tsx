@@ -39,7 +39,7 @@ export default function LectureForm({ lecture }: { lecture?: LectureFormValues }
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="category" className={labelClass}>
-          구분
+          Type
         </label>
         <select
           id="category"
@@ -58,7 +58,7 @@ export default function LectureForm({ lecture }: { lecture?: LectureFormValues }
 
       <div>
         <label htmlFor="num" className={labelClass}>
-          표시 번호
+          Display number
         </label>
         <input
           id="num"
@@ -69,14 +69,14 @@ export default function LectureForm({ lecture }: { lecture?: LectureFormValues }
           className={inputClass}
         />
         <p className={hintClass}>
-          공개 카드에 크게 표시되는 번호 라벨입니다. 순서 이동과는 무관합니다.
+          The number label shown large on the public card. Unrelated to reordering.
         </p>
         <FieldError errors={state.errors?.num} />
       </div>
 
       <div>
         <label htmlFor="title" className={labelClass}>
-          강의명
+          Lecture name
         </label>
         <input
           id="title"
@@ -91,7 +91,7 @@ export default function LectureForm({ lecture }: { lecture?: LectureFormValues }
 
       <div>
         <label htmlFor="paragraphs" className={labelClass}>
-          강의 설명
+          Lecture description
         </label>
         <textarea
           id="paragraphs"
@@ -101,8 +101,8 @@ export default function LectureForm({ lecture }: { lecture?: LectureFormValues }
           className={inputClass}
         />
         <p className={hintClass}>
-          빈 줄로 단락을 구분합니다. 비워두면 공개 카드에 “Course description not
-          provided.”로 표시됩니다.
+          Separate paragraphs with a blank line. Leave empty to show “Course
+          description not provided.” on the public card.
         </p>
         <FieldError errors={state.errors?.paragraphs} />
       </div>
@@ -114,15 +114,15 @@ export default function LectureForm({ lecture }: { lecture?: LectureFormValues }
           defaultChecked={lecture?.published ?? true}
           className="h-4 w-4 accent-accent"
         />
-        공개 (체크 해제 시 공개 페이지에서 숨김)
+        Published (uncheck to hide from public pages)
       </label>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label={lecture ? "변경 사항 저장" : "강의 추가"} />
+        <SubmitButton label={lecture ? "Save changes" : "Add lecture"} />
         <Link href="/admin/lectures" className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

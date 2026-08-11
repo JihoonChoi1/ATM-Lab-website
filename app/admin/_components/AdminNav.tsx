@@ -7,7 +7,7 @@ type NavItem = { href: string; label: string; ready: boolean; exact?: boolean };
 
 // Dashboard landing. exact match only — every admin page lives under "/admin/…",
 // so prefix matching would keep this lit on every page.
-const DASHBOARD: NavItem = { href: "/admin", label: "대시보드", ready: true, exact: true };
+const DASHBOARD: NavItem = { href: "/admin", label: "Dashboard", ready: true, exact: true };
 
 // 7 content types (CRUD pages land in 7-2+) + the two pages that already exist.
 const CONTENT: NavItem[] = [
@@ -21,9 +21,9 @@ const CONTENT: NavItem[] = [
 ];
 
 const SYSTEM: NavItem[] = [
-  { href: "/admin/analytics", label: "통계", ready: true },
-  { href: "/admin/activity", label: "최근 활동", ready: true },
-  { href: "/admin/security", label: "보안 설정", ready: true },
+  { href: "/admin/analytics", label: "Statistics", ready: true },
+  { href: "/admin/activity", label: "Recent activity", ready: true },
+  { href: "/admin/security", label: "Security", ready: true },
 ];
 
 export default function AdminNav() {
@@ -40,7 +40,7 @@ export default function AdminNav() {
         >
           {item.label}
           <span className="rounded-full bg-line px-2 py-0.5 text-[10px] font-medium text-ink-3">
-            준비중
+            Coming soon
           </span>
         </span>
       );
@@ -65,16 +65,16 @@ export default function AdminNav() {
 
   return (
     <nav
-      aria-label="관리자 메뉴"
+      aria-label="Admin menu"
       className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible"
     >
       {renderItem(DASHBOARD)}
       <p className="hidden px-3.5 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-ink-3 md:block">
-        콘텐츠
+        Content
       </p>
       {CONTENT.map(renderItem)}
       <p className="hidden px-3.5 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-ink-3 md:block">
-        시스템
+        System
       </p>
       {SYSTEM.map(renderItem)}
     </nav>

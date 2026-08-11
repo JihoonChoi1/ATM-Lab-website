@@ -6,7 +6,7 @@ import { ACTION_LABELS, fmtTime, readLabel } from "@/app/admin/_components/audit
 import RevertButton from "./_components/RevertButton";
 import { REVERTIBLE_ENTITIES } from "./revertable";
 
-export const metadata: Metadata = { title: "최근 활동 · ATM Lab" };
+export const metadata: Metadata = { title: "Recent activity · ATM Lab" };
 
 // Reads the session cookie + live audit rows → never cache.
 export const dynamic = "force-dynamic";
@@ -53,9 +53,9 @@ function DiffTable({
     <table className="mt-2 w-full text-xs">
       <thead>
         <tr>
-          <th className={detailThClass}>필드</th>
-          <th className={detailThClass}>이전</th>
-          <th className={detailThClass}>이후</th>
+          <th className={detailThClass}>Field</th>
+          <th className={detailThClass}>Before</th>
+          <th className={detailThClass}>After</th>
         </tr>
       </thead>
       <tbody>
@@ -123,26 +123,26 @@ export default async function ActivityPage({
   return (
     <div className="mx-auto w-full max-w-[900px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">최근 활동</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Recent activity</h1>
         <p className="mt-1 text-sm text-ink-3">
-          관리자 작업 감사 로그 — 총 {total}건, 최신순 (90일 보관)
+          Admin action audit log — {total} entries, newest first (kept 90 days)
         </p>
       </div>
 
       {logs.length === 0 ? (
         <p className="rounded-2xl border border-line bg-surface px-4 py-10 text-center text-sm text-ink-3">
-          기록된 활동이 없습니다.
+          No activity recorded yet.
         </p>
       ) : (
         <div className="overflow-x-auto rounded-3xl border border-line bg-surface">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-3">
-                <th className="px-4 py-3 font-medium">시각</th>
-                <th className="px-4 py-3 font-medium">사용자</th>
-                <th className="px-4 py-3 font-medium">작업</th>
-                <th className="px-4 py-3 font-medium">대상</th>
-                <th className="px-4 py-3 font-medium">내용</th>
+                <th className="px-4 py-3 font-medium">Time</th>
+                <th className="px-4 py-3 font-medium">User</th>
+                <th className="px-4 py-3 font-medium">Action</th>
+                <th className="px-4 py-3 font-medium">Target</th>
+                <th className="px-4 py-3 font-medium">Details</th>
                 <th className="px-4 py-3 font-medium">IP</th>
               </tr>
             </thead>
@@ -183,7 +183,7 @@ export default async function ActivityPage({
                       {before && after ? (
                         <details>
                           <summary className="cursor-pointer whitespace-nowrap text-xs font-medium text-accent">
-                            변경 {Object.keys(after).length}개 필드
+                            {Object.keys(after).length} fields changed
                           </summary>
                           <div className={detailBoxClass}>
                             <DiffTable before={before} after={after} />
@@ -193,7 +193,7 @@ export default async function ActivityPage({
                       ) : snapshot ? (
                         <details>
                           <summary className="cursor-pointer whitespace-nowrap text-xs font-medium text-accent">
-                            삭제된 데이터
+                            Deleted data
                           </summary>
                           <div className={detailBoxClass}>
                             <SnapshotTable snapshot={snapshot} />

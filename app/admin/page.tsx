@@ -4,12 +4,12 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import { ACTION_LABELS, fmtTime, readLabel } from "./_components/audit-format";
 
-export const metadata: Metadata = { title: "대시보드 · ATM Lab" };
+export const metadata: Metadata = { title: "Dashboard · ATM Lab" };
 
 // Reads the session cookie + live counts/audit rows → never cache.
 export const dynamic = "force-dynamic";
 
-// How many recent audit rows the preview shows before "전체 보기".
+// How many recent audit rows the preview shows before "Total 보기".
 const PREVIEW_SIZE = 6;
 
 export default async function AdminDashboardPage() {
@@ -77,9 +77,9 @@ export default async function AdminDashboardPage() {
   return (
     <div className="mx-auto w-full max-w-[1000px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">대시보드</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Dashboard</h1>
         <p className="mt-1 text-sm text-ink-3">
-          ATM Lab 콘텐츠 현황과 최근 관리 활동입니다.
+          An overview of ATM Lab content and recent admin activity.
         </p>
       </div>
 
@@ -96,35 +96,35 @@ export default async function AdminDashboardPage() {
             <p className="mt-2 text-3xl font-bold tracking-[-0.02em] text-ink">
               {card.total}
             </p>
-            <p className="mt-1 text-xs text-ink-3">공개 {card.published}</p>
+            <p className="mt-1 text-xs text-ink-3">Published {card.published}</p>
           </Link>
         ))}
       </div>
 
       <div className="mt-10">
         <div className="mb-4 flex items-end justify-between gap-4">
-          <h2 className="text-lg font-semibold text-ink">최근 활동</h2>
+          <h2 className="text-lg font-semibold text-ink">Recent activity</h2>
           <Link
             href="/admin/activity"
             className="text-sm font-medium text-accent hover:underline"
           >
-            전체 보기 →
+            View all →
           </Link>
         </div>
 
         {recent.length === 0 ? (
           <p className="rounded-2xl border border-line bg-surface px-4 py-10 text-center text-sm text-ink-3">
-            기록된 활동이 없습니다.
+            No activity recorded yet.
           </p>
         ) : (
           <div className="overflow-x-auto rounded-3xl border border-line bg-surface">
             <table className="w-full min-w-[480px] text-sm">
               <thead>
                 <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-3">
-                  <th className="px-4 py-3 font-medium">시각</th>
-                  <th className="px-4 py-3 font-medium">작업</th>
-                  <th className="px-4 py-3 font-medium">대상</th>
-                  <th className="px-4 py-3 font-medium">사용자</th>
+                  <th className="px-4 py-3 font-medium">Time</th>
+                  <th className="px-4 py-3 font-medium">Action</th>
+                  <th className="px-4 py-3 font-medium">Target</th>
+                  <th className="px-4 py-3 font-medium">User</th>
                 </tr>
               </thead>
               <tbody>

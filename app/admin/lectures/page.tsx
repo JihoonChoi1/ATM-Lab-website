@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import LecturesTable from "./_components/LecturesTable";
 
-export const metadata: Metadata = { title: "Lectures 관리 · ATM Lab" };
+export const metadata: Metadata = { title: "Manage Lectures · ATM Lab" };
 
 // Reads the session cookie + live rows → never cache.
 export const dynamic = "force-dynamic";
@@ -29,7 +29,7 @@ export default async function AdminLecturesPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-[-0.02em]">Lectures</h1>
           <p className="mt-1 text-sm text-ink-3">
-            강의 {lectures.length}건 — 공개 /lectures 페이지(All 탭)와 같은 순서입니다.
+            {lectures.length} lectures — same order as the public /lectures page (All tab).
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -37,13 +37,13 @@ export default async function AdminLecturesPage() {
             href="/admin/lectures/meta"
             className="rounded-2xl border border-line px-4 py-2.5 text-sm font-medium text-ink-2 transition hover:border-accent/30 hover:text-accent"
           >
-            페이지 메타 편집
+            Edit page meta
           </Link>
           <Link
             href="/admin/lectures/new"
             className="rounded-2xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark"
           >
-            새 강의 추가
+            Add lecture
           </Link>
         </div>
       </div>

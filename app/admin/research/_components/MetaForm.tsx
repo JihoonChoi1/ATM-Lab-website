@@ -33,7 +33,7 @@ export default function MetaForm({ meta }: { meta: MetaFormValues }) {
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="heroHeadline" className={labelClass}>
-          Hero 헤드라인
+          Hero headline
         </label>
         <textarea
           id="heroHeadline"
@@ -42,13 +42,13 @@ export default function MetaForm({ meta }: { meta: MetaFormValues }) {
           defaultValue={meta.heroHeadline}
           className={inputClass}
         />
-        <p className={hintClass}>줄바꿈으로 두 줄을 구분합니다.</p>
+        <p className={hintClass}>Separate the two lines with a line break.</p>
         <FieldError errors={state.errors?.heroHeadline} />
       </div>
 
       <div>
         <label htmlFor="heroParagraph" className={labelClass}>
-          Hero 소개 문단
+          Hero intro paragraph
         </label>
         <textarea
           id="heroParagraph"
@@ -62,7 +62,7 @@ export default function MetaForm({ meta }: { meta: MetaFormValues }) {
 
       <div>
         <label htmlFor="yearsValue" className={labelClass}>
-          Years 통계값
+          Years stat value
         </label>
         <input
           id="yearsValue"
@@ -72,16 +72,16 @@ export default function MetaForm({ meta }: { meta: MetaFormValues }) {
           placeholder="10+"
           className={inputClass}
         />
-        <p className={hintClass}>Hero 통계 카드의 “Years” 칸에 그대로 표시됩니다.</p>
+        <p className={hintClass}>Shown as-is in the “Years” box of the hero stat card.</p>
         <FieldError errors={state.errors?.yearsValue} />
       </div>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label="변경 사항 저장" />
+        <SubmitButton label="Save changes" />
         <Link href="/admin/research" className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

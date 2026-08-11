@@ -61,7 +61,7 @@ export default function MemberForm({
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="role" className={labelClass}>
-          구분
+          Type
         </label>
         <select
           id="role"
@@ -81,17 +81,17 @@ export default function MemberForm({
 
       {role === "PROFESSOR" && (
         <p className="rounded-2xl bg-accent-soft px-4 py-2.5 text-sm text-accent-dark">
-          학력·경력·연구분야·강의 항목은{" "}
+          Education, work history, research fields, and lectures are managed in the{" "}
           <Link href="/admin/members/professor" className="font-semibold underline">
-            교수 프로필 편집기
+            professor profile editor
           </Link>
-          에서 관리합니다. 이 폼은 해당 데이터를 변경하지 않습니다.
+          . This form does not change that data.
         </p>
       )}
 
       <div>
         <label htmlFor="name" className={labelClass}>
-          이름
+          Name
         </label>
         <input
           id="name"
@@ -108,7 +108,7 @@ export default function MemberForm({
         // re-applies instead of the browser keeping a now-invalid option.
         <div>
           <label htmlFor="position" className={labelClass}>
-            직책
+            Position
           </label>
           <select
             key={role}
@@ -117,7 +117,7 @@ export default function MemberForm({
             defaultValue={member?.position ?? ""}
             className={inputClass}
           >
-            <option value="">선택하세요</option>
+            <option value="">Select…</option>
             {positionOptions.map((p) => (
               <option key={p} value={p}>
                 {p}
@@ -131,7 +131,7 @@ export default function MemberForm({
       {isAlumni && (
         <div>
           <label htmlFor="degree" className={labelClass}>
-            학위
+            Degree
           </label>
           <select
             id="degree"
@@ -139,7 +139,7 @@ export default function MemberForm({
             defaultValue={member?.degree ?? ""}
             className={inputClass}
           >
-            <option value="">선택하세요</option>
+            <option value="">Select…</option>
             {DEGREE_OPTIONS.map((d) => (
               <option key={d} value={d}>
                 {d}
@@ -153,7 +153,7 @@ export default function MemberForm({
       {role !== "PROFESSOR" && (
         <div>
           <label htmlFor="year" className={labelClass}>
-            {isAlumni ? "졸업년도" : "입학년도"}
+            {isAlumni ? "Graduation year" : "Entry year"}
           </label>
           <input
             id="year"
@@ -165,8 +165,8 @@ export default function MemberForm({
           />
           <p className={hintClass}>
             {isAlumni
-              ? "4자리 연도 — 공개 페이지에서 연도별 그룹핑에 사용됩니다."
-              : "카드에 표시되는 표기 그대로 입력 (예: '25). 비워도 됩니다."}
+              ? "Four-digit year — used to group by year on the public page."
+              : "Enter exactly as shown on the card (e.g. '25). Optional."}
           </p>
           <FieldError errors={state.errors?.year} />
         </div>
@@ -175,7 +175,7 @@ export default function MemberForm({
       {isAlumni && (
         <div>
           <label htmlFor="currentPosition" className={labelClass}>
-            현재 소속
+            Current position
           </label>
           <input
             id="currentPosition"
@@ -191,7 +191,7 @@ export default function MemberForm({
 
       <div>
         <label htmlFor="email" className={labelClass}>
-          이메일
+          Email
         </label>
         <input
           id="email"
@@ -206,7 +206,7 @@ export default function MemberForm({
       {positionOptions && (
         <div>
           <label htmlFor="interests" className={labelClass}>
-            연구 분야 태그
+            Research interest tags
           </label>
           <input
             id="interests"
@@ -216,13 +216,13 @@ export default function MemberForm({
             placeholder="Spray cooling, Battery thermal management"
             className={inputClass}
           />
-          <p className={hintClass}>쉼표(,)로 구분 — 멤버 카드에 태그로 표시됩니다.</p>
+          <p className={hintClass}>Comma-separated — shown as tags on the member card.</p>
           <FieldError errors={state.errors?.interests} />
         </div>
       )}
 
       <ImageUploadField
-        label="사진"
+        label="Photo"
         defaultValue={member?.imgPath}
         errors={state.errors?.imgPath}
         uploadsEnabled={uploadsEnabled}
@@ -235,15 +235,15 @@ export default function MemberForm({
           defaultChecked={member?.published ?? true}
           className="h-4 w-4 accent-accent"
         />
-        공개 (체크 해제 시 공개 페이지에서 숨김)
+        Published (uncheck to hide from public pages)
       </label>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label={member ? "변경 사항 저장" : "멤버 추가"} />
+        <SubmitButton label={member ? "Save changes" : "Add member"} />
         <Link href="/admin/members" className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

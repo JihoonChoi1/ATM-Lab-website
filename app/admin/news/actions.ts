@@ -65,7 +65,7 @@ export async function updateNews(
   const session = await requireAdmin(`/admin/news/${id}`);
 
   const existing = await prisma.news.findUnique({ where: { id } });
-  if (!existing) return { message: "소식을 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!existing) return { message: "News post not found. Try again from the list." };
 
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };

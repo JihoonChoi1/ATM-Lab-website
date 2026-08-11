@@ -111,7 +111,7 @@ export default function Navbar() {
           <button
             ref={toggleRef}
             type="button"
-            aria-label="메뉴"
+            aria-label="Menu"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
             className="inline-flex h-[42px] w-[42px] items-center justify-center rounded-lg min-[880px]:hidden text-ink"

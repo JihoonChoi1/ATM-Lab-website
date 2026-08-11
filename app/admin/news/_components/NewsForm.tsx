@@ -45,7 +45,7 @@ export default function NewsForm({
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="date" className={labelClass}>
-          날짜
+          Date
         </label>
         <input
           id="date"
@@ -55,14 +55,14 @@ export default function NewsForm({
           className={inputClass}
         />
         <p className={hintClass}>
-          공개 /board News 섹션의 정렬 기준입니다 (최신 날짜가 위).
+          Sort key for the public /board News section (newest first).
         </p>
         <FieldError errors={state.errors?.date} />
       </div>
 
       <div>
         <label htmlFor="title" className={labelClass}>
-          제목
+          Title
         </label>
         <input
           id="title"
@@ -75,7 +75,7 @@ export default function NewsForm({
       </div>
 
       <div>
-        <span className={labelClass}>본문</span>
+        <span className={labelClass}>Body</span>
         <RichTextEditor
           name="content"
           defaultValue={news?.content ?? ""}
@@ -83,8 +83,8 @@ export default function NewsForm({
           withImage
         />
         <p className={hintClass}>
-          단락·굵게·기울임·링크·목록·사진을 지원합니다. 비워두면 상세 페이지에
-          &lsquo;No content.&rsquo;로 표시됩니다.
+          Supports paragraphs, bold, italic, links, lists, and images. Leave empty
+          to show &lsquo;No content.&rsquo; on the detail page.
         </p>
         <FieldError errors={state.errors?.content} />
       </div>
@@ -96,15 +96,15 @@ export default function NewsForm({
           defaultChecked={news?.published ?? true}
           className="h-4 w-4 accent-accent"
         />
-        공개 (체크 해제 시 공개 페이지에서 숨김)
+        Published (uncheck to hide from public pages)
       </label>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label={news ? "변경 사항 저장" : "소식 추가"} />
+        <SubmitButton label={news ? "Save changes" : "Add news post"} />
         <Link href="/admin/news" className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

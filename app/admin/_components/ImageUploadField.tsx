@@ -94,8 +94,8 @@ export default function ImageUploadField({
       <div>
         <p className={labelClass}>{label}</p>
         <input type="hidden" name="imgPath" value={value} />
-        {value ? <Thumb src={value} alt="미리보기" className={previewClass} /> : null}
-        <p className={hintClass}>데모 모드에서는 이미지를 변경할 수 없습니다.</p>
+        {value ? <Thumb src={value} alt="Preview" className={previewClass} /> : null}
+        <p className={hintClass}>Images cannot be changed in demo mode.</p>
         <FieldError errors={errors} />
       </div>
     );
@@ -122,23 +122,23 @@ export default function ImageUploadField({
       {file && preview ? (
         // Local preview of the just-picked file — no server round-trip.
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={preview} alt="미리보기" className={previewClass} />
+        <img src={preview} alt="Preview" className={previewClass} />
       ) : value ? (
         // Existing saved image — the lightweight 600px thumbnail, not the original.
-        <Thumb src={value} alt="미리보기" className={previewClass} />
+        <Thumb src={value} alt="Preview" className={previewClass} />
       ) : null}
 
       {file ? (
         <p className={hintClass}>
-          선택한 파일로 {hasExisting ? "기존 이미지를 교체합니다" : "업로드합니다"}. 선택만 하고
-          저장하지 않으면 서버에 기록되지 않습니다.
+          This file will {hasExisting ? "replace the current image" : "be uploaded"} on save. Choosing a
+          file without saving writes nothing to the server.
         </p>
       ) : (
         <p className={hintClass}>
           {hasExisting
-            ? "새 파일을 선택하면 기존 이미지를 교체합니다 "
-            : "파일을 선택해 이미지를 업로드합니다 "}
-          (JPG·PNG·WebP·GIF, 5MB 이하).
+            ? "Choose a new file to replace the current image "
+            : "Choose a file to upload an image "}
+          (JPG · PNG · WebP · GIF, up to 5MB).
         </p>
       )}
 

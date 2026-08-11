@@ -18,7 +18,7 @@ import { uploadImage } from "./upload-action";
 // client limit is only a promise. Built to be reused (withImage toggles the
 // image affordances) but attached only to NewsForm for now.
 
-// Font-size steps — em (relative to the body measure) and bounded, so "크게"
+// Font-size steps — em (relative to the body measure) and bounded, so "Large"
 // can't overflow a phone the way an arbitrary 40px would. Must match the
 // font-size allowlist in lib/sanitize-rich-text.ts.
 const SIZE_SMALL = "0.85em";
@@ -110,7 +110,7 @@ export default function RichTextEditor({
       if (res.ok) editorRef.current?.chain().focus().setImage({ src: res.path }).run();
       else setUploadError(res.error);
     } catch {
-      setUploadError("이미지 업로드에 실패했습니다. 다시 시도하세요.");
+      setUploadError("Image upload failed. Please try again.");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -184,7 +184,7 @@ export default function RichTextEditor({
   function toggleLink() {
     if (!editor) return;
     const prev = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("링크 URL을 입력하세요", prev ?? "https://");
+    const url = window.prompt("Enter a link URL", prev ?? "https://");
     if (url === null) return; // cancelled
     const trimmed = url.trim();
     const chain = editor.chain().focus().extendMarkRange("link");
@@ -200,22 +200,22 @@ export default function RichTextEditor({
             onClick={() => editor.chain().focus().setParagraph().run()}
             active={editor.isActive("paragraph")}
           >
-            단락
+            Paragraph
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBold().run()}
             active={editor.isActive("bold")}
           >
-            <span className="font-bold">굵게</span>
+            <span className="font-bold">Bold</span>
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleItalic().run()}
             active={editor.isActive("italic")}
           >
-            <span className="italic">기울임</span>
+            <span className="italic">Italic</span>
           </ToolbarButton>
           <ToolbarButton onClick={toggleLink} active={editor.isActive("link")}>
-            링크
+            Link
           </ToolbarButton>
 
           <Divider />
@@ -224,16 +224,16 @@ export default function RichTextEditor({
             onClick={() => editor.chain().focus().setFontSize(SIZE_SMALL).run()}
             active={editor.isActive("textStyle", { fontSize: SIZE_SMALL })}
           >
-            작게
+            Small
           </ToolbarButton>
           <ToolbarButton onClick={() => editor.chain().focus().unsetFontSize().run()}>
-            보통
+            Normal
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().setFontSize(SIZE_LARGE).run()}
             active={editor.isActive("textStyle", { fontSize: SIZE_LARGE })}
           >
-            크게
+            Large
           </ToolbarButton>
 
           <Divider />
@@ -248,19 +248,19 @@ export default function RichTextEditor({
               !editor.isActive({ textAlign: "right" })
             }
           >
-            왼쪽
+            Left
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign("center").run()}
             active={editor.isActive({ textAlign: "center" })}
           >
-            가운데
+            Center
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign("right").run()}
             active={editor.isActive({ textAlign: "right" })}
           >
-            오른쪽
+            Right
           </ToolbarButton>
 
           <Divider />
@@ -269,13 +269,13 @@ export default function RichTextEditor({
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             active={editor.isActive("bulletList")}
           >
-            • 목록
+            • List
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             active={editor.isActive("orderedList")}
           >
-            1. 목록
+            1. List
           </ToolbarButton>
 
           <Divider />
@@ -284,42 +284,42 @@ export default function RichTextEditor({
               .focus() reapplies to the remembered selection (same as the link
               prompt). Sanitize keeps only color / background-color on the span. */}
           <label
-            title="글자색"
+            title="Text color"
             className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-ink-2 transition hover:bg-bg"
           >
             <input
               type="color"
-              aria-label="글자색"
+              aria-label="Text color"
               value={hexOr(editor.getAttributes("textStyle").color, "#111827")}
               onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
               className="h-5 w-5 cursor-pointer border-0 bg-transparent p-0"
             />
-            글자색
+            Text color
           </label>
           <label
-            title="배경색 (형광펜)"
+            title="Highlight"
             className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-ink-2 transition hover:bg-bg"
           >
             <input
               type="color"
-              aria-label="배경색"
+              aria-label="Highlight"
               value={hexOr(editor.getAttributes("textStyle").backgroundColor, "#fde68a")}
               onChange={(e) => editor.chain().focus().setBackgroundColor(e.target.value).run()}
               className="h-5 w-5 cursor-pointer border-0 bg-transparent p-0"
             />
-            배경색
+            Highlight
           </label>
           <ToolbarButton
             onClick={() => editor.chain().focus().unsetColor().unsetBackgroundColor().run()}
           >
-            색 지우기
+            Clear color
           </ToolbarButton>
 
           {imageEnabled && (
             <>
               <Divider />
               <ToolbarButton onClick={() => fileRef.current?.click()} disabled={uploading}>
-                {uploading ? "업로드 중…" : "사진"}
+                {uploading ? "Uploading…" : "Image"}
               </ToolbarButton>
             </>
           )}

@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/guard";
 import { uploadsEnabled } from "@/lib/uploads";
 import GalleryForm from "../_components/GalleryForm";
 
-export const metadata: Metadata = { title: "갤러리 항목 수정 · ATM Lab" };
+export const metadata: Metadata = { title: "Edit gallery item · ATM Lab" };
 
 // Reads the session cookie + a live row → never cache.
 export const dynamic = "force-dynamic";
@@ -27,7 +27,7 @@ export default async function EditGalleryItemPage({
   return (
     <div className="mx-auto w-full max-w-[640px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">갤러리 항목 수정</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Edit gallery item</h1>
         <p className="mt-1 text-sm text-ink-3">{item.title}</p>
       </div>
       <GalleryForm

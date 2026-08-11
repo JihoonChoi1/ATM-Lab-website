@@ -32,10 +32,10 @@ export type StoreResult =
 // Returns the public /uploads path and pixel dimensions. Auth and the
 // uploads-enabled kill-switch are the caller's responsibility (this is pure I/O).
 export async function storeUpload(file: File): Promise<StoreResult> {
-  if (file.size === 0) return { ok: false, error: "파일을 선택하세요." };
-  if (file.size > MAX_BYTES) return { ok: false, error: "파일 크기는 5MB 이하여야 합니다." };
+  if (file.size === 0) return { ok: false, error: "Please select a file." };
+  if (file.size > MAX_BYTES) return { ok: false, error: "The file must be 5MB or smaller." };
   const ext = MIME_EXT[file.type];
-  if (!ext) return { ok: false, error: "이미지 파일(JPG·PNG·WebP·GIF)만 업로드할 수 있습니다." };
+  if (!ext) return { ok: false, error: "Only image files (JPG, PNG, WebP, GIF) can be uploaded." };
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -57,9 +57,9 @@ export async function storeUpload(file: File): Promise<StoreResult> {
     width = meta.width;
     height = meta.height;
   } catch {
-    return { ok: false, error: "이미지 파일(JPG·PNG·WebP·GIF)만 업로드할 수 있습니다." };
+    return { ok: false, error: "Only image files (JPG, PNG, WebP, GIF) can be uploaded." };
   }
-  if (!width || !height) return { ok: false, error: "이미지 크기를 확인할 수 없습니다." };
+  if (!width || !height) return { ok: false, error: "Could not read the image dimensions." };
 
   const dir = path.join(process.cwd(), "public", "uploads");
   await mkdir(dir, { recursive: true });

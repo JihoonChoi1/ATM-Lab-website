@@ -118,7 +118,7 @@ export async function updatePublication(
     where: { id },
     include: { members: { select: { id: true } } },
   });
-  if (!existing) return { message: "게재물을 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!existing) return { message: "Publication not found. Try again from the list." };
 
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
@@ -219,7 +219,7 @@ export async function updatePageMeta(
     {
       delegate: prisma.publicationsPageMeta as unknown as SingletonDelegate,
       entity: "PublicationsPageMeta",
-      label: "Publications 페이지 메타",
+      label: "Publications page meta",
       metaPath: "/admin/publications/meta",
     },
     formData,

@@ -68,7 +68,7 @@ export async function updateLecture(
   const session = await requireAdmin(`/admin/lectures/${id}`);
 
   const existing = await prisma.lecture.findUnique({ where: { id } });
-  if (!existing) return { message: "강의를 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!existing) return { message: "Lecture not found. Try again from the list." };
 
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
@@ -185,7 +185,7 @@ export async function updatePageMeta(
     {
       delegate: prisma.lecturesPageMeta as unknown as SingletonDelegate,
       entity: "LecturesPageMeta",
-      label: "Lectures 페이지 메타",
+      label: "Lectures page meta",
       metaPath: "/admin/lectures/meta",
     },
     formData,

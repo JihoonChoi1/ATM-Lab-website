@@ -16,7 +16,7 @@ function SubmitButton() {
       disabled={pending}
       className="w-full rounded-2xl border border-ajou-yellow/40 bg-ajou-yellow/10 px-4 py-3 text-base font-semibold text-ajou-yellow transition hover:bg-ajou-yellow/20 disabled:opacity-60"
     >
-      {pending ? "끄는 중…" : "2단계 인증 끄기"}
+      {pending ? "Disabling…" : "Disable two-factor authentication"}
     </button>
   );
 }
@@ -31,7 +31,7 @@ export default function DisableTotpForm() {
     <form action={formAction} className="mt-5 flex flex-col gap-4 border-t border-line pt-5">
       <div>
         <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-ink-2">
-          끄려면 현재 비밀번호 확인
+          Confirm your current password to disable
         </label>
         <input
           id="password"

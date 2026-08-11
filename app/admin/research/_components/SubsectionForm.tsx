@@ -46,7 +46,7 @@ export default function SubsectionForm({
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="num" className={labelClass}>
-          번호
+          No.
         </label>
         <input
           id="num"
@@ -56,13 +56,13 @@ export default function SubsectionForm({
           placeholder="01.01"
           className={inputClass}
         />
-        <p className={hintClass}>서브섹션 위에 표시되는 번호입니다 (예: 01.01). 중복 허용.</p>
+        <p className={hintClass}>The number shown above the subsection (e.g. 01.01). Duplicates allowed.</p>
         <FieldError errors={state.errors?.num} />
       </div>
 
       <div>
         <label htmlFor="title" className={labelClass}>
-          제목
+          Title
         </label>
         <input
           id="title"
@@ -77,7 +77,7 @@ export default function SubsectionForm({
 
       <div>
         <label htmlFor="body" className={labelClass}>
-          본문
+          Body
         </label>
         <textarea
           id="body"
@@ -86,13 +86,13 @@ export default function SubsectionForm({
           defaultValue={subsection?.body}
           className={inputClass}
         />
-        <p className={hintClass}>한 문단으로 표시됩니다.</p>
+        <p className={hintClass}>Shown as a single paragraph.</p>
         <FieldError errors={state.errors?.body} />
       </div>
 
       <div>
         <label htmlFor="keywords" className={labelClass}>
-          키워드
+          Keywords
         </label>
         <input
           id="keywords"
@@ -102,7 +102,7 @@ export default function SubsectionForm({
           placeholder="ONB, HTC, CHF"
           className={inputClass}
         />
-        <p className={hintClass}>쉼표로 구분합니다. 비워두면 칩이 표시되지 않습니다.</p>
+        <p className={hintClass}>Comma-separated. Leave empty to show no chips.</p>
         <FieldError errors={state.errors?.keywords} />
       </div>
 
@@ -113,15 +113,15 @@ export default function SubsectionForm({
           defaultChecked={subsection?.published ?? true}
           className="h-4 w-4 accent-accent"
         />
-        공개 (체크 해제 시 공개 페이지에서 숨김)
+        Published (uncheck to hide from public pages)
       </label>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label={subsection ? "변경 사항 저장" : "서브섹션 추가"} />
+        <SubmitButton label={subsection ? "Save changes" : "Add subsection"} />
         <Link href={cancelHref} className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

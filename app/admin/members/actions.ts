@@ -79,7 +79,7 @@ export async function updateMember(
   const session = await requireAdmin(`/admin/members/${id}`);
 
   const existing = await prisma.member.findUnique({ where: { id } });
-  if (!existing) return { message: "멤버를 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!existing) return { message: "Member not found. Try again from the list." };
 
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
@@ -128,7 +128,7 @@ export async function updateProfessorProfile(
   const session = await requireAdmin("/admin/members/professor");
 
   const prof = await prisma.member.findFirst({ where: { role: "PROFESSOR" } });
-  if (!prof) return { message: "교수 정보를 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!prof) return { message: "Professor info not found. Try again from the list." };
 
   const parsed = professorProfileSchema.safeParse({
     education: parseJsonField(formData.get("education")),
@@ -268,7 +268,7 @@ export async function updatePageMeta(
     {
       delegate: prisma.membersPageMeta as unknown as SingletonDelegate,
       entity: "MembersPageMeta",
-      label: "Members 페이지 메타",
+      label: "Members page meta",
       metaPath: "/admin/members/meta",
     },
     formData,

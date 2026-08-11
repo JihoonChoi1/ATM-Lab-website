@@ -58,9 +58,9 @@ export default function FigureForm({
   return (
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <ImageUploadField
-        label="이미지 경로"
+        label="Image path"
         defaultValue={figure?.imgPath}
-        hint="비워두면 공개 페이지에 자리표시 그림으로 표시됩니다. 이미지를 선택하면 아래 크기가 자동으로 채워집니다."
+        hint="Leave empty to show a placeholder figure on the public page. Choosing an image fills in the dimensions below automatically."
         errors={state.errors?.imgPath}
         uploadsEnabled={uploadsEnabled}
         onDimensions={({ width: w, height: h }) => {
@@ -71,7 +71,7 @@ export default function FigureForm({
 
       <div>
         <label htmlFor="caption" className={labelClass}>
-          캡션
+          Caption
         </label>
         <textarea
           id="caption"
@@ -82,7 +82,7 @@ export default function FigureForm({
           className={inputClass}
         />
         <p className={hintClass}>
-          “Fig. 1.1 — 설명” 형식이면 공개 페이지가 라벨과 설명을 분리해 표시합니다.
+          With the “Fig. 1.1 — caption” format, the public page shows the label and caption separately.
         </p>
         <FieldError errors={state.errors?.caption} />
       </div>
@@ -90,7 +90,7 @@ export default function FigureForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="width" className={labelClass}>
-            너비 (px)
+            Width (px)
           </label>
           <input
             id="width"
@@ -105,7 +105,7 @@ export default function FigureForm({
         </div>
         <div>
           <label htmlFor="height" className={labelClass}>
-            높이 (px)
+            Height (px)
           </label>
           <input
             id="height"
@@ -120,12 +120,12 @@ export default function FigureForm({
         </div>
       </div>
       <p className={hintClass}>
-        세로(너비/높이 &lt; 0.95) 그림이 연속 2장이면 공개 페이지에서 자동으로 좌우
-        한 쌍이 되고, 그 외에는 전폭으로 표시됩니다.
+        Two consecutive portrait figures (width/height &lt; 0.95) pair side by side
+        on the public page automatically; otherwise a figure shows full-width.
       </p>
 
       <fieldset>
-        <legend className={labelClass}>표시 크기</legend>
+        <legend className={labelClass}>Display size</legend>
         <div className="mt-1 grid grid-cols-2 gap-3">
           <label className="cursor-pointer">
             <input
@@ -141,8 +141,8 @@ export default function FigureForm({
                 <div className="h-9 flex-1 rounded bg-line" />
                 <div className="h-9 flex-1 rounded bg-line" />
               </div>
-              <div className="text-sm font-medium text-ink">보통</div>
-              <div className="text-xs text-ink-3">다른 그림과 한 줄에 나란히</div>
+              <div className="text-sm font-medium text-ink">Normal</div>
+              <div className="text-xs text-ink-3">Side by side with other figures</div>
             </div>
           </label>
 
@@ -162,23 +162,23 @@ export default function FigureForm({
                 <div className="h-4 flex-1 rounded bg-line" />
                 <div className="h-4 flex-1 rounded bg-line" />
               </div>
-              <div className="text-sm font-medium text-ink">크게</div>
-              <div className="text-xs text-ink-3">이 그림만 한 줄 전체로</div>
+              <div className="text-sm font-medium text-ink">Large</div>
+              <div className="text-xs text-ink-3">This figure alone spans the full row</div>
             </div>
           </label>
         </div>
         <p className={hintClass}>
-          그림이 2장 이상인 소절에서, “크게”로 둔 그림은 공개 페이지에서 한 줄 전체로
-          크게 표시됩니다.
+          In a subsection with two or more figures, one marked “Large” spans the
+          full row on the public page.
         </p>
       </fieldset>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label={figure ? "변경 사항 저장" : "그림 추가"} />
+        <SubmitButton label={figure ? "Save changes" : "Add figure"} />
         <Link href={cancelHref} className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

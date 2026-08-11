@@ -58,7 +58,7 @@ export async function createTopic(
   const parsed = parseTopicForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
   if (await numTaken(parsed.data.num)) {
-    return { errors: { num: ["이미 사용 중인 번호입니다."] } };
+    return { errors: { num: ["That number is already in use."] } };
   }
 
   const max = await prisma.researchTopic.aggregate({ _max: { order: true } });
@@ -85,12 +85,12 @@ export async function updateTopic(
   const session = await requireAdmin(`/admin/research/${id}`);
 
   const existing = await prisma.researchTopic.findUnique({ where: { id } });
-  if (!existing) return { message: "토픽을 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!existing) return { message: "Topic not found. Try again from the list." };
 
   const parsed = parseTopicForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
   if (await numTaken(parsed.data.num, id)) {
-    return { errors: { num: ["이미 사용 중인 번호입니다."] } };
+    return { errors: { num: ["That number is already in use."] } };
   }
 
   await prisma.researchTopic.update({ where: { id }, data: parsed.data });
@@ -250,7 +250,7 @@ export async function updateSubsection(
   const session = await requireAdmin(`/admin/research/${topicId}/${id}`);
 
   const existing = await prisma.researchSubsection.findUnique({ where: { id } });
-  if (!existing) return { message: "서브섹션을 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!existing) return { message: "Subsection not found. Try again from the list." };
 
   const parsed = parseSubsectionForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
@@ -417,7 +417,7 @@ export async function updateFigure(
   const session = await requireAdmin(`/admin/research/${topicId}/${subsectionId}/${id}`);
 
   const existing = await prisma.researchFigure.findUnique({ where: { id } });
-  if (!existing) return { message: "그림을 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!existing) return { message: "Figure not found. Try again from the list." };
 
   const parsed = parseFigureForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
@@ -524,7 +524,7 @@ export async function updatePageMeta(
       action: "UPDATE",
       entity: "ResearchPageMeta",
       entityId: existing.id,
-      data: { ip: getClientIp(), label: "Research 페이지 메타", ...diffChanges(existing, parsed.data) },
+      data: { ip: getClientIp(), label: "Research page meta", ...diffChanges(existing, parsed.data) },
     });
   } else {
     const created = await prisma.researchPageMeta.create({ data: parsed.data });
@@ -533,7 +533,7 @@ export async function updatePageMeta(
       action: "CREATE",
       entity: "ResearchPageMeta",
       entityId: created.id,
-      data: { ip: getClientIp(), label: "Research 페이지 메타" },
+      data: { ip: getClientIp(), label: "Research page meta" },
     });
   }
 

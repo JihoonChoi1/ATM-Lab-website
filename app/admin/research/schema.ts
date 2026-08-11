@@ -21,7 +21,7 @@ const imgPathField = z
   .pipe(
     z
       .string()
-      .startsWith("/", "이미지 경로는 /로 시작하는 사이트 내부 경로여야 합니다.")
+      .startsWith("/", "The image path must be an internal site path starting with /.")
       .nullable(),
   );
 
@@ -31,18 +31,18 @@ export const TOPIC_BG = ["white", "bg"] as const;
 export type TopicBgValue = (typeof TOPIC_BG)[number];
 
 export const TOPIC_BG_LABELS: Record<TopicBgValue, string> = {
-  white: "흰색 배경",
-  bg: "연한 배경",
+  white: "White background",
+  bg: "Tinted background",
 };
 
 export const topicSchema = z.object({
   // Big display number + anchor id ("01"…). @unique in the DB — the action
   // pre-checks for a collision and returns a field error.
-  num: z.string().trim().min(1, "번호를 입력하세요."),
-  title: z.string().trim().min(1, "제목을 입력하세요."),
-  lead: z.string().trim().min(1, "리드 문장을 입력하세요."),
+  num: z.string().trim().min(1, "Please enter a number."),
+  title: z.string().trim().min(1, "Please enter a title."),
+  lead: z.string().trim().min(1, "Please enter a lead sentence."),
   keywords: keywordsField,
-  bg: z.enum(TOPIC_BG, "배경색을 선택하세요."),
+  bg: z.enum(TOPIC_BG, "Please choose a background."),
   published: z.boolean(),
 });
 
@@ -52,11 +52,11 @@ export type TopicInput = z.output<typeof topicSchema>;
 
 export const subsectionSchema = z.object({
   // Free text ("01.01"…) — not unique, not renumbered on reorder.
-  num: z.string().trim().min(1, "번호를 입력하세요."),
-  title: z.string().trim().min(1, "제목을 입력하세요."),
+  num: z.string().trim().min(1, "Please enter a number."),
+  title: z.string().trim().min(1, "Please enter a title."),
   // Single paragraph stored as-is (db.Text). The public page renders one <p>;
   // all real rows are single-paragraph, so no blank-line splitting.
-  body: z.string().trim().min(1, "본문을 입력하세요."),
+  body: z.string().trim().min(1, "Please enter body text."),
   keywords: keywordsField,
   published: z.boolean(),
 });
@@ -71,15 +71,15 @@ export type SubsectionInput = z.output<typeof subsectionSchema>;
 // them with the real pixel dimensions, 7-8).
 const dimField = z.coerce
   .number()
-  .int("정수를 입력하세요.")
-  .min(1, "1 이상의 값을 입력하세요.");
+  .int("Please enter a whole number.")
+  .min(1, "Please enter a value of 1 or more.");
 
 export const figureSchema = z.object({
   imgPath: imgPathField,
-  caption: z.string().trim().min(1, "캡션을 입력하세요."),
+  caption: z.string().trim().min(1, "Please enter a caption."),
   width: dimField,
   height: dimField,
-  // "크게" = render across the full gallery row; default "보통" = one slot.
+  // "Large" = render across the full gallery row; default "Normal" = one slot.
   wide: z.boolean(),
 });
 
@@ -89,9 +89,9 @@ export type FigureInput = z.output<typeof figureSchema>;
 
 export const pageMetaSchema = z.object({
   // Two-line headline, newline-separated (public hero splits on "\n").
-  heroHeadline: z.string().trim().min(1, "헤드라인을 입력하세요."),
-  heroParagraph: z.string().trim().min(1, "소개 문단을 입력하세요."),
-  yearsValue: z.string().trim().min(1, "연차 값을 입력하세요."),
+  heroHeadline: z.string().trim().min(1, "Please enter a headline."),
+  heroParagraph: z.string().trim().min(1, "Please enter an intro paragraph."),
+  yearsValue: z.string().trim().min(1, "Please enter a years value."),
 });
 
 export type PageMetaInput = z.output<typeof pageMetaSchema>;

@@ -7,7 +7,7 @@ import ScrollTopOnMount from "../../../_components/ScrollTopOnMount";
 import SubsectionForm from "../../_components/SubsectionForm";
 import FigureTable from "../../_components/FigureTable";
 
-export const metadata: Metadata = { title: "서브섹션 관리 · ATM Lab" };
+export const metadata: Metadata = { title: "Manage subsection · ATM Lab" };
 
 // Reads the session cookie + a live row → never cache.
 export const dynamic = "force-dynamic";
@@ -53,7 +53,7 @@ export default async function SubsectionDetailPage({
         <>
           <ScrollTopOnMount />
           <p className="mb-8 rounded-2xl bg-success-soft px-4 py-2.5 text-sm text-success">
-            그림이 저장되어 목록으로 돌아왔습니다.
+            The figure was saved; back to the list.
           </p>
         </>
       )}
@@ -61,11 +61,11 @@ export default async function SubsectionDetailPage({
       {/* ── Subsection fields (deferred — needs the save button) ── */}
       <section className="mb-10 max-w-[640px]">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-ink">서브섹션 정보</h2>
+          <h2 className="text-lg font-semibold text-ink">Subsection details</h2>
           <p className="mt-1 text-sm text-ink-3">
-            내용을 고친 뒤 아래{" "}
-            <span className="font-medium text-ink-2">변경 사항 저장</span> 버튼을
-            눌러야 반영됩니다.
+            After editing, click the{" "}
+            <span className="font-medium text-ink-2">Save changes</span> button
+            below to apply.
           </p>
         </div>
         <SubsectionForm
@@ -85,18 +85,18 @@ export default async function SubsectionDetailPage({
       {/* ── Figures (instant — no save needed) ── */}
       <section className="border-t border-line pt-10">
         <div className="mb-1 flex flex-wrap items-end justify-between gap-3">
-          <h2 className="text-lg font-semibold text-ink">그림 {sub.figures.length}장</h2>
+          <h2 className="text-lg font-semibold text-ink">Figures ({sub.figures.length})</h2>
           <Link
             href={`/admin/research/${topicId}/${subsectionId}/new`}
             className="rounded-2xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark"
           >
-            새 그림 추가
+            Add figure
           </Link>
         </div>
         <p className="mb-4 text-sm text-ink-3">
-          순서 변경·삭제는 <span className="font-medium text-ink-2">즉시 반영</span>
-          됩니다. 따로 저장할 필요가 없어요. 그림 내용은 각 행의{" "}
-          <span className="font-medium text-ink-2">수정</span>에서 바꿉니다.
+          Reordering and deletion take effect immediately — no separate save
+          needed. Edit each figure&rsquo;s content from the{" "}
+          <span className="font-medium text-ink-2">Edit</span> button on its row.
         </p>
         <FigureTable topicId={topicId} subsectionId={subsectionId} figures={sub.figures} />
       </section>

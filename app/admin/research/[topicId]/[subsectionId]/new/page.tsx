@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/auth/guard";
 import { uploadsEnabled } from "@/lib/uploads";
 import FigureForm from "../../../_components/FigureForm";
 
-export const metadata: Metadata = { title: "새 그림 · ATM Lab" };
+export const metadata: Metadata = { title: "New figure · ATM Lab" };
 
 // Reads the session cookie → never cache.
 export const dynamic = "force-dynamic";
@@ -35,7 +35,7 @@ export default async function NewFigurePage({
           ← {sub.num} {sub.title}
         </Link>
       </div>
-      <h1 className="mb-8 text-3xl font-bold tracking-[-0.02em]">새 그림</h1>
+      <h1 className="mb-8 text-3xl font-bold tracking-[-0.02em]">New figure</h1>
       <FigureForm
         topicId={topicId}
         subsectionId={subsectionId}

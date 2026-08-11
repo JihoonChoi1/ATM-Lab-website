@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import SubsectionForm from "../../_components/SubsectionForm";
 
-export const metadata: Metadata = { title: "새 서브섹션 · ATM Lab" };
+export const metadata: Metadata = { title: "New subsection · ATM Lab" };
 
 // Reads the session cookie → never cache.
 export const dynamic = "force-dynamic";
@@ -33,7 +33,7 @@ export default async function NewSubsectionPage({
           ← {topic.num} {topic.title}
         </Link>
       </div>
-      <h1 className="mb-8 text-3xl font-bold tracking-[-0.02em]">새 서브섹션</h1>
+      <h1 className="mb-8 text-3xl font-bold tracking-[-0.02em]">New subsection</h1>
       <SubsectionForm
         topicId={params.topicId}
         cancelHref={`/admin/research/${params.topicId}`}

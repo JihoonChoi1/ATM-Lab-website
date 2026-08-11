@@ -13,8 +13,8 @@ import { diffChanges, logAudit } from "@/lib/audit";
 
 export const heroMetaSchema = z.object({
   // Newline-separated; the public hero splits on "\n" → <br/>.
-  heroHeadline: z.string().trim().min(1, "제목을 입력하세요."),
-  heroParagraph: z.string().trim().min(1, "소개 문단을 입력하세요."),
+  heroHeadline: z.string().trim().min(1, "Please enter a heading."),
+  heroParagraph: z.string().trim().min(1, "Please enter an intro paragraph."),
 });
 
 export type HeroMetaInput = z.output<typeof heroMetaSchema>;
@@ -36,7 +36,7 @@ export type SingletonDelegate = {
 type SaveOpts = {
   delegate: SingletonDelegate;
   entity: string; // Prisma model name, e.g. "MembersPageMeta" (audit + revert key)
-  label: string; // human-readable audit label, e.g. "Members 페이지 메타"
+  label: string; // human-readable audit label, e.g. "Members page meta"
   metaPath: string; // "/admin/members/meta" — the guard path and redirect target
 };
 

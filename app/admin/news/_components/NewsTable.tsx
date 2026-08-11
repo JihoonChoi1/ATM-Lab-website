@@ -43,17 +43,17 @@ export default function NewsTable({ news }: { news: NewsRow[] }) {
       <table className={tableClass}>
         <thead>
           <tr className={theadRowClass}>
-            <th className={thClass}>날짜</th>
-            <th className={thClass}>제목</th>
-            <th className={thClass}>공개</th>
-            <th className={thClass}>관리</th>
+            <th className={thClass}>Date</th>
+            <th className={thClass}>Title</th>
+            <th className={thClass}>Published</th>
+            <th className={thClass}>Manage</th>
           </tr>
         </thead>
         <tbody>
           {news.length === 0 && (
             <tr>
               <td colSpan={4} className={emptyCellClass}>
-                소식이 없습니다.
+                No news yet.
               </td>
             </tr>
           )}
@@ -71,17 +71,17 @@ export default function NewsTable({ news }: { news: NewsRow[] }) {
                   disabled={isPending}
                   className={publishedBtnClass(n.published)}
                 >
-                  {n.published ? "공개" : "비공개"}
+                  {n.published ? "Published" : "Unpublished"}
                 </button>
               </td>
               <td className="whitespace-nowrap px-4 py-2.5">
                 <Link href={`/admin/news/${n.id}`} className={editLinkClass}>
-                  수정
+                  Edit
                 </Link>
                 <button
                   onClick={() => {
                     if (
-                      window.confirm(`'${n.title}' 소식을 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.`)
+                      window.confirm(`Delete the news post '${n.title}'? You can restore it from Recent activity within 90 days.`)
                     ) {
                       run(() => deleteNews(n.id));
                     }
@@ -89,7 +89,7 @@ export default function NewsTable({ news }: { news: NewsRow[] }) {
                   disabled={isPending}
                   className={deleteBtnClass}
                 >
-                  삭제
+                  Delete
                 </button>
               </td>
             </tr>

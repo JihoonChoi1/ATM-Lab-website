@@ -24,9 +24,9 @@ export async function enableTotp(
   const secret = String(formData.get("secret") ?? "");
   const code = String(formData.get("code") ?? "").trim();
 
-  if (!secret) return { error: "보안 설정을 다시 불러와 주세요." };
+  if (!secret) return { error: "Please reload the security settings." };
   if (!verifyTotp(code, secret))
-    return { error: "코드가 올바르지 않습니다. 인증 앱의 현재 코드를 입력하세요." };
+    return { error: "That code is not correct. Enter the current code from your authenticator app." };
 
   await prisma.user.update({
     where: { id: session.user.id },
@@ -60,7 +60,7 @@ export async function disableTotp(
   if (!session?.user?.id) redirect("/login?callbackUrl=/admin/security");
 
   const password = String(formData.get("password") ?? "");
-  if (!password) return { error: "현재 비밀번호를 입력하세요." };
+  if (!password) return { error: "Please enter your current password." };
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -69,7 +69,7 @@ export async function disableTotp(
   if (!user) redirect("/login?callbackUrl=/admin/security");
 
   if (!(await verifyPassword(password, user.passwordHash)))
-    return { error: "비밀번호가 올바르지 않습니다." };
+    return { error: "That password is not correct." };
 
   // Already off (e.g. double-submit) → nothing to do, just land on the page.
   if (user.totpSecret) {

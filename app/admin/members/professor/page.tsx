@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import ProfessorProfileForm from "../_components/ProfessorProfileForm";
 
-export const metadata: Metadata = { title: "교수 프로필 편집 · ATM Lab" };
+export const metadata: Metadata = { title: "Edit professor profile · ATM Lab" };
 
 // Static segment — resolves before [id], so this is the professor editor, not
 // an edit page for a member whose id is "professor". Reads a live row → never cache.
@@ -35,13 +35,13 @@ export default async function ProfessorProfilePage() {
   return (
     <div className="mx-auto w-full max-w-[760px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">교수 프로필 편집</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Edit professor profile</h1>
         <p className="mt-1 text-sm text-ink-3">
-          {prof.name} — 학력·경력·연구분야·강의 항목을 편집합니다. 이름·사진·공개 여부는{" "}
+          {prof.name} — edit education, work history, research fields, and lectures here. The name, photo, and published state are managed in{" "}
           <Link href="/admin/members" className="text-accent hover:underline">
-            멤버 수정
+            Edit member
           </Link>
-          에서 관리합니다.
+          .
         </p>
       </div>
       <ProfessorProfileForm

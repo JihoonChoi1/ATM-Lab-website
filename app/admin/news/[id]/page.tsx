@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/guard";
 import { uploadsEnabled } from "@/lib/uploads";
 import NewsForm from "../_components/NewsForm";
 
-export const metadata: Metadata = { title: "소식 수정 · ATM Lab" };
+export const metadata: Metadata = { title: "Edit news post · ATM Lab" };
 
 // Reads the session cookie + a live row → never cache.
 export const dynamic = "force-dynamic";
@@ -27,7 +27,7 @@ export default async function EditNewsPage({
   return (
     <div className="mx-auto w-full max-w-[920px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">소식 수정</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Edit news post</h1>
         <p className="mt-1 text-sm text-ink-3">{news.title}</p>
       </div>
       <NewsForm

@@ -62,17 +62,17 @@ export async function revertAudit(logId: string): Promise<string | void> {
   const session = await requireAdmin("/admin/activity");
 
   const log = await prisma.auditLog.findUnique({ where: { id: logId } });
-  if (!log || !log.entityId) return "로그를 찾을 수 없습니다.";
+  if (!log || !log.entityId) return "Log not found.";
   const delegate = (DELEGATES as Record<string, Delegate | undefined>)[log.entity];
-  if (!delegate) return "이 항목은 복원을 지원하지 않습니다.";
+  if (!delegate) return "This item does not support restoring.";
   const label = readLabel(log.data);
 
   if (log.action === "UPDATE") {
     const before = readRecord(log.data, "before");
-    if (!before || Object.keys(before).length === 0) return "되돌릴 변경 내용이 없습니다.";
+    if (!before || Object.keys(before).length === 0) return "There is no change to revert.";
 
     const current = await delegate.findUnique({ where: { id: log.entityId } });
-    if (!current) return "행이 이미 삭제되어 되돌릴 수 없습니다. 삭제 기록에서 복원하세요.";
+    if (!current) return "This row was already deleted and cannot be undone. Restore it from the deletion history.";
 
     await delegate.update({ where: { id: log.entityId }, data: before });
 
@@ -88,7 +88,7 @@ export async function revertAudit(logId: string): Promise<string | void> {
 
   if (log.action === "DELETE") {
     const snapshot = readRecord(log.data, "snapshot");
-    if (!snapshot) return "복원할 데이터가 없습니다.";
+    if (!snapshot) return "There is no data to restore.";
 
     // Research containers carry their whole subtree in the snapshot (7-10b) —
     // rebuild it with a nested create; the flat path below only re-creates one row.
@@ -102,7 +102,7 @@ export async function revertAudit(logId: string): Promise<string | void> {
     }
 
     const exists = await delegate.findUnique({ where: { id: log.entityId } });
-    if (exists) return "이미 복원된 행입니다.";
+    if (exists) return "This row has already been restored.";
 
     // Strip null keys: absent nullable columns fall back to NULL on create
     // anyway, and nullable Json columns reject a plain JS null.
@@ -121,7 +121,7 @@ export async function revertAudit(logId: string): Promise<string | void> {
     return;
   }
 
-  return "이 작업 유형은 되돌릴 수 없습니다.";
+  return "This action type cannot be undone.";
 }
 
 // 7-10b: rebuild a deleted Research container (Topic → Subsections → Figures, or
@@ -161,14 +161,14 @@ async function restoreResearchTree(
   try {
     if (log.entity === "ResearchTopic") {
       if (await prisma.researchTopic.findUnique({ where: { id: log.entityId } }))
-        return "이미 복원된 행입니다.";
+        return "This row has already been restored.";
       // num is @unique — a re-used number can't be silently reclaimed.
       const num = snapshot.num;
       if (
         typeof num === "string" &&
         (await prisma.researchTopic.findFirst({ where: { num } }))
       )
-        return `같은 번호('${num}')의 토픽이 이미 있어 복원할 수 없습니다.`;
+        return `A topic with the same number ('${num}') already exists, so it cannot be restored.`;
 
       const data = {
         ...rebuild(snapshot, ["subsections"]),
@@ -184,14 +184,14 @@ async function restoreResearchTree(
       });
     } else {
       if (await prisma.researchSubsection.findUnique({ where: { id: log.entityId } }))
-        return "이미 복원된 행입니다.";
+        return "This row has already been restored.";
       // The subtree reconnects to its original topic via the kept topicId FK.
       const topicId = snapshot.topicId;
       if (
         typeof topicId !== "string" ||
         !(await prisma.researchTopic.findUnique({ where: { id: topicId } }))
       )
-        return "상위 토픽이 없어 복원할 수 없습니다. 토픽을 먼저 복원하세요.";
+        return "Cannot restore: the parent topic is missing. Restore the topic first.";
 
       const data = {
         ...rebuild(snapshot, ["figures"]),
@@ -206,7 +206,7 @@ async function restoreResearchTree(
       err instanceof Prisma.PrismaClientKnownRequestError &&
       (err.code === "P2002" || err.code === "P2003")
     ) {
-      return "이미 일부 항목이 존재하거나 상위 항목이 없어 복원할 수 없습니다.";
+      return "Cannot restore: some items already exist or the parent is missing.";
     }
     throw err;
   }

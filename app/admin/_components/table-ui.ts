@@ -28,7 +28,7 @@ export const iconBtnClass =
   "flex h-7 w-7 items-center justify-center rounded-lg border border-line text-ink-2 transition hover:border-accent/30 hover:text-accent disabled:pointer-events-none disabled:opacity-30";
 
 // whitespace-nowrap: wrapping columns (long titles) can squeeze the table —
-// without it "공개/비공개" stacks vertically.
+// without it "Published/Unpublished" stacks vertically.
 export const publishedBtnClass = (published: boolean) =>
   `whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium transition disabled:opacity-50 ${
     published ? "bg-success-soft text-success" : "bg-line text-ink-3"

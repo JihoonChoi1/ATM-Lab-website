@@ -12,7 +12,7 @@ import {
   emptyCellClass,
 } from "@/app/admin/_components/table-ui";
 
-export const metadata: Metadata = { title: "통계 · ATM Lab" };
+export const metadata: Metadata = { title: "Statistics · ATM Lab" };
 
 // Reads the session cookie + live PageView/PublicationView rows → never cache.
 export const dynamic = "force-dynamic";
@@ -45,27 +45,27 @@ const RETENTION_YEARS = 10;
 // date_trunc unit + display format per granularity. These are fixed constants
 // (never user input), so passing them as SQL params is safe.
 const GRAN = {
-  day: { unit: "day", fmt: "YYYY-MM-DD", header: "날짜", label: "일별" },
-  month: { unit: "month", fmt: "YYYY-MM", header: "월", label: "월별" },
-  year: { unit: "year", fmt: "YYYY", header: "연도", label: "연별" },
+  day: { unit: "day", fmt: "YYYY-MM-DD", header: "Date", label: "Daily" },
+  month: { unit: "month", fmt: "YYYY-MM", header: "Month", label: "Monthly" },
+  year: { unit: "year", fmt: "YYYY", header: "Year", label: "Yearly" },
 } as const;
 type Gran = keyof typeof GRAN;
 
 type BucketRow = { bucket: string; visitors: number };
 
 // Page sections. Split into tabs (not stacked) so a long visitor table — e.g.
-// a year viewed 일별 — never buries the publications ranking; only the active
+// a year viewed Daily — never buries the publications ranking; only the active
 // tab's queries run. The period picker above the tabs applies to both.
-const TABS = { visitors: "접속자 통계", pubs: "인기 논문" } as const;
+const TABS = { visitors: "Visitor stats", pubs: "Popular publications" } as const;
 type Tab = keyof typeof TABS;
 
 // Popular-publications type tabs (12-B). Keys mirror the PublicationType enum
 // (plus ALL) and are whitelisted below, so passing one as a SQL param is safe.
 const PTYPES = {
-  ALL: "전체",
-  JOURNAL: "논문",
-  PATENT: "특허",
-  CONFERENCE: "학회",
+  ALL: "All",
+  JOURNAL: "Papers",
+  PATENT: "Patents",
+  CONFERENCE: "Conferences",
 } as const;
 type Ptype = keyof typeof PTYPES;
 
@@ -102,10 +102,10 @@ export default async function AnalyticsPage({
   if (from > to) [from, to] = [to, from];
   const singleDay = from === to;
 
-  // Granularity toggle. 월/년 only make sense when the range touches ≥2 of that
+  // Granularity toggle. Month/년 only make sense when the range touches ≥2 of that
   // calendar unit (one month/year alone = a single meaningless row); 일 is always
   // on. Span is measured in calendar months/years, not day count — 6/28~7/2 (5
-  // days) still touches 2 months → 월 enabled.
+  // days) still touches 2 months → Month enabled.
   const fromY = Number(from.slice(0, 4));
   const toY = Number(to.slice(0, 4));
   const monthsSpanned =
@@ -133,12 +133,12 @@ export default async function AnalyticsPage({
   // Recent-period shortcuts: each sets [from, today] plus a sensible default unit
   // (a 1-year window opens monthly, not 365 daily rows). The toggle can override.
   const presets: { label: string; from: string; gran: Gran }[] = [
-    { label: "최근 7일", from: kstDate(new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)), gran: "day" },
-    { label: "최근 30일", from: defaultFrom, gran: "day" },
-    { label: "최근 3개월", from: minusMonths(today, 3), gran: "month" },
-    { label: "최근 1년", from: minusMonths(today, 12), gran: "month" },
-    { label: "최근 5년", from: minusMonths(today, 60), gran: "year" },
-    { label: "전체", from: floorDate, gran: "year" },
+    { label: "Last 7 days", from: kstDate(new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)), gran: "day" },
+    { label: "Last 30 days", from: defaultFrom, gran: "day" },
+    { label: "Last 3 months", from: minusMonths(today, 3), gran: "month" },
+    { label: "Last year", from: minusMonths(today, 12), gran: "month" },
+    { label: "Last 5 years", from: minusMonths(today, 60), gran: "year" },
+    { label: "All time", from: floorDate, gran: "year" },
   ];
 
   // Opportunistic retention sweep (no cron): drop rows older than the picker floor
@@ -219,9 +219,9 @@ export default async function AnalyticsPage({
   return (
     <div className="mx-auto w-full max-w-[720px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">통계</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Statistics</h1>
         <p className="mt-1 text-sm text-ink-3">
-          기간 선택은 두 탭에 공통으로 적용됩니다 (KST 기준).
+          The period selection applies to both tabs (KST).
         </p>
       </div>
 
@@ -259,27 +259,27 @@ export default async function AnalyticsPage({
         <input type="hidden" name="gran" value={gran} />
         <input type="hidden" name="ptype" value={ptype} />
         <label className="flex flex-col gap-1 text-xs font-medium text-ink-3">
-          시작일
+          Start date
           <input key={from} type="date" name="from" defaultValue={from} min={floorDate} max={today} className={dateInputClass} />
         </label>
         <span className="pb-2 text-ink-3">~</span>
         <label className="flex flex-col gap-1 text-xs font-medium text-ink-3">
-          종료일
+          End date
           <input key={to} type="date" name="to" defaultValue={to} min={floorDate} max={today} className={dateInputClass} />
         </label>
         <button
           type="submit"
           className="rounded-2xl bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-dark"
         >
-          조회
+          Views
         </button>
       </form>
 
       {tab === "visitors" && (
         <>
           <p className="mb-5 text-sm text-ink-3">
-            순방문자 수. 개인정보 최소화를 위해 IP·브라우저 정보는 저장하지 않으며, 개인을
-            특정할 수는 없습니다.
+            Unique visitor counts. To minimize personal data, IP and browser details
+            are not stored, and individuals cannot be identified.
           </p>
 
           <p className="mb-5 text-sm text-ink-2">
@@ -290,7 +290,7 @@ export default async function AnalyticsPage({
                 <span className="font-semibold text-ink">{to}</span>
               </>
             )}{" "}
-            기간 순방문자 <span className="text-lg font-bold text-accent">{total.toLocaleString()}</span>명
+            Unique visitors <span className="text-lg font-bold text-accent">{total.toLocaleString()}</span>
           </p>
 
           {!singleDay && (
@@ -313,7 +313,7 @@ export default async function AnalyticsPage({
                 ) : (
                   <span
                     key={t.key}
-                    title="이 기간에는 사용할 수 없습니다"
+                    title="Not available for this period"
                     className="cursor-not-allowed rounded-full border border-line bg-surface px-3.5 py-1.5 text-[13px] font-medium text-ink-3/40"
                   >
                     {GRAN[t.key].label}
@@ -328,21 +328,21 @@ export default async function AnalyticsPage({
               <table className="w-full min-w-[360px] text-sm">
                 <thead>
                   <tr className={theadRowClass}>
-                    <th className={thClass}>방문자</th>
-                    <th className={thClass}>첫 접속 시각</th>
+                    <th className={thClass}>Visitors</th>
+                    <th className={thClass}>First visit time</th>
                   </tr>
                 </thead>
                 <tbody>
                   {visitTimes.length === 0 ? (
                     <tr>
                       <td colSpan={2} className={emptyCellClass}>
-                        이 날짜의 방문 기록이 없습니다.
+                        No visits recorded for this date.
                       </td>
                     </tr>
                   ) : (
                     visitTimes.map((v, i) => (
                       <tr key={i} className={rowClass}>
-                        <td className="px-4 py-3 text-ink-2">방문자 {i + 1}</td>
+                        <td className="px-4 py-3 text-ink-2">Visitors {i + 1}</td>
                         <td className="px-4 py-3 font-medium text-ink">{v.time}</td>
                       </tr>
                     ))
@@ -356,14 +356,14 @@ export default async function AnalyticsPage({
                 <thead>
                   <tr className={theadRowClass}>
                     <th className={thClass}>{header}</th>
-                    <th className={`${thClass} text-right`}>순방문자</th>
+                    <th className={`${thClass} text-right`}>Unique visitors</th>
                   </tr>
                 </thead>
                 <tbody>
                   {buckets.length === 0 ? (
                     <tr>
                       <td colSpan={2} className={emptyCellClass}>
-                        이 기간의 방문 기록이 없습니다.
+                        No visits recorded for this period.
                       </td>
                     </tr>
                   ) : (
@@ -386,8 +386,9 @@ export default async function AnalyticsPage({
       {tab === "pubs" && (
         <>
           <p className="mb-5 text-sm text-ink-3">
-            선택한 기간에 상세 페이지가 열람된 발행물 순위입니다. 조회수는 일별 순 조회수의
-            합으로, 같은 사람이 같은 날 같은 발행물을 여러 번 열어도 1회로 집계됩니다.
+            Publications ranked by detail-page views in the selected period. View
+            counts sum the daily unique views, so opening the same publication
+            multiple times in one day still counts once.
           </p>
 
           <div className="mb-4 flex flex-wrap gap-2">
@@ -406,16 +407,16 @@ export default async function AnalyticsPage({
             <table className="w-full min-w-[360px] text-sm">
               <thead>
                 <tr className={theadRowClass}>
-                  <th className={thClass}>순위</th>
-                  <th className={thClass}>제목</th>
-                  <th className={`${thClass} text-right`}>조회수</th>
+                  <th className={thClass}>Rank</th>
+                  <th className={thClass}>Title</th>
+                  <th className={`${thClass} text-right`}>Views</th>
                 </tr>
               </thead>
               <tbody>
                 {ranks.length === 0 ? (
                   <tr>
                     <td colSpan={3} className={emptyCellClass}>
-                      이 기간의 열람 기록이 없습니다.
+                      No views recorded for this period.
                     </td>
                   </tr>
                 ) : (

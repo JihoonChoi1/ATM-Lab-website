@@ -46,7 +46,7 @@ export default function TopicForm({
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="num" className={labelClass}>
-          번호
+          No.
         </label>
         <input
           id="num"
@@ -57,15 +57,15 @@ export default function TopicForm({
           className={inputClass}
         />
         <p className={hintClass}>
-          공개 페이지에 크게 표시되는 번호이자 앵커 ID입니다. 다른 토픽과 중복될 수
-          없습니다.
+          The number shown large on the public page, and its anchor ID. Must be
+          unique across topics.
         </p>
         <FieldError errors={state.errors?.num} />
       </div>
 
       <div>
         <label htmlFor="title" className={labelClass}>
-          제목
+          Title
         </label>
         <input
           id="title"
@@ -80,7 +80,7 @@ export default function TopicForm({
 
       <div>
         <label htmlFor="lead" className={labelClass}>
-          리드 문장
+          Lead sentence
         </label>
         <textarea
           id="lead"
@@ -89,13 +89,13 @@ export default function TopicForm({
           defaultValue={topic?.lead}
           className={inputClass}
         />
-        <p className={hintClass}>토픽 제목 아래에 표시되는 한두 문장의 소개입니다.</p>
+        <p className={hintClass}>A one- or two-sentence intro shown under the topic title.</p>
         <FieldError errors={state.errors?.lead} />
       </div>
 
       <div>
         <label htmlFor="keywords" className={labelClass}>
-          키워드
+          Keywords
         </label>
         <input
           id="keywords"
@@ -105,13 +105,13 @@ export default function TopicForm({
           placeholder="Pool Boiling, Flow Boiling, CHF"
           className={inputClass}
         />
-        <p className={hintClass}>쉼표로 구분합니다. 비워두면 키워드 칩이 표시되지 않습니다.</p>
+        <p className={hintClass}>Comma-separated. Leave empty to show no keyword chips.</p>
         <FieldError errors={state.errors?.keywords} />
       </div>
 
       <div>
         <label htmlFor="bg" className={labelClass}>
-          배경색
+          Highlight
         </label>
         <select
           id="bg"
@@ -125,7 +125,7 @@ export default function TopicForm({
             </option>
           ))}
         </select>
-        <p className={hintClass}>토픽 섹션이 번갈아 보이도록 흰색/연한 배경을 선택합니다.</p>
+        <p className={hintClass}>Choose a white or tinted background so topic sections alternate.</p>
         <FieldError errors={state.errors?.bg} />
       </div>
 
@@ -136,15 +136,15 @@ export default function TopicForm({
           defaultChecked={topic?.published ?? true}
           className="h-4 w-4 accent-accent"
         />
-        공개 (체크 해제 시 공개 페이지에서 숨김)
+        Published (uncheck to hide from public pages)
       </label>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label={topic ? "변경 사항 저장" : "토픽 추가"} />
+        <SubmitButton label={topic ? "Save changes" : "Add topic"} />
         <Link href={cancelHref} className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

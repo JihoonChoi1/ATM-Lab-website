@@ -69,7 +69,7 @@ export async function updateProject(
   const session = await requireAdmin(`/admin/projects/${id}`);
 
   const existing = await prisma.project.findUnique({ where: { id } });
-  if (!existing) return { message: "프로젝트를 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!existing) return { message: "Project not found. Try again from the list." };
 
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
@@ -186,7 +186,7 @@ export async function updatePageMeta(
     {
       delegate: prisma.projectsPageMeta as unknown as SingletonDelegate,
       entity: "ProjectsPageMeta",
-      label: "Projects 페이지 메타",
+      label: "Projects page meta",
       metaPath: "/admin/projects/meta",
     },
     formData,

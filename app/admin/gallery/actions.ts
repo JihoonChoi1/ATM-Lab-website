@@ -69,7 +69,7 @@ export async function updateGalleryItem(
   const session = await requireAdmin(`/admin/gallery/${id}`);
 
   const existing = await prisma.galleryItem.findUnique({ where: { id } });
-  if (!existing) return { message: "갤러리 항목을 찾을 수 없습니다. 목록에서 다시 시도하세요." };
+  if (!existing) return { message: "Gallery item not found. Try again from the list." };
 
   const parsed = parseForm(formData);
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };

@@ -40,7 +40,7 @@ export default function HeroMetaForm({
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="heroHeadline" className={labelClass}>
-          Hero 제목
+          Hero heading
         </label>
         <textarea
           id="heroHeadline"
@@ -49,13 +49,13 @@ export default function HeroMetaForm({
           defaultValue={defaults.heroHeadline}
           className={inputClass}
         />
-        <p className={hintClass}>줄바꿈으로 여러 줄을 구분합니다.</p>
+        <p className={hintClass}>Separate multiple lines with line breaks.</p>
         <FieldError errors={state.errors?.heroHeadline} />
       </div>
 
       <div>
         <label htmlFor="heroParagraph" className={labelClass}>
-          Hero 소개 문단
+          Hero intro paragraph
         </label>
         <textarea
           id="heroParagraph"
@@ -70,9 +70,9 @@ export default function HeroMetaForm({
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label="변경 사항 저장" />
+        <SubmitButton label="Save changes" />
         <Link href={cancelHref} className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

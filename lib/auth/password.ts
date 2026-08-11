@@ -26,10 +26,10 @@ export type PasswordStrength = { ok: boolean; errors: string[] };
  */
 export function validatePasswordStrength(plain: string): PasswordStrength {
   const errors: string[] = [];
-  if (plain.length < 12) errors.push("비밀번호는 최소 12자 이상이어야 합니다.");
-  if (!/[a-z]/.test(plain)) errors.push("소문자를 최소 1자 포함해야 합니다.");
-  if (!/[A-Z]/.test(plain)) errors.push("대문자를 최소 1자 포함해야 합니다.");
-  if (!/[0-9]/.test(plain)) errors.push("숫자를 최소 1자 포함해야 합니다.");
-  if (!/[^A-Za-z0-9]/.test(plain)) errors.push("특수문자를 최소 1자 포함해야 합니다.");
+  if (plain.length < 12) errors.push("Password must be at least 12 characters.");
+  if (!/[a-z]/.test(plain)) errors.push("Include at least one lowercase letter.");
+  if (!/[A-Z]/.test(plain)) errors.push("Include at least one uppercase letter.");
+  if (!/[0-9]/.test(plain)) errors.push("Include at least one digit.");
+  if (!/[^A-Za-z0-9]/.test(plain)) errors.push("Include at least one symbol.");
   return { ok: errors.length === 0, errors };
 }

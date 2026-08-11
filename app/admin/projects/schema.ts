@@ -9,8 +9,8 @@ export const PROJECT_STATUSES = ["ACTIVE", "COMPLETED"] as const;
 export type ProjectStatusValue = (typeof PROJECT_STATUSES)[number];
 
 export const STATUS_LABELS: Record<ProjectStatusValue, string> = {
-  ACTIVE: "진행중",
-  COMPLETED: "완료",
+  ACTIVE: "Ongoing",
+  COMPLETED: "Completed",
 };
 
 const emptyToNull = z
@@ -19,13 +19,13 @@ const emptyToNull = z
   .transform((v) => v || null);
 
 export const projectSchema = z.object({
-  title: z.string().trim().min(1, "프로젝트명을 입력하세요."),
-  institution: z.string().trim().min(1, "기관을 입력하세요."),
-  period: z.string().trim().min(1, "기간을 입력하세요."),
+  title: z.string().trim().min(1, "Please enter a project name."),
+  institution: z.string().trim().min(1, "Please enter an institution."),
+  period: z.string().trim().min(1, "Please enter a period."),
   // Free text as-is (legacy rows mix ₩-prefixed and bare numbers); the public
   // page renders it verbatim and shows "—" when null.
   scale: emptyToNull,
-  status: z.enum(PROJECT_STATUSES, "상태를 선택하세요."),
+  status: z.enum(PROJECT_STATUSES, "Please select a status."),
   published: z.boolean(),
 });
 

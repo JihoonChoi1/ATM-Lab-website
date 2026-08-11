@@ -100,27 +100,27 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html lang="ko">
+    <html lang="en">
       <head>
-        <title>오류가 발생했습니다 · ATM Lab</title>
+        <title>Something went wrong · ATM Lab</title>
       </head>
       <body style={body}>
         <main style={{ width: "100%", maxWidth: 560, textAlign: "center" }}>
           <p style={eyebrow}>Error</p>
-          <h1 style={heading}>문제가 발생했습니다</h1>
+          <h1 style={heading}>Something went wrong</h1>
           <p style={lede}>
-            페이지를 표시하는 중 예기치 못한 오류가 발생했습니다. 잠시 후 다시
-            시도해 주세요. Something went wrong while loading this page.
+            Something went wrong while loading this page. Please try again in a
+            moment.
           </p>
           <div style={actions}>
             <button type="button" onClick={() => reset()} style={primaryBtn}>
-              다시 시도
+              Try again
             </button>
             <a href="/" style={secondaryLink}>
-              홈으로
+              Home
             </a>
           </div>
-          {error.digest && <p style={code}>오류 코드: {error.digest}</p>}
+          {error.digest && <p style={code}>Error code: {error.digest}</p>}
         </main>
       </body>
     </html>

@@ -24,8 +24,8 @@ export default function RevertButton({
         if (
           !window.confirm(
             revert
-              ? "이 변경을 이전 값으로 되돌릴까요?"
-              : "삭제된 행을 복원할까요?",
+              ? "Revert this change to its previous value?"
+              : "Restore the deleted row?",
           )
         )
           return;
@@ -38,7 +38,7 @@ export default function RevertButton({
       disabled={isPending}
       className="mt-2 rounded-xl border border-accent/30 px-3 py-1.5 text-xs font-medium text-accent transition hover:bg-accent-soft disabled:opacity-50"
     >
-      {isPending ? "처리 중…" : revert ? "이전 값으로 되돌리기" : "이 행 복원"}
+      {isPending ? "Processing…" : revert ? "Revert to previous value" : "Restore this row"}
     </button>
   );
 }

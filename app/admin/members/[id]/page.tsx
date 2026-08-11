@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/guard";
 import { uploadsEnabled } from "@/lib/uploads";
 import MemberForm from "../_components/MemberForm";
 
-export const metadata: Metadata = { title: "멤버 수정 · ATM Lab" };
+export const metadata: Metadata = { title: "Edit member · ATM Lab" };
 
 // Reads the session cookie + a live row → never cache.
 export const dynamic = "force-dynamic";
@@ -39,7 +39,7 @@ export default async function EditMemberPage({
   return (
     <div className="mx-auto w-full max-w-[640px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">멤버 수정</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Edit member</h1>
         <p className="mt-1 text-sm text-ink-3">{member.name}</p>
       </div>
       <MemberForm member={member} uploadsEnabled={uploadsEnabled()} />

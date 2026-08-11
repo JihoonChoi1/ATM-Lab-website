@@ -18,8 +18,8 @@ export default function Loading() {
       className="bg-bg pt-[150px] pb-[120px] max-[640px]:pt-[120px] max-[640px]:pb-20"
     >
       <Container>
-        <h1 className="sr-only">페이지를 불러오는 중입니다.</h1>
-        <div role="status" aria-label="로딩 중" className="max-w-[640px] animate-pulse">
+        <h1 className="sr-only">Loading page…</h1>
+        <div role="status" aria-label="Loading" className="max-w-[640px] animate-pulse">
           <div className="h-3.5 w-28 rounded-full bg-line" aria-hidden="true" />
           <div className="mt-6 h-12 w-3/4 rounded-2xl bg-line" aria-hidden="true" />
           <div className="mt-8 space-y-3" aria-hidden="true">

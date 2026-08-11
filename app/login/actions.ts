@@ -33,7 +33,7 @@ export async function loginAction(
     return {
       step: "password",
       email,
-      error: "로그인 시도가 너무 많습니다. 15분 후에 다시 시도하세요.",
+      error: "Too many login attempts. Please try again in 15 minutes.",
     };
   }
 
@@ -46,11 +46,11 @@ export async function loginAction(
     }
     if (result.reason === "totp_required") return { step: "totp", email };
     if (result.reason === "totp_invalid")
-      return { step: "totp", email, error: "코드가 올바르지 않습니다. 다시 시도하세요." };
+      return { step: "totp", email, error: "That code isn't correct. Please try again." };
     return {
       step: "password",
       email,
-      error: "이메일 또는 비밀번호가 올바르지 않습니다.",
+      error: "Incorrect email or password.",
     };
   }
 
@@ -63,7 +63,7 @@ export async function loginAction(
       return {
         step: "totp",
         email,
-        error: "코드가 만료되었습니다. 새 코드로 다시 시도하세요.",
+        error: "That code has expired. Please try again with a new one.",
       };
     }
     throw err;

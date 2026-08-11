@@ -70,7 +70,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <button onClick={() => setRoleFilter("ALL")} className={chipClass(roleFilter === "ALL")}>
-          전체 {members.length}
+          All {members.length}
         </button>
         {ROLE_ORDER.map((r) => (
           <button key={r} onClick={() => setRoleFilter(r)} className={chipClass(roleFilter === r)}>
@@ -81,7 +81,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="이름·이메일 검색"
+          placeholder="Search name or email"
           className={searchInputClass}
         />
       </div>
@@ -90,20 +90,20 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
         <table className={tableClass}>
           <thead>
             <tr className={theadRowClass}>
-              <th className={`w-20 ${thClass}`}>순서</th>
-              <th className={thClass}>이름</th>
-              <th className={thClass}>직책</th>
-              <th className={thClass}>연도</th>
-              <th className={thClass}>이메일</th>
-              <th className={thClass}>공개</th>
-              <th className={thClass}>관리</th>
+              <th className={`w-20 ${thClass}`}>Order</th>
+              <th className={thClass}>Name</th>
+              <th className={thClass}>Position</th>
+              <th className={thClass}>Year</th>
+              <th className={thClass}>Email</th>
+              <th className={thClass}>Published</th>
+              <th className={thClass}>Manage</th>
             </tr>
           </thead>
           <tbody>
             {visibleTotal === 0 && (
               <tr>
                 <td colSpan={7} className={emptyCellClass}>
-                  검색 결과가 없습니다.
+                  No results found.
                 </td>
               </tr>
             )}
@@ -112,7 +112,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                 {g.visible.length > 0 && (
                   <tr className={groupRowClass}>
                     <td colSpan={7} className={groupCellClass}>
-                      {ROLE_LABELS[g.role]} · {g.all.length}명
+                      {ROLE_LABELS[g.role]} · {g.all.length}
                     </td>
                   </tr>
                 )}
@@ -126,7 +126,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                             onClick={() => run(() => moveMember(m.id, "up"))}
                             disabled={isPending || idx === 0}
                             className={iconBtnClass}
-                            aria-label={`${m.name} 위로 이동`}
+                            aria-label={`${m.name} Move up`}
                           >
                             ↑
                           </button>
@@ -134,7 +134,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                             onClick={() => run(() => moveMember(m.id, "down"))}
                             disabled={isPending || idx === g.all.length - 1}
                             className={iconBtnClass}
-                            aria-label={`${m.name} 아래로 이동`}
+                            aria-label={`${m.name} Move down`}
                           >
                             ↓
                           </button>
@@ -156,26 +156,26 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                           disabled={isPending}
                           className={publishedBtnClass(m.published)}
                         >
-                          {m.published ? "공개" : "비공개"}
+                          {m.published ? "Published" : "Unpublished"}
                         </button>
                       </td>
                       <td className="whitespace-nowrap px-4 py-2.5">
                         {m.role === "PROFESSOR" && (
                           <Link href="/admin/members/professor" className={editLinkClass}>
-                            프로필 편집
+                            Edit profile
                           </Link>
                         )}
                         <Link
                           href={`/admin/members/${m.id}`}
                           className={`${m.role === "PROFESSOR" ? "ml-4 " : ""}${editLinkClass}`}
                         >
-                          수정
+                          Edit
                         </Link>
                         <button
                           onClick={() => {
                             if (
                               window.confirm(
-                                `'${m.name}' 멤버를 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.`,
+                                `Delete the member '${m.name}'? You can restore it from Recent activity within 90 days.`,
                               )
                             ) {
                               run(() => deleteMember(m.id));
@@ -184,7 +184,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
                           disabled={isPending}
                           className={deleteBtnClass}
                         >
-                          삭제
+                          Delete
                         </button>
                       </td>
                     </tr>

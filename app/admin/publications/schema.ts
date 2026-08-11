@@ -21,11 +21,11 @@ const emptyToNull = z
   .transform((v) => v || null);
 
 export const publicationSchema = z.object({
-  type: z.enum(PUBLICATION_TYPES, "구분을 선택하세요."),
+  type: z.enum(PUBLICATION_TYPES, "Please select a type."),
   // Free text — legacy data has the group label "2014~Before", and the public
   // pages sort years with localeCompare desc, so no numeric coercion.
-  year: z.string().trim().min(1, "연도를 입력하세요."),
-  title: z.string().trim().min(1, "제목을 입력하세요."),
+  year: z.string().trim().min(1, "Please enter a year."),
+  title: z.string().trim().min(1, "Please enter a title."),
   authors: emptyToNull,
   journal: emptyToNull,
   // The public detail page renders this verbatim as an href — require a full
@@ -33,7 +33,7 @@ export const publicationSchema = z.object({
   doi: emptyToNull.pipe(
     z
       .string()
-      .regex(/^https?:\/\//, "DOI는 https:// 로 시작하는 전체 링크여야 합니다.")
+      .regex(/^https?:\/\//, "DOI는 https:// 로 시작하는 Total 링크여야 합니다.")
       .nullable(),
   ),
   conference: emptyToNull,
@@ -47,7 +47,7 @@ export const publicationSchema = z.object({
   imgPath: emptyToNull.pipe(
     z
       .string()
-      .startsWith("/", "이미지 경로는 /로 시작하는 사이트 내부 경로여야 합니다.")
+      .startsWith("/", "The image path must be an internal site path starting with /.")
       .nullable(),
   ),
   published: z.boolean(),

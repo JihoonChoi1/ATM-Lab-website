@@ -38,7 +38,7 @@ export default function ProjectForm({ project }: { project?: ProjectFormValues }
     <form action={formAction} onKeyDown={blockImplicitSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="status" className={labelClass}>
-          상태
+          Status
         </label>
         <select
           id="status"
@@ -57,7 +57,7 @@ export default function ProjectForm({ project }: { project?: ProjectFormValues }
 
       <div>
         <label htmlFor="title" className={labelClass}>
-          프로젝트명
+          Project name
         </label>
         <input
           id="title"
@@ -71,7 +71,7 @@ export default function ProjectForm({ project }: { project?: ProjectFormValues }
 
       <div>
         <label htmlFor="institution" className={labelClass}>
-          기관
+          Institution
         </label>
         <input
           id="institution"
@@ -86,7 +86,7 @@ export default function ProjectForm({ project }: { project?: ProjectFormValues }
 
       <div>
         <label htmlFor="period" className={labelClass}>
-          기간
+          Period
         </label>
         <input
           id="period"
@@ -96,13 +96,13 @@ export default function ProjectForm({ project }: { project?: ProjectFormValues }
           placeholder="2023.08.01~2025.07.31"
           className={inputClass}
         />
-        <p className={hintClass}>공개 카드에 입력한 표기 그대로 표시됩니다.</p>
+        <p className={hintClass}>Shown on the public card exactly as entered.</p>
         <FieldError errors={state.errors?.period} />
       </div>
 
       <div>
         <label htmlFor="scale" className={labelClass}>
-          규모
+          Scale
         </label>
         <input
           id="scale"
@@ -112,7 +112,7 @@ export default function ProjectForm({ project }: { project?: ProjectFormValues }
           placeholder="₩300,000,000"
           className={inputClass}
         />
-        <p className={hintClass}>비워도 됩니다 — 공개 카드에는 “—”로 표시됩니다.</p>
+        <p className={hintClass}>Optional — shown as “—” on the public card.</p>
         <FieldError errors={state.errors?.scale} />
       </div>
 
@@ -123,15 +123,15 @@ export default function ProjectForm({ project }: { project?: ProjectFormValues }
           defaultChecked={project?.published ?? true}
           className="h-4 w-4 accent-accent"
         />
-        공개 (체크 해제 시 공개 페이지에서 숨김)
+        Published (uncheck to hide from public pages)
       </label>
 
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="mt-2 flex items-center gap-3">
-        <SubmitButton label={project ? "변경 사항 저장" : "프로젝트 추가"} />
+        <SubmitButton label={project ? "Save changes" : "Add project"} />
         <Link href="/admin/projects" className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

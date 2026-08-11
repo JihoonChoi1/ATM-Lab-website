@@ -27,9 +27,9 @@ const paragraphsField = z.string().transform((v) =>
 export const lectureSchema = z.object({
   // Free text: the big display number on the public card ("01"…"04"). It is a
   // manual label — not renumbered on reorder, no uniqueness enforced.
-  num: z.string().trim().min(1, "표시 번호를 입력하세요."),
-  category: z.enum(LECTURE_CATEGORIES, "구분을 선택하세요."),
-  title: z.string().trim().min(1, "강의명을 입력하세요."),
+  num: z.string().trim().min(1, "Please enter a display number."),
+  category: z.enum(LECTURE_CATEGORIES, "Please select a type."),
+  title: z.string().trim().min(1, "Please enter a lecture name."),
   paragraphs: paragraphsField,
   published: z.boolean(),
 });

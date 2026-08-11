@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guard";
 import LectureForm from "../_components/LectureForm";
 
-export const metadata: Metadata = { title: "강의 수정 · ATM Lab" };
+export const metadata: Metadata = { title: "Edit lecture · ATM Lab" };
 
 // Reads the session cookie + a live row → never cache.
 export const dynamic = "force-dynamic";
@@ -33,7 +33,7 @@ export default async function EditLecturePage({
   return (
     <div className="mx-auto w-full max-w-[640px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-[-0.02em]">강의 수정</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.02em]">Edit lecture</h1>
         <p className="mt-1 text-sm text-ink-3">{lecture.title}</p>
       </div>
       <LectureForm lecture={lecture} />

@@ -52,18 +52,18 @@ export default function FigureTable({
       <table className={tableClass}>
         <thead>
           <tr className={theadRowClass}>
-            <th className={`w-20 ${thClass}`}>순서</th>
-            <th className={thClass}>이미지</th>
-            <th className={thClass}>캡션</th>
-            <th className={thClass}>크기</th>
-            <th className={thClass}>관리</th>
+            <th className={`w-20 ${thClass}`}>Order</th>
+            <th className={thClass}>Image</th>
+            <th className={thClass}>Caption</th>
+            <th className={thClass}>Size</th>
+            <th className={thClass}>Manage</th>
           </tr>
         </thead>
         <tbody>
           {figures.length === 0 && (
             <tr>
               <td colSpan={5} className={emptyCellClass}>
-                그림이 없습니다.
+                No figures yet.
               </td>
             </tr>
           )}
@@ -75,7 +75,7 @@ export default function FigureTable({
                     onClick={() => run(() => moveFigure(f.id, "up"))}
                     disabled={isPending || idx === 0}
                     className={iconBtnClass}
-                    aria-label="위로 이동"
+                    aria-label="Move up"
                   >
                     ↑
                   </button>
@@ -83,7 +83,7 @@ export default function FigureTable({
                     onClick={() => run(() => moveFigure(f.id, "down"))}
                     disabled={isPending || idx === figures.length - 1}
                     className={iconBtnClass}
-                    aria-label="아래로 이동"
+                    aria-label="Move down"
                   >
                     ↓
                   </button>
@@ -97,7 +97,7 @@ export default function FigureTable({
                     className="h-12 w-16 rounded-md border border-line object-cover"
                   />
                 ) : (
-                  <span className="text-xs text-ink-3">자리표시</span>
+                  <span className="text-xs text-ink-3">Placeholder</span>
                 )}
               </td>
               <td className="min-w-[280px] px-4 py-2.5 text-ink">{f.caption}</td>
@@ -109,18 +109,18 @@ export default function FigureTable({
                   href={`/admin/research/${topicId}/${subsectionId}/${f.id}`}
                   className={editLinkClass}
                 >
-                  수정
+                  Edit
                 </Link>
                 <button
                   onClick={() => {
-                    if (window.confirm("이 그림을 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.")) {
+                    if (window.confirm("Delete this figure? You can restore it from Recent activity within 90 days.")) {
                       run(() => deleteFigure(f.id));
                     }
                   }}
                   disabled={isPending}
                   className={deleteBtnClass}
                 >
-                  삭제
+                  Delete
                 </button>
               </td>
             </tr>

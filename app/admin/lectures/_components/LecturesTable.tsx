@@ -23,7 +23,7 @@ import { CATEGORY_LABELS, LECTURE_CATEGORIES, type LectureCategoryValue } from "
 // categories interleaved, exactly the public All tab. Category chips are a
 // display filter only; the arrows always swap with the true global neighbor,
 // so a move under a chip filter may not visibly reorder the filtered view
-// (intended — 4 rows, real use is the 전체 tab). No search/pagination.
+// (intended — 4 rows, real use is the Total tab). No search/pagination.
 
 export type LectureRow = {
   id: string;
@@ -56,7 +56,7 @@ export default function LecturesTable({ lectures }: { lectures: LectureRow[] }) 
           onClick={() => setCategoryFilter("ALL")}
           className={chipClass(categoryFilter === "ALL")}
         >
-          전체 {lectures.length}
+          All {lectures.length}
         </button>
         {LECTURE_CATEGORIES.map((c) => (
           <button
@@ -73,19 +73,19 @@ export default function LecturesTable({ lectures }: { lectures: LectureRow[] }) 
         <table className={tableClass}>
           <thead>
             <tr className={theadRowClass}>
-              <th className={`w-20 ${thClass}`}>순서</th>
-              <th className={thClass}>번호</th>
-              <th className={thClass}>구분</th>
-              <th className={thClass}>강의명</th>
-              <th className={thClass}>공개</th>
-              <th className={thClass}>관리</th>
+              <th className={`w-20 ${thClass}`}>Order</th>
+              <th className={thClass}>No.</th>
+              <th className={thClass}>Type</th>
+              <th className={thClass}>Lecture name</th>
+              <th className={thClass}>Published</th>
+              <th className={thClass}>Manage</th>
             </tr>
           </thead>
           <tbody>
             {visible.length === 0 && (
               <tr>
                 <td colSpan={6} className={emptyCellClass}>
-                  강의가 없습니다.
+                  No lectures yet.
                 </td>
               </tr>
             )}
@@ -100,7 +100,7 @@ export default function LecturesTable({ lectures }: { lectures: LectureRow[] }) 
                         onClick={() => run(() => moveLecture(l.id, "up"))}
                         disabled={isPending || idx === 0}
                         className={iconBtnClass}
-                        aria-label={`${l.title} 위로 이동`}
+                        aria-label={`${l.title} Move up`}
                       >
                         ↑
                       </button>
@@ -108,7 +108,7 @@ export default function LecturesTable({ lectures }: { lectures: LectureRow[] }) 
                         onClick={() => run(() => moveLecture(l.id, "down"))}
                         disabled={isPending || idx === lectures.length - 1}
                         className={iconBtnClass}
-                        aria-label={`${l.title} 아래로 이동`}
+                        aria-label={`${l.title} Move down`}
                       >
                         ↓
                       </button>
@@ -129,17 +129,17 @@ export default function LecturesTable({ lectures }: { lectures: LectureRow[] }) 
                       disabled={isPending}
                       className={publishedBtnClass(l.published)}
                     >
-                      {l.published ? "공개" : "비공개"}
+                      {l.published ? "Published" : "Unpublished"}
                     </button>
                   </td>
                   <td className="whitespace-nowrap px-4 py-2.5">
                     <Link href={`/admin/lectures/${l.id}`} className={editLinkClass}>
-                      수정
+                      Edit
                     </Link>
                     <button
                       onClick={() => {
                         if (
-                          window.confirm(`'${l.title}' 강의를 삭제할까요? 90일 내 최근 활동에서 복원할 수 있습니다.`)
+                          window.confirm(`Delete the lecture '${l.title}'? You can restore it from Recent activity within 90 days.`)
                         ) {
                           run(() => deleteLecture(l.id));
                         }
@@ -147,7 +147,7 @@ export default function LecturesTable({ lectures }: { lectures: LectureRow[] }) 
                       disabled={isPending}
                       className={deleteBtnClass}
                     >
-                      삭제
+                      Delete
                     </button>
                   </td>
                 </tr>

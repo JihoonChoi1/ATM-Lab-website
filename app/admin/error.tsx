@@ -22,11 +22,11 @@ export default function AdminError({
         Error
       </p>
       <h1 className="mt-3 text-3xl font-bold tracking-[-0.02em] text-ink">
-        문제가 발생했습니다
+        Something went wrong
       </h1>
       <p className="mt-4 text-[15px] leading-[1.7] text-ink-2">
-        요청을 처리하는 중 예기치 못한 오류가 발생했습니다. 잠시 후 다시 시도해
-        주세요.
+        Something went wrong while processing your request. Please try again in a
+        moment.
       </p>
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <button
@@ -34,18 +34,18 @@ export default function AdminError({
           onClick={() => reset()}
           className="inline-flex items-center rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
         >
-          다시 시도
+          Try again
         </button>
         <Link
           href="/admin"
           className="inline-flex items-center gap-1.5 rounded-full border border-line px-5 py-2.5 text-sm font-medium text-accent-dark transition-colors hover:border-accent hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
         >
-          대시보드로 <span aria-hidden="true">→</span>
+          Dashboard <span aria-hidden="true">→</span>
         </Link>
       </div>
       {error.digest && (
         <p className="mt-6 font-mono text-[12px] text-ink-3">
-          오류 코드: {error.digest}
+          Error code: {error.digest}
         </p>
       )}
     </div>

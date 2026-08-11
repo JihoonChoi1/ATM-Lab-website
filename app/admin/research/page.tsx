@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/guard";
 import ScrollTopOnMount from "../_components/ScrollTopOnMount";
 import TopicTable from "./_components/TopicTable";
 
-export const metadata: Metadata = { title: "Research 관리 · ATM Lab" };
+export const metadata: Metadata = { title: "Manage Research · ATM Lab" };
 
 // Reads the session cookie + live rows → never cache.
 export const dynamic = "force-dynamic";
@@ -44,8 +44,8 @@ export default async function AdminResearchPage({
         <div>
           <h1 className="text-3xl font-bold tracking-[-0.02em]">Research</h1>
           <p className="mt-1 text-sm text-ink-3">
-            토픽 {topics.length}개 — 공개 /research 페이지와 같은 순서입니다. 토픽을 열어
-            서브섹션과 그림을 관리하세요.
+            {topics.length} topics — same order as the public /research page. Open a
+            topic to manage its subsections and figures.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -53,13 +53,13 @@ export default async function AdminResearchPage({
             href="/admin/research/meta"
             className="rounded-2xl border border-line px-4 py-2.5 text-sm font-medium text-ink-2 transition hover:border-accent/30 hover:text-accent"
           >
-            페이지 메타 편집
+            Edit page meta
           </Link>
           <Link
             href="/admin/research/new"
             className="rounded-2xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark"
           >
-            새 토픽 추가
+            Add topic
           </Link>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default async function AdminResearchPage({
         <>
           <ScrollTopOnMount />
           <p className="mb-6 rounded-2xl bg-success-soft px-4 py-2.5 text-sm text-success">
-            변경 사항이 저장되었습니다.
+            Your changes have been saved.
           </p>
         </>
       )}

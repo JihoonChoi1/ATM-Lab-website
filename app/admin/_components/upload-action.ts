@@ -23,12 +23,12 @@ export async function uploadImage(formData: FormData): Promise<UploadResult> {
   // Double-block: the form hides the upload UI when this is off, but the action
   // is the real gate — a direct call must be refused too.
   if (!uploadsEnabled()) {
-    return { ok: false, error: "이 환경에서는 파일 업로드가 비활성화되어 있습니다." };
+    return { ok: false, error: "File uploads are disabled in this environment." };
   }
 
   const file = formData.get("file");
   if (!(file instanceof File)) {
-    return { ok: false, error: "파일을 선택하세요." };
+    return { ok: false, error: "Please select a file." };
   }
 
   const result = await storeUpload(file);

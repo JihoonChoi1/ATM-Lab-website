@@ -89,14 +89,14 @@ function RowControls({
   // type="button" on every control — the only submit button is SubmitButton.
   return (
     <div className="flex shrink-0 items-center gap-1">
-      <button type="button" onClick={onUp} disabled={first} className={iconBtnClass} aria-label="위로 이동">
+      <button type="button" onClick={onUp} disabled={first} className={iconBtnClass} aria-label="Move up">
         ↑
       </button>
-      <button type="button" onClick={onDown} disabled={last} className={iconBtnClass} aria-label="아래로 이동">
+      <button type="button" onClick={onDown} disabled={last} className={iconBtnClass} aria-label="Move down">
         ↓
       </button>
       <button type="button" onClick={onRemove} className={removeBtnClass}>
-        삭제
+        Delete
       </button>
     </div>
   );
@@ -159,19 +159,19 @@ function EntrySection({
             </div>
             <div className="grid gap-2 sm:grid-cols-[180px_1fr_1.4fr]">
               <Field
-                label="기간"
+                label="Period"
                 value={row.period}
                 placeholder="1994.03 ~ 1999.02"
                 onChange={(v) => setRows(rows.map((r, k) => (k === i ? { ...r, period: v } : r)))}
               />
               <Field
-                label="직함/학위"
+                label="Title / degree"
                 value={row.title}
                 placeholder="Ph.D."
                 onChange={(v) => setRows(rows.map((r, k) => (k === i ? { ...r, title: v } : r)))}
               />
               <Field
-                label="기관 (비워도 됨)"
+                label="Institution (optional)"
                 value={row.inst}
                 placeholder="POSTECH"
                 onChange={(v) => setRows(rows.map((r, k) => (k === i ? { ...r, inst: v } : r)))}
@@ -209,8 +209,8 @@ function ResearchSection({
   return (
     <section className="rounded-3xl border border-line bg-surface p-5">
       <SectionHeader
-        title="연구분야 (Research Field)"
-        hint="그룹 안에 항목을, 각 항목에 세부 태그(쉼표로 구분)를 둡니다. 그룹명·항목명·강의명은 중복할 수 없습니다."
+        title="Research Field"
+        hint="Each group holds items, and each item holds detail tags (comma-separated). Group, item, and lecture names must be unique."
       />
       <div className="flex flex-col gap-4">
         {groups.map((g, gi) => (
@@ -218,7 +218,7 @@ function ResearchSection({
             <div className="mb-3 flex items-end gap-2">
               <div className="flex-1">
                 <Field
-                  label="그룹명"
+                  label="Group name"
                   value={g.group}
                   placeholder="Major R&D Areas"
                   onChange={(v) => patchGroup(gi, { group: v })}
@@ -248,13 +248,13 @@ function ResearchSection({
                   </div>
                   <div className="flex flex-col gap-2">
                     <Field
-                      label="항목명"
+                      label="Item name"
                       value={it.label}
                       placeholder="Advanced Thermal Management"
                       onChange={(v) => patchItem(gi, ii, { label: v })}
                     />
                     <Field
-                      label="세부 태그 (쉼표로 구분, 비워도 됨)"
+                      label="Detail tags (comma-separated, optional)"
                       value={it.subs}
                       placeholder="Power Semiconductor, EV Battery"
                       onChange={(v) => patchItem(gi, ii, { subs: v })}
@@ -267,7 +267,7 @@ function ResearchSection({
                 onClick={() => patchGroup(gi, { items: [...g.items, { label: "", subs: "" }] })}
                 className={addBtnClass}
               >
-                + 항목 추가
+                + Add item
               </button>
             </div>
           </div>
@@ -277,7 +277,7 @@ function ResearchSection({
           onClick={() => setGroups([...groups, { group: "", items: [] }])}
           className={addBtnClass}
         >
-          + 그룹 추가
+          + Add group
         </button>
       </div>
       <SectionErrors errors={errors} />
@@ -298,7 +298,7 @@ function LectureSection({
 }) {
   return (
     <section className="rounded-3xl border border-line bg-surface p-5">
-      <SectionHeader title="강의 (Lecture Subject)" hint="강의 코드는 비워도 됩니다." />
+      <SectionHeader title="Lecture Subject" hint="The lecture code is optional." />
       <div className="flex flex-col gap-3">
         {rows.map((row, i) => (
           <div key={i} className="rounded-2xl border border-line bg-bg p-3">
@@ -314,13 +314,13 @@ function LectureSection({
             </div>
             <div className="grid gap-2 sm:grid-cols-[1fr_180px]">
               <Field
-                label="강의명"
+                label="Lecture name"
                 value={row.title}
                 placeholder="Heat Transfer"
                 onChange={(v) => setRows(rows.map((r, k) => (k === i ? { ...r, title: v } : r)))}
               />
               <Field
-                label="코드 (비워도 됨)"
+                label="Code (optional)"
                 value={row.code}
                 placeholder="ME301"
                 onChange={(v) => setRows(rows.map((r, k) => (k === i ? { ...r, code: v } : r)))}
@@ -329,7 +329,7 @@ function LectureSection({
           </div>
         ))}
         <button type="button" onClick={() => setRows([...rows, { title: "", code: "" }])} className={addBtnClass}>
-          + 강의 추가
+          + Add lecture
         </button>
       </div>
       <SectionErrors errors={errors} />
@@ -373,19 +373,19 @@ export default function ProfessorProfileForm({
       <input type="hidden" name="lectureSubjects" value={JSON.stringify(lectureSubjects)} />
 
       <EntrySection
-        title="학력 (Education)"
-        hint="공개 페이지의 Education 목록 순서대로 표시됩니다."
+        title="Education"
+        hint="Shown in the order of the public page's Education list."
         rows={education}
         setRows={setEducation}
-        addLabel="학력 추가"
+        addLabel="Add education"
         errors={state.errors?.education}
       />
       <EntrySection
-        title="경력 (Work Experience)"
-        hint="직함만 필수이며 기간·기관은 비워도 됩니다."
+        title="Work Experience"
+        hint="Only the title is required; period and institution are optional."
         rows={workHistory}
         setRows={setWorkHistory}
-        addLabel="경력 추가"
+        addLabel="Add work experience"
         errors={state.errors?.workHistory}
       />
       <ResearchSection
@@ -402,9 +402,9 @@ export default function ProfessorProfileForm({
       {state.message && <p className={messageClass}>{state.message}</p>}
 
       <div className="flex items-center gap-3">
-        <SubmitButton label="변경 사항 저장" />
+        <SubmitButton label="Save changes" />
         <Link href="/admin/members" className={cancelLinkClass}>
-          취소
+          Cancel
         </Link>
       </div>
     </form>

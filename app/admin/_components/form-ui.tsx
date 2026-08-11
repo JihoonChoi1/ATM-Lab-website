@@ -43,7 +43,7 @@ export function SubmitButton({ label }: { label: string }) {
       disabled={pending}
       className="rounded-2xl bg-accent px-6 py-3 text-base font-semibold text-white transition hover:bg-accent-dark disabled:opacity-60"
     >
-      {pending ? "저장 중…" : label}
+      {pending ? "Saving…" : label}
     </button>
   );
 }
