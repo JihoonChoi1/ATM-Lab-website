@@ -2,7 +2,17 @@
 
 The public website and content-management system for the **Advanced Thermal Management Laboratory** at Ajou University. It serves the lab's research, people, publications, and news to visitors, and gives the lab's students a password-protected admin UI to edit all of that content directly — no redeploy needed, since pages render per request from a Postgres database.
 
-The lab studies two-phase cooling, battery thermal management, phase-change materials, and heat pump systems. The site replaces a legacy GNUBOARD installation; a one-shot migration script (`db:migrate-gnuboard`) imports the old data.
+The lab studies two-phase cooling, battery thermal management, phase-change materials, and heat pump systems. The site replaces the lab's previous GNUBOARD-based website.
+
+## Live demo
+
+A demo runs on Vercel with seed content — **https://atm-lab-website.vercel.app/**. To try the admin CMS, sign in at `/login`:
+
+| Email | Password |
+|-------|----------|
+| `visitor@atmlab.dev` | `R3Y_z5A1qVE.rFcilj` |
+
+The demo database is separate from the production site and can be reset, so feel free to create, edit, and delete content. Image uploads are disabled in the demo (they need the school server's filesystem), and the deploy emits `noindex`.
 
 ## Tech stack
 
@@ -77,24 +87,23 @@ Requires Node.js (developed on v24) and a PostgreSQL database.
    npx prisma migrate deploy   # or `npx prisma migrate dev` while developing
    ```
 
-4. **Create the admin account:**
+4. **Load the seed content** — members, publications, research, projects, news, and gallery. `prisma/seed-data.sql` is a content-only snapshot (no accounts or analytics data), so it's safe to load into the schema you just migrated:
+   ```bash
+   psql atm_lab -f prisma/seed-data.sql
+   # or, if your role needs a password/host: psql "<your DATABASE_URL>" -f prisma/seed-data.sql
+   ```
+
+5. **Create an admin account** to sign in to the CMS:
    ```bash
    SEED_ADMIN_EMAIL=you@example.com SEED_ADMIN_PASSWORD='<strong password>' npm run db:seed-admin
    ```
-   The script enforces a password-strength policy and refuses to overwrite an existing account unless `SEED_ADMIN_FORCE=1` is set.
-
-5. **(Optional) Seed content** — research topics, professor profile, or import legacy data:
-   ```bash
-   npm run db:seed-research
-   npm run db:seed-professor
-   npm run db:migrate-gnuboard   # needs GNUBOARD_SQL_PATH set in .env.local
-   ```
+   The password must be at least 12 characters and include a lower-case letter, an upper-case letter, a digit, and a symbol. Re-run with `SEED_ADMIN_FORCE=1` to overwrite an existing account.
 
 6. **Run the dev server:**
    ```bash
    npm run dev        # Next.js + Turbopack, http://localhost:3000
    ```
-   The admin UI lives at `/admin` (redirects to `/login` when signed out).
+   The public site is at `http://localhost:3000`; the admin UI lives at `/admin` (redirects to `/login` when signed out — use the account from step 5).
 
 ### Other scripts
 
