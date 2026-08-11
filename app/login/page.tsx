@@ -2,10 +2,17 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import Section from "@/components/ui/Section";
+import { uploadsEnabled } from "@/lib/uploads";
 import LoginForm from "./login-form";
 import { safeCallbackUrl } from "./callback-url";
 
-export const metadata: Metadata = { title: "로그인 · ATM Lab" };
+// The public demo (Vercel, uploads disabled) shows its throwaway credentials on
+// the login screen so recruiters can sign straight in; the school server (uploads
+// enabled) never renders them. This account is demo-only and isolated from
+// production — see the README's "Live demo" section.
+const DEMO_CREDENTIALS = { email: "visitor@atmlab.dev", password: "R3Y_z5A1qVE.rFcilj" };
+
+export const metadata: Metadata = { title: "Sign in · ATM Lab" };
 
 export default async function LoginPage({
   searchParams,
@@ -25,11 +32,14 @@ export default async function LoginPage({
     <main>
       <Section className="flex min-h-[70vh] items-center">
         <div className="mx-auto w-full max-w-[420px]">
-          <h1 className="mb-2 text-3xl font-bold tracking-[-0.02em]">관리자 로그인</h1>
+          <h1 className="mb-2 text-3xl font-bold tracking-[-0.02em]">Admin sign in</h1>
           <p className="mb-8 text-base text-ink-3">
-            ATM Lab 콘텐츠 관리 계정으로 로그인하세요.
+            Sign in with your ATM Lab content-management account.
           </p>
-          <LoginForm callbackUrl={callbackUrl} />
+          <LoginForm
+            callbackUrl={callbackUrl}
+            demo={uploadsEnabled() ? null : DEMO_CREDENTIALS}
+          />
         </div>
       </Section>
     </main>

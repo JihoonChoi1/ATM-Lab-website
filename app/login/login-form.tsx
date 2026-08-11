@@ -1,7 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { loginAction, type LoginState } from "./actions";
+
+type DemoCredentials = { email: string; password: string };
 
 const initialState: LoginState = { step: "password", email: "" };
 
@@ -21,24 +24,63 @@ function SubmitButton({ step }: { step: LoginState["step"] }) {
       disabled={pending}
       className="mt-2 w-full rounded-2xl bg-accent px-4 py-3 text-base font-semibold text-white transition hover:bg-accent-dark disabled:opacity-60"
     >
-      {pending ? "확인 중…" : step === "totp" ? "코드 확인 후 로그인" : "로그인"}
+      {pending ? "Signing in…" : step === "totp" ? "Verify & sign in" : "Sign in"}
     </button>
   );
 }
 
-export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
+export default function LoginForm({
+  callbackUrl,
+  demo,
+}: {
+  callbackUrl: string;
+  demo: DemoCredentials | null;
+}) {
   const [state, formAction] = useFormState(loginAction, initialState);
   const showCode = state.step === "totp";
+
+  // Demo autofill writes straight to the uncontrolled inputs via refs.
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const fillDemo = () => {
+    if (!demo) return;
+    if (emailRef.current) emailRef.current.value = demo.email;
+    if (passwordRef.current) passwordRef.current.value = demo.password;
+    passwordRef.current?.focus();
+  };
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
 
+      {demo && (
+        <div className="rounded-2xl border border-accent/25 bg-accent-soft px-4 py-3.5">
+          <p className="text-sm font-semibold text-accent-dark">Demo account</p>
+          <p className="mt-0.5 text-[13px] text-ink-2">
+            Explore the admin CMS with this shared demo login.
+          </p>
+          <dl className="mt-2.5 grid grid-cols-[76px_1fr] gap-y-1 text-[13px]">
+            <dt className="text-ink-3">Email</dt>
+            <dd className="break-all font-mono text-ink">{demo.email}</dd>
+            <dt className="text-ink-3">Password</dt>
+            <dd className="break-all font-mono text-ink">{demo.password}</dd>
+          </dl>
+          <button
+            type="button"
+            onClick={fillDemo}
+            className="mt-3 rounded-xl bg-accent px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-accent-dark"
+          >
+            Fill demo credentials
+          </button>
+        </div>
+      )}
+
       <div>
         <label htmlFor="email" className={labelClass}>
-          이메일
+          Email
         </label>
         <input
+          ref={emailRef}
           id="email"
           name="email"
           type="email"
@@ -52,9 +94,10 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
 
       <div>
         <label htmlFor="password" className={labelClass}>
-          비밀번호
+          Password
         </label>
         <input
+          ref={passwordRef}
           id="password"
           name="password"
           type="password"
@@ -68,7 +111,7 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       {showCode && (
         <div>
           <label htmlFor="code" className={labelClass}>
-            인증 앱 6자리 코드
+            6-digit authenticator code
           </label>
           <input
             id="code"
